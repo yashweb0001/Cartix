@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neighborhood Kirana Store</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; padding: 15px; background: #f8f9fa; height: 100vh; overflow: hidden; }
+    
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    h2 { color: #2c3e50; font-size: 18px; }
+    .admin-link { font-size: 12px; color: #007bff; text-decoration: none; font-weight: bold; }
+
+    .product-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+      gap: 12px; 
+      max-height: 85vh;
+      overflow-y: auto; 
+    }
+
+    .product-card { 
+      border: 1px solid #e0e0e0; 
+      padding: 12px; 
+      border-radius: 8px; 
+      background: white; 
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .product-title { font-size: 14px; font-weight: bold; color: #333; margin-bottom: 4px; }
+    .product-price { font-size: 15px; font-weight: bold; color: #111; margin-bottom: 6px; }
+    .badge { background: #e8f5e9; color: #2e7d32; padding: 2px 6px; font-size: 10px; border-radius: 4px; font-weight: bold; display: inline-block; margin-bottom: 8px; width: fit-content; }
+    
+    .buy-btn { background: #28a745; color: white; border: none; padding: 6px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; font-size: 12px; }
+    .buy-btn:hover { background: #218838; }
+
+    /* Razorpay Popup Styling */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
+    .razorpay-box { background: white; border-radius: 10px; width: 300px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+    .razorpay-header { background: #0c2340; color: white; padding: 12px 15px; position: relative; }
+    .razorpay-header h3 { margin: 0; font-size: 14px; }
+    .razorpay-header p { margin: 2px 0 0 0; font-size: 11px; opacity: 0.8; }
+    .close-btn { position: absolute; top: 10px; right: 12px; color: white; cursor: pointer; font-size: 18px; }
+    .razorpay-body { padding: 15px; text-align: center; }
+    .payment-option { border: 1px solid #007bff; background: #f0f7ff; padding: 8px; border-radius: 5px; margin-bottom: 12px; font-size: 12px; display: flex; justify-content: space-between; }
+    .pay-btn { background: #28a745; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; font-size: 13px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h2>🛒 Neighborhood Kirana Store</h2>
+    <a href="/admin.html" class="admin-link">Open Retailer Dashboard ↗</a>
+  </div>
+
+  <div class="product-grid" id="products"></div>
+
+  <!-- Demo Razorpay Modal -->
+  <div id="razorpayModal" class="modal-overlay">
+    <div class="razorpay-box">
+      <div class="razorpay-header">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h3>Razorpay Secure Checkout</h3>
+        <p>Neighborhood Kirana Hub</p>
+      </div>
+      <div class="razorpay-body">
+        <p id="itemAmount" style="font-size: 16px; font-weight: bold; color: #333; margin-bottom: 10px;"></p>
+        
+        <div class="payment-option">
+          <span>📲 UPI / GPay / PhonePe</span>
+          <span style="color:#007bff; font-weight:bold;">Auto-Selected</span>
+        </div>
+
+        <button class="pay-btn" onclick="completePayment()">Pay Now (Test Mode)</button>
+        <p style="font-size: 10px; color: #888; margin-top: 8px;">🔒 256-Bit Encrypted Payment</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentItemTitle = "";
+
+    async function loadCatalog() {
+      try {
+        const res = await fetch('/api/products');
+        const data = await res.json();
+        const grid = document.getElementById('products');
+        grid.innerHTML = '';
+
+        if(data.length === 0) {
+          grid.innerHTML = '<p style="font-size: 13px;">No products added yet. Go to <a href="/admin.html">Retailer Dashboard</a>.</p>';
+          return;
+        }
+
+        data.forEach(p => {
+          grid.innerHTML += `
+            <div class="product-card">
+              <div>
+                <div class="product-title">${p.title || 'Item'}</div>
+                <div class="product-price">₹${p.price || 0}</div>
+                <span class="badge">${p.ondcStatus}</span>
+              </div>
+              <button class="buy-btn" onclick="openRazorpayMock(${p.price || 0}, '${p.title}')">Buy Now</button>
+            </div>`;
+        });
+      } catch (err) {
+        console.error("Error loading products:", err);
+      }
+    }
+
+    function openRazorpayMock(price, title) {
+      currentItemTitle = title;
+      document.getElementById('itemAmount').innerText = `Amount: ₹${price}`;
+      document.getElementById('razorpayModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('razorpayModal').style.display = 'none';
+    }
+    
+    function completePayment() {
+      closeModal();
+      const mockPayId = "pay_demo_" + Math.floor(100000 + Math.random() * 900000);
+      alert(`🎉 Payment Successful!\n\nRazorpay Payment ID: ${mockPayId}\nItem: ${currentItemTitle}\nStatus: Order Dispatched to ONDC Delivery Fleet!`);
+    }
+
+    loadCatalog();
+  </script>
+
+</body>
+</html>

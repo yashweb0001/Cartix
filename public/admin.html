@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirana Admin Dashboard</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            padding: 15px;
+            background: #f4f6f9;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            color: #2c3e50;
+            font-size: 18px;
+        }
+
+        .store-link {
+            font-size: 12px;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .dashboard-container {
+            display: flex;
+            gap: 15px;
+            height: calc(100vh - 65px);
+        }
+
+        .form-card {
+            flex: 1;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            height: fit-content;
+        }
+
+        .form-card h3 {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 3px;
+        }
+
+        input {
+            width: 100%;
+            padding: 6px;
+            font-size: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .add-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .inventory-card {
+            flex: 2;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .inventory-card h3 {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .table-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 8px;
+            border-bottom: 2px solid #eee;
+            color: #444;
+        }
+
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .status-badge {
+            padding: 2px 6px;
+            font-size: 10px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .live {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .off {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .toggle-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h2>🏪 Local Retailer Dashboard</h2>
+        <a href="/index.html" class="store-link">View Customer Store ↗</a>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="form-card">
+            <h3>Add Item to Catalog</h3>
+            <div class="form-group">
+                <label>Item Name</label>
+                <input type="text" id="title" placeholder="e.g., Amul Milk" required>
+            </div>
+            <div class="form-group">
+                <label>Price (₹)</label>
+                <input type="number" id="price" placeholder="e.g., 30" required>
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <input type="text" id="category" placeholder="e.g., Dairy" required>
+            </div>
+            <button class="add-btn" onclick="addProduct()">+ Add Product</button>
+        </div>
+
+        <div class="inventory-card">
+            <h3>Catalog & ONDC Sync Status</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Price</th>
+                            <th>Category</th>
+                            <th>ONDC Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryList"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchProducts() {
+            try {
+                const res = await fetch('/api/products');
+                const data = await res.json();
+                const tbody = document.getElementById('inventoryList');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">No items in inventory.</td></tr>';
+                    return;
+                }
+
+                data.forEach(p => {
+                    const isLive = p.ondcStatus === "Live on ONDC Network";
+                    tbody.innerHTML += `
+            <tr>
+              <td><b>${p.title || 'N/A'}</b></td>
+              <td>₹${p.price || 0}</td>
+              <td>${p.category || 'General'}</td>
+              <td><span class="status-badge ${isLive ? 'live' : 'off'}">${p.ondcStatus}</span></td>
+              <td><button class="toggle-btn" onclick="toggleONDC('${p._id}')">${isLive ? 'Disable ONDC' : 'Enable ONDC'}</button></td>
+            </tr>`;
+                });
+            } catch (err) {
+                console.error("Error fetching inventory:", err);
+            }
+        }
+
+        async function addProduct() {
+            const title = document.getElementById('title').value;
+            const price = document.getElementById('price').value;
+            const category = document.getElementById('category').value;
+
+            if (!title || !price) {
+                alert("Please enter Item Name and Price!");
+                return;
+            }
+
+            await fetch('/api/products/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, price, category })
+            });
+
+            document.getElementById('title').value = '';
+            document.getElementById('price').value = '';
+            document.getElementById('category').value = '';
+
+            fetchProducts();
+        }
+
+        async function toggleONDC(id) {
+            await fetch(`/api/products/ondc/${id}`, { method: 'PUT' });
+            fetchProducts();
+        }
+
+        fetchProducts();
+    </script>
+
+</body>
+
+</html>
