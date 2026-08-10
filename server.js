@@ -1,56 +1,161 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const Razorpay = require('razorpay');
-const Product = require('./models/Product');
+const path = require('path');
 
-// 1. App initialize pehle hona zaroori hai!
 const app = express();
-
-// 2. Middlewares
 app.use(express.json());
-app.use(express.static('public'));
 
-// 3. Database Connection
-mongoose.connect('mongodb://127.0.0.1:27017/kiranaDB')
-    .then(() => console.log('MongoDB Connected'))
-    .catch(err => console.log(err));
+// Serve Static Frontend Files from 'public' directory
+app.use(express.static(path.join(__dirname, 'public')));
 
-// 4. Razorpay Setup
-const razorpay = new Razorpay({
-    key_id: 'rzp_test_1DP5A3A552B357',
-    key_secret: '92837498237489237492'
+// MongoDB Connection (Apne URI ke hisab se adjust kar sakte hain)
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/cartix';
+mongoose.connect(MONGO_URI)
+    .then(() => console.log('✅ MongoDB Connected Successfully'))
+    .catch(err => console.error('❌ MongoDB Connection Error:', err));
+
+// 1. Product Schema & Model
+const productSchema = new mongoose.Schema({
+    title: String,
+    price: Number,
+    category: String,
+    stockStatus: { type: String, default: 'IN_STOCK' }, // IN_STOCK, LOW_STOCK, OUT_OF_STOCK
+    ondcStatus: { type: String, default: 'Offline' }     // Live on ONDC Network / Offline
 });
 
-// 5. Routes (App declare hone ke BAAD aayenge)
-// Step 1: Fix - Mock Order Endpoint (100% Guaranteed Hackathon Workaround)
-// Dummy Order Endpoint for Demo
-app.post('/api/create-order', (req, res) => {
-    const { amount } = req.body;
-    res.json({
-        id: "order_mock_" + Date.now(),
-        amount: (amount || 100) * 100,
-        currency: "INR"
-    });
-});
+const Product = mongoose.model('Product', productSchema);
 
-app.post('/api/products/add', async (req, res) => {
-    const { title, price, category } = req.body;
-    const newProduct = new Product({ title, price, category });
-    await newProduct.save();
-    res.json({ message: 'Product Added Successfully!', product: newProduct });
-});
+// In-Memory Live Orders Storage
+let ordersList = [];
 
+/* ==================== PRODUCT APIs ==================== */
+
+// Fetch All Products
 app.get('/api/products', async (req, res) => {
-    const products = await Product.find();
-    res.json(products);
+    try {
+        const products = await Product.find();
+        res.json(products);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
+// Add New Product
+app.post('/api/products/add', async (req, res) => {
+    try {
+        const { title, price, category, stockStatus } = req.body;
+        const newProduct = new Product({
+            title,
+            price,
+            category,
+            stockStatus: stockStatus || 'IN_STOCK',
+            ondcStatus: 'Live on ONDC Network'
+        });
+        await newProduct.save();
+        res.json({ message: 'Product added successfully!', product: newProduct });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Cycle Stock Status (IN_STOCK -> LOW_STOCK -> OUT_OF_STOCK)
+app.put('/api/products/stock/:id', async (req, res) => {
+    try {
+        const { stockStatus } = req.body;
+        const updatedProduct = await Product.findByIdAndUpdate(
+            req.params.id,
+            { stockStatus },
+            { new: true }
+        );
+        res.json(updatedProduct);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Toggle ONDC Status
 app.put('/api/products/ondc/:id', async (req, res) => {
-    const product = await Product.findById(req.params.id);
-    product.ondcStatus = product.ondcStatus === "Not Listed" ? "Live on ONDC Network" : "Not Listed";
-    await product.save();
-    res.json(product);
+    try {
+        const product = await Product.findById(req.params.id);
+        if (!product) return res.status(404).json({ error: 'Product not found' });
+
+        product.ondcStatus = product.ondcStatus === 'Live on ONDC Network'
+            ? 'Offline'
+            : 'Live on ONDC Network';
+
+        await product.save();
+        res.json(product);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-// 6. Server Listen
-app.listen(5000, () => console.log('Server running on http://localhost:5000'));
+// Clear All Products
+app.delete('/api/products/clear-all', async (req, res) => {
+    try {
+        await Product.deleteMany({});
+        res.json({ message: 'All listed items cleared successfully!' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/* ==================== ORDER APIs ==================== */
+
+// Place Order (Customer Side)
+app.post('/api/orders/place', (req, res) => {
+    try {
+        const { customerName, phone, address, items, totalAmount, storeName } = req.body;
+
+        const newOrder = {
+            orderId: 'ORD-' + Math.floor(1000 + Math.random() * 9000),
+            customerName,
+            phone,
+            address,
+            items,
+            totalAmount,
+            storeName: storeName || 'Gorakhpur Central Kirana',
+            status: 'PENDING',
+            createdAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+
+        ordersList.unshift(newOrder); // Add to top of list
+        res.json({ success: true, order: newOrder });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Fetch All Orders (Retailer Side)
+app.get('/api/orders', (req, res) => {
+    res.json(ordersList);
+});
+
+// Update Order Status (Retailer Side)
+app.put('/api/orders/status/:id', (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    const order = ordersList.find(o => o.orderId === id);
+    if (order) {
+        order.status = status;
+        res.json({ success: true, order });
+    } else {
+        res.status(404).json({ error: 'Order not found' });
+    }
+});
+
+/* ==================== PAGE ROUTES ==================== */
+
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// ✅ Alternative Clean Fallback
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+// Server Listener
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+});

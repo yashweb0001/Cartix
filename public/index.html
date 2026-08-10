@@ -1,135 +1,1289 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Neighborhood Kirana Store</title>
+  <title>Cartix — Neighborhood Kirana Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Leaflet CSS for Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; padding: 15px; background: #f8f9fa; height: 100vh; overflow: hidden; }
-    
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    h2 { color: #2c3e50; font-size: 18px; }
-    .admin-link { font-size: 12px; color: #007bff; text-decoration: none; font-weight: bold; }
-
-    .product-grid { 
-      display: grid; 
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
-      gap: 12px; 
-      max-height: 85vh;
-      overflow-y: auto; 
+    :root {
+      --primary: #28a745;
+      --dark: #131921;
+      --secondary-dark: #232f3e;
+      --bg: #f4f6f8;
+      --border: #e2e8f0;
+      --success-bg: #dcfce7;
+      --success-text: #15803d;
+      --warning-bg: #fef3c7;
+      --warning-text: #b45309;
+      --danger-bg: #fee2e2;
+      --danger-text: #b91c1c;
     }
 
-    .product-card { 
-      border: 1px solid #e0e0e0; 
-      padding: 12px; 
-      border-radius: 8px; 
-      background: white; 
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+    }
+
+    /* Toast Notification */
+    .toast-notification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: #15803d;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      z-index: 3000;
+      opacity: 0;
+      transition: all 0.4s ease;
+    }
+
+    .toast-notification.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* Header */
+    header {
+      background: var(--dark);
+      color: white;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand {
+      font-size: 20px;
+      font-weight: 700;
+      color: #febd69;
+      cursor: pointer;
+    }
+
+    .shop-location-badge {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .change-shop-btn {
+      background: #131921;
+      color: #ffd814;
+      border: 1px solid #ffd814;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .change-shop-btn:hover {
+      background: #ffd814;
+      color: #131921;
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .track-btn {
+      background: #38bdf8;
+      color: #0f172a;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .retailer-btn {
+      background: var(--secondary-dark);
+      color: #febd69;
+      border: 1px solid #3a4553;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .cart-btn {
+      background: #ffd814;
+      color: #0f1111;
+      border: 1px solid #fcd200;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Search Bar & Category Controls Bar */
+    .search-box-container {
+      position: relative;
+      flex: 1;
+      min-width: 280px;
+      max-width: 480px;
+    }
+
+    .catalog-search-input {
+      width: 100%;
+      padding: 10px 42px 10px 38px;
+      /* Right padding for Mic Button */
+      border: 1px solid #888c8c;
+      border-radius: 20px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .mic-inside-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+      transition: transform 0.2s ease;
+    }
+
+    .mic-inside-btn:hover {
+      transform: translateY(-50%) scale(1.2);
+    }
+
+    .mic-listening {
+      animation: pulseMic 1s infinite alternate;
+      background: #fee2e2;
+      border-radius: 50%;
+    }
+
+    @keyframes pulseMic {
+      0% {
+        transform: translateY(-50%) scale(1);
+      }
+
+      100% {
+        transform: translateY(-50%) scale(1.25);
+      }
+    }
+
+    .catalog-controls-bar {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+    }
+
+    .controls-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .search-box-container {
+      position: relative;
+      flex: 1;
+      min-width: 280px;
+      max-width: 480px;
+    }
+
+    .catalog-search-input {
+      width: 100%;
+      padding: 10px 14px 10px 38px;
+      border: 1px solid #888c8c;
+      border-radius: 20px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .catalog-search-input:focus {
+      border-color: var(--dark);
+    }
+
+    .search-icon-inside {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: #888c8c;
+    }
+
+    .filter-chips-container {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .filter-chip {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .filter-chip.active,
+    .filter-chip:hover {
+      background: var(--dark);
+      color: white;
+      border-color: var(--dark);
+    }
+
+    /* Product Grid Layout */
+    main {
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .product-card {
+      border: 1px solid #d5d9d9;
+      padding: 15px;
+      border-radius: 8px;
+      background: white;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
     }
 
-    .product-title { font-size: 14px; font-weight: bold; color: #333; margin-bottom: 4px; }
-    .product-price { font-size: 15px; font-weight: bold; color: #111; margin-bottom: 6px; }
-    .badge { background: #e8f5e9; color: #2e7d32; padding: 2px 6px; font-size: 10px; border-radius: 4px; font-weight: bold; display: inline-block; margin-bottom: 8px; width: fit-content; }
-    
-    .buy-btn { background: #28a745; color: white; border: none; padding: 6px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; font-size: 12px; }
-    .buy-btn:hover { background: #218838; }
+    .image-container {
+      width: 100%;
+      height: 140px;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #f7f8f8;
+      margin-bottom: 10px;
+    }
 
-    /* Razorpay Popup Styling */
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
-    .razorpay-box { background: white; border-radius: 10px; width: 300px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
-    .razorpay-header { background: #0c2340; color: white; padding: 12px 15px; position: relative; }
-    .razorpay-header h3 { margin: 0; font-size: 14px; }
-    .razorpay-header p { margin: 2px 0 0 0; font-size: 11px; opacity: 0.8; }
-    .close-btn { position: absolute; top: 10px; right: 12px; color: white; cursor: pointer; font-size: 18px; }
-    .razorpay-body { padding: 15px; text-align: center; }
-    .payment-option { border: 1px solid #007bff; background: #f0f7ff; padding: 8px; border-radius: 5px; margin-bottom: 12px; font-size: 12px; display: flex; justify-content: space-between; }
-    .pay-btn { background: #28a745; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; font-size: 13px; }
+    .product-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .product-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0f1111;
+      margin-bottom: 4px;
+    }
+
+    .product-category {
+      font-size: 12px;
+      color: #565959;
+      margin-bottom: 6px;
+    }
+
+    .product-price {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f1111;
+      margin-bottom: 10px;
+    }
+
+    .stock-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 12px;
+      margin-bottom: 6px;
+      width: fit-content;
+    }
+
+    .stock-in {
+      background: var(--success-bg);
+      color: var(--success-text);
+    }
+
+    .stock-low {
+      background: var(--warning-bg);
+      color: var(--warning-text);
+    }
+
+    .stock-out {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+    }
+
+    .add-cart-btn {
+      background: #ffd814;
+      color: #0f1111;
+      border: 1px solid #fcd200;
+      padding: 9px;
+      border-radius: 20px;
+      cursor: pointer;
+      width: 100%;
+      font-weight: 600;
+    }
+
+    .add-cart-btn:disabled {
+      background: #cbd5e1;
+      border-color: #d5d9d9;
+      color: #888c8c;
+      cursor: not-allowed;
+    }
+
+    /* Cart Drawer */
+    .cart-drawer {
+      position: fixed;
+      top: 0;
+      right: -360px;
+      width: 340px;
+      height: 100%;
+      background: white;
+      box-shadow: -4px 0 15px rgba(0, 0, 0, 0.15);
+      z-index: 1001;
+      transition: right 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cart-drawer.open {
+      right: 0;
+    }
+
+    .cart-header {
+      padding: 15px;
+      background: var(--dark);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cart-items-list {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .qty-btn {
+      width: 24px;
+      height: 24px;
+      border: 1px solid var(--border);
+      background: #f0f2f2;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .cart-footer {
+      padding: 15px;
+      border-top: 1px solid var(--border);
+      background: #f7f8f8;
+    }
+
+    .checkout-btn {
+      background: #ffd814;
+      color: #0f1111;
+      border: 1px solid #fcd200;
+      padding: 12px;
+      width: 100%;
+      border-radius: 20px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Modals Layout */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-card {
+      background: white;
+      border-radius: 12px;
+      width: 380px;
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+
+    .shop-modal-card {
+      background: white;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 850px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+
+    .pincode-search-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .pincode-input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #888c8c;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .search-btn {
+      background: #ffd814;
+      border: 1px solid #fcd200;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .hub-content-container {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 15px;
+    }
+
+    #map {
+      height: 280px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .shops-card-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+
+    .shop-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .shop-info h4 {
+      font-size: 14px;
+      color: #0f1111;
+      margin-bottom: 2px;
+    }
+
+    .shop-info p {
+      font-size: 11px;
+      color: #565959;
+    }
+
+    .status-badge-shop {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 9px;
+      font-weight: bold;
+    }
+
+    .status-open {
+      background: var(--success-bg);
+      color: var(--success-text);
+    }
+
+    .status-closed {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+    }
+
+    .select-shop-btn {
+      background: var(--dark);
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #565959;
+      margin-bottom: 4px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #888c8c;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    /* Order Tracking Step UI */
+    .tracking-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0.4;
+    }
+
+    .step-item.active {
+      opacity: 1;
+      color: #15803d;
+    }
+
+    .step-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .step-item.active .step-icon {
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #15803d;
+    }
+
+    @media (max-width: 768px) {
+      .hub-content-container {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
+
 <body>
 
-  <div class="header">
-    <h2>🛒 Neighborhood Kirana Store</h2>
-    <a href="/admin.html" class="admin-link">Open Retailer Dashboard ↗</a>
+  <div id="toastNotification" class="toast-notification"></div>
+
+  <!-- Header -->
+  <!-- Header -->
+  <header>
+    <div class="header-left">
+      <div class="brand" onclick="window.location.reload()">🛒 Cartix Kirana</div>
+      <div class="shop-location-badge">
+        <span>📍 Store: <b id="currentStoreTitle">Gorakhpur Central Kirana</b> (0.8 km)</span>
+        <button class="change-shop-btn" onclick="openShopSelectorModal()">View Other Shops ⚙️</button>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="track-btn" onclick="openTrackerModal()">Track Order 🚚</button>
+
+      <!-- Greeting Badge Positioned Right Next to Retailer Login -->
+      <span id="customerTimeBadge"
+        style="font-size: 12px; font-weight: 600; color: #febd69; background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15);">
+        🌙 Good Evening
+      </span>
+
+      <button class="retailer-btn" onclick="openLoginModal()">Retailer Login 🔑</button>
+      <button class="cart-btn" onclick="toggleCart()">🛍️ Basket (<span id="cartCount">0</span>)</button>
+    </div>
+  </header>
+
+  <!-- Real-Time Search & Category Filters Bar -->
+  <section class="catalog-controls-bar">
+    <div class="controls-wrapper">
+
+      <!-- Real-Time Search Box with Mic Voice Feature -->
+      <div class="search-box-container">
+        <span class="search-icon-inside">🔍</span>
+        <input type="text" id="productSearchInput" class="catalog-search-input"
+          placeholder="Search items or speak (e.g. Milk, Atta)..." oninput="applyFilterAndSearch()">
+        <button type="button" id="micBtn" class="mic-inside-btn" onclick="startVoiceSearch()" title="Speak to Search">
+          🎙️
+        </button>
+      </div>
+
+      <div class="filter-chips-container">
+        <button class="filter-chip active" onclick="filterCategory('All', this)">All Items</button>
+        <button class="filter-chip" onclick="filterCategory('Dairy', this)">🥛 Milk & Dairy</button>
+        <button class="filter-chip" onclick="filterCategory('Grocery', this)">🌾 Grocery</button>
+        <button class="filter-chip" onclick="filterCategory('Snacks', this)">🍿 Snacks</button>
+        <button class="filter-chip" onclick="filterCategory('Beverages', this)">🥤 Beverages</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Main Catalog Section -->
+  <main>
+    <!-- Single Line Clean Heading with Compact Delivery ETA Badge -->
+    <div
+      style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+      <h3 id="activeShopHeading" style="font-size: 18px; font-weight: 700; color: #0f1111; margin: 0;">
+        Catalog — Gorakhpur Central Kirana
+      </h3>
+
+      <div id="compactEtaBadge"
+        style="font-size: 12px; font-weight: 700; color: #0369a1; background: #e0f2fe; border: 1px solid #bae6fd; padding: 6px 14px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+        <span>⚡ Delivered in <b id="etaTimeVal">10–12 Mins</b> by Local Store Rider</span>
+      </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="product-grid" id="products"></div>
+  </main>
+  <!-- Cart Drawer -->
+  <div class="cart-drawer" id="cartDrawer">
+    <div class="cart-header">
+      <h3>Your Basket</h3>
+      <span style="cursor:pointer; font-size: 20px;" onclick="toggleCart()">&times;</span>
+    </div>
+    <div class="cart-items-list" id="cartItems"></div>
+    <div class="cart-footer">
+      <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-weight:bold; font-size:16px;">
+        <span>Total Amount:</span>
+        <span id="cartTotal">₹0</span>
+      </div>
+      <button class="checkout-btn" onclick="openCheckoutModal()">Proceed to Order</button>
+    </div>
   </div>
 
-  <div class="product-grid" id="products"></div>
+  <!-- Shop Selector Modal -->
+  <div id="shopSelectorModal" class="modal-overlay">
+    <div class="shop-modal-card">
+      <span class="close-btn" onclick="closeShopSelectorModal()">&times;</span>
+      <h3 style="margin-bottom: 12px;">Select Nearby Kirana Store</h3>
 
-  <!-- Demo Razorpay Modal -->
-  <div id="razorpayModal" class="modal-overlay">
-    <div class="razorpay-box">
-      <div class="razorpay-header">
-        <span class="close-btn" onclick="closeModal()">&times;</span>
-        <h3>Razorpay Secure Checkout</h3>
-        <p>Neighborhood Kirana Hub</p>
+      <div class="pincode-search-bar">
+        <input type="text" id="pincodeInput" class="pincode-input" placeholder="Enter Pincode (e.g. 273001, 273015)"
+          value="273001">
+        <button class="search-btn" onclick="searchByPincode()">Search Pincode 📍</button>
       </div>
-      <div class="razorpay-body">
-        <p id="itemAmount" style="font-size: 16px; font-weight: bold; color: #333; margin-bottom: 10px;"></p>
-        
-        <div class="payment-option">
-          <span>📲 UPI / GPay / PhonePe</span>
-          <span style="color:#007bff; font-weight:bold;">Auto-Selected</span>
-        </div>
 
-        <button class="pay-btn" onclick="completePayment()">Pay Now (Test Mode)</button>
-        <p style="font-size: 10px; color: #888; margin-top: 8px;">🔒 256-Bit Encrypted Payment</p>
+      <div class="hub-content-container">
+        <div id="map"></div>
+        <div class="shops-card-wrapper" id="shopsList"></div>
       </div>
     </div>
   </div>
 
+  <!-- Customer Checkout Modal -->
+  <div id="checkoutModal" class="modal-overlay">
+    <div class="modal-card">
+      <span class="close-btn" onclick="closeCheckoutModal()">&times;</span>
+      <h3 style="margin-bottom: 4px;">Delivery Details</h3>
+      <p id="checkoutTotalText" style="font-size: 13px; color: #15803d; font-weight: 700; margin-bottom: 14px;"></p>
+
+      <form id="customerOrderForm" onsubmit="handleCustomerOrder(event)">
+        <div class="form-group">
+          <label>Your Name</label>
+          <input type="text" id="custName" placeholder="e.g. Rahul Sharma" required>
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" id="custPhone" placeholder="10-digit Mobile Number" required>
+        </div>
+        <div class="form-group">
+          <label>Delivery Address</label>
+          <input type="text" id="custAddress" placeholder="House/Flat No., Landmark" required>
+        </div>
+        <button type="submit" class="checkout-btn">Place Order (UPI / COD)</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Retailer Login Modal -->
+  <div id="loginModal" class="modal-overlay">
+    <div class="modal-card">
+      <span class="close-btn" onclick="closeLoginModal()">&times;</span>
+      <h3 style="margin-bottom: 6px;">Retailer Verification</h3>
+      <p style="font-size: 12px; color: #565959; margin-bottom: 16px;">Enter passcode to access inventory management.
+      </p>
+
+      <form id="retailerLoginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Passcode</label>
+          <input type="password" id="loginKey" placeholder="Enter 'admin123'" required>
+        </div>
+        <button type="submit" class="checkout-btn">Verify & Open Dashboard</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Live Order Tracker Modal -->
+  <div id="trackerModal" class="modal-overlay">
+    <div class="modal-card">
+      <span class="close-btn" onclick="closeTrackerModal()">&times;</span>
+      <h3 style="margin-bottom: 10px;">🚚 Live Order Tracking</h3>
+
+      <div class="form-group">
+        <input type="text" id="trackOrderIdInput" placeholder="Enter Order ID (e.g. ORD-1024)">
+        <button class="checkout-btn" style="margin-top:8px;" onclick="trackOrder()">Track Status</button>
+      </div>
+
+      <div id="trackingResult" style="display:none; border-top:1px dashed #cbd5e1; padding-top:12px; margin-top:12px;">
+        <p style="font-size:12px; color:#565959;">Order ID: <b id="displayOrderId"></b></p>
+        <p style="font-size:12px; color:#565959; margin-bottom:10px;">Store: <b id="displayStoreName"></b></p>
+
+        <div class="tracking-steps">
+          <div class="step-item" id="step-PENDING">
+            <div class="step-icon">1</div> ⏳ Order Received
+          </div>
+          <div class="step-item" id="step-PACKING">
+            <div class="step-icon">2</div> 📦 Packing Items
+          </div>
+          <div class="step-item" id="step-DISPATCHED">
+            <div class="step-icon">3</div> 🚚 Out for Delivery
+          </div>
+          <div class="step-item" id="step-DELIVERED">
+            <div class="step-icon">4</div> ✅ Delivered
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet JS for Map -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    let currentItemTitle = "";
+    let masterCatalog = [];
+    let cart = [];
+    let map, markersGroup;
+    let selectedCategory = 'All';
+    let isMapInitialized = false;
+    let lastPlacedOrderId = "";
+
+    const mockShopsDatabase = [
+      { id: 'shop_1', name: 'Gorakhpur Central Kirana', phone: '+91 9876543210', pincode: '273001', status: 'OPEN', distance: '0.8 km', lat: 26.7606, lng: 83.3732 },
+      { id: 'shop_2', name: 'Gupta General Store', phone: '+91 9123456789', pincode: '273001', status: 'OPEN', distance: '1.5 km', lat: 26.7650, lng: 83.3780 },
+      { id: 'shop_3', name: 'Verma Super Mart', phone: '+91 9988776655', pincode: '273015', status: 'CLOSED', distance: '3.2 km', lat: 26.7520, lng: 83.3610 }
+    ];
+
+    function getGreeting() {
+      const hour = new Date().getHours();
+      if (hour >= 5 && hour < 12) return "🌅 Good Morning";
+      if (hour >= 12 && hour < 17) return "☀️ Good Afternoon";
+      return "🌙 Good Evening";
+    }
+
+    function updateCustomerHeading(shopName) {
+      const headingElem = document.getElementById('activeShopHeading');
+      if (headingElem) {
+        headingElem.innerText = `${getGreeting()}! Catalog — ${shopName}`;
+      }
+    }
+
+    function showToast(message, isWarning = false) {
+      const toast = document.getElementById('toastNotification');
+      toast.innerText = message;
+      toast.style.background = isWarning ? '#b45309' : '#15803d';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    /* Shop Selector Map Handlers */
+    function openShopSelectorModal() {
+      document.getElementById('shopSelectorModal').style.display = 'flex';
+      setTimeout(() => {
+        if (!isMapInitialized) {
+          initMap();
+          isMapInitialized = true;
+        } else {
+          map.invalidateSize();
+        }
+      }, 200);
+    }
+
+    function closeShopSelectorModal() { document.getElementById('shopSelectorModal').style.display = 'none'; }
+
+    function initMap() {
+      map = L.map('map').setView([26.7606, 83.3732], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
+      markersGroup = L.layerGroup().addTo(map);
+      searchByPincode();
+    }
+
+    function searchByPincode() {
+      const pin = document.getElementById('pincodeInput').value.trim();
+      const matchedShops = mockShopsDatabase.filter(s => s.pincode === pin || pin === '');
+      renderShopCards(matchedShops.length ? matchedShops : mockShopsDatabase);
+    }
+
+    function renderShopCards(shops) {
+      const container = document.getElementById('shopsList');
+      container.innerHTML = '';
+      markersGroup.clearLayers();
+
+      shops.forEach((shop, index) => {
+        const isOpen = shop.status === 'OPEN';
+        container.innerHTML += `
+          <div class="shop-card">
+            <div class="shop-info">
+              <h4>${shop.name}</h4>
+              <p>📍 ${shop.distance} • 📞 ${shop.phone}</p>
+              <span class="status-badge-shop ${isOpen ? 'status-open' : 'status-closed'}">
+                ${isOpen ? '🟢 OPEN' : '🔴 CLOSED'}
+              </span>
+            </div>
+            <button class="select-shop-btn" onclick="selectShopCatalog('${shop.name}', '${shop.distance}')">Select Store</button>
+          </div>`;
+
+        const marker = L.marker([shop.lat, shop.lng]).addTo(markersGroup);
+        marker.bindPopup(`<b>${shop.name}</b><br>${shop.phone}`);
+        if (index === 0) map.panTo([shop.lat, shop.lng]);
+      });
+    }
+
+    function selectShopCatalog(shopName, distance) {
+      document.getElementById('currentStoreTitle').innerText = shopName;
+      updateCustomerHeading(shopName);
+      closeShopSelectorModal();
+      showToast(`Selected Store: ${shopName}`);
+      loadCatalog();
+    }
+
+    function openLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
+    function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
+
+    function handleLogin(event) {
+      event.preventDefault();
+      const key = document.getElementById('loginKey').value;
+      if (key === 'admin123' || key.length >= 4) {
+        localStorage.setItem('isRetailerLogged', 'true');
+        closeLoginModal();
+        window.location.href = '/admin';
+      } else {
+        alert("Invalid Passcode! Try 'admin123'");
+      }
+    }
+
+    function getProductImage(item) {
+      if (item.imageUrl) return item.imageUrl;
+      const title = (item.title || '').toLowerCase();
+      if (title.includes('milk') || title.includes('paneer') || title.includes('dahi')) {
+        return 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&auto=format&fit=crop&q=80';
+      }
+      if (title.includes('chip') || title.includes('snack')) {
+        return 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400&auto=format&fit=crop&q=80';
+      }
+      return 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&auto=format&fit=crop&q=80';
+    }
+
+    function getStockBadgeHTML(status) {
+      if (status === "LOW_STOCK") return `<span class="stock-badge stock-low">⚠️ Low Stock</span>`;
+      if (status === "OUT_OF_STOCK") return `<span class="stock-badge stock-out">❌ Out of Stock</span>`;
+      return `<span class="stock-badge stock-in">✅ In Stock</span>`;
+    }
 
     async function loadCatalog() {
       try {
-        const res = await fetch('/api/products');
-        const data = await res.json();
-        const grid = document.getElementById('products');
-        grid.innerHTML = '';
+        const store = document.getElementById('currentStoreTitle').innerText;
+        updateCustomerHeading(store);
 
-        if(data.length === 0) {
-          grid.innerHTML = '<p style="font-size: 13px;">No products added yet. Go to <a href="/admin.html">Retailer Dashboard</a>.</p>';
-          return;
+        const res = await fetch('/api/products');
+        let data = await res.json();
+
+        if (!data || data.length === 0) {
+          data = [
+            { _id: 'sample_1', title: 'Amul Taaza Milk (1L)', price: 68, category: 'Dairy & Bakery', stockStatus: 'IN_STOCK' },
+            { _id: 'sample_2', title: 'Britannia White Bread (400g)', price: 40, category: 'Dairy & Bakery', stockStatus: 'LOW_STOCK' },
+            { _id: 'sample_3', title: 'Lays Classic Salted Chips', price: 20, category: 'Snacks & Packaged Food', stockStatus: 'IN_STOCK' },
+            { _id: 'sample_4', title: 'Aashirvaad Shuddh Atta (5kg)', price: 245, category: 'Grocery & Staples', stockStatus: 'IN_STOCK' },
+            { _id: 'sample_5', title: 'Coca-Cola Drink (750ml)', price: 45, category: 'Beverages', stockStatus: 'OUT_OF_STOCK' }
+          ];
         }
 
-        data.forEach(p => {
-          grid.innerHTML += `
-            <div class="product-card">
-              <div>
-                <div class="product-title">${p.title || 'Item'}</div>
-                <div class="product-price">₹${p.price || 0}</div>
-                <span class="badge">${p.ondcStatus}</span>
-              </div>
-              <button class="buy-btn" onclick="openRazorpayMock(${p.price || 0}, '${p.title}')">Buy Now</button>
-            </div>`;
-        });
+        masterCatalog = data;
+        applyFilterAndSearch();
       } catch (err) {
         console.error("Error loading products:", err);
       }
     }
 
-    function openRazorpayMock(price, title) {
-      currentItemTitle = title;
-      document.getElementById('itemAmount').innerText = `Amount: ₹${price}`;
-      document.getElementById('razorpayModal').style.display = 'flex';
+    function filterCategory(cat, btnElement) {
+      selectedCategory = cat;
+      document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+      if (btnElement) btnElement.classList.add('active');
+      applyFilterAndSearch();
     }
 
-    function closeModal() {
-      document.getElementById('razorpayModal').style.display = 'none';
-    }
-    
-    function completePayment() {
-      closeModal();
-      const mockPayId = "pay_demo_" + Math.floor(100000 + Math.random() * 900000);
-      alert(`🎉 Payment Successful!\n\nRazorpay Payment ID: ${mockPayId}\nItem: ${currentItemTitle}\nStatus: Order Dispatched to ONDC Delivery Fleet!`);
+    function applyFilterAndSearch() {
+      const searchQuery = document.getElementById('productSearchInput').value.toLowerCase().trim();
+
+      const filtered = masterCatalog.filter(item => {
+        const matchesCategory = selectedCategory === 'All' ||
+          (item.category && item.category.toLowerCase().includes(selectedCategory.toLowerCase()));
+
+        const matchesSearch = !searchQuery ||
+          (item.title && item.title.toLowerCase().includes(searchQuery)) ||
+          (item.category && item.category.toLowerCase().includes(searchQuery));
+
+        return matchesCategory && matchesSearch;
+      });
+
+      renderProducts(filtered);
     }
 
-    loadCatalog();
+    function renderProducts(items) {
+      const grid = document.getElementById('products');
+      grid.innerHTML = '';
+      if (!items || !items.length) {
+        grid.innerHTML = '<p style="font-size: 14px; color:#565959; grid-column: 1/-1;">No products found matching your search.</p>';
+        return;
+      }
+
+      items.forEach(p => {
+        const stockStatus = p.stockStatus || "IN_STOCK";
+        const isOutOfStock = stockStatus === "OUT_OF_STOCK";
+
+        grid.innerHTML += `
+          <div class="product-card">
+            <div>
+              <div class="image-container">
+                <img src="${getProductImage(p)}" class="product-img" alt="${p.title}">
+              </div>
+              <div class="product-title">${p.title}</div>
+              <div class="product-category">${p.category || 'General'}</div>
+              ${getStockBadgeHTML(stockStatus)}
+              <div class="product-price">₹${p.price || 0}</div>
+            </div>
+            <button class="add-cart-btn" ${isOutOfStock ? 'disabled' : ''} onclick="addToCart('${p._id}', '${p.title}', ${p.price || 0})">
+              ${isOutOfStock ? 'Out of Stock' : '+ Add to Cart'}
+            </button>
+          </div>`;
+      });
+    }
+
+    function addToCart(id, title, price) {
+      const existing = cart.find(i => i.id === id);
+      if (existing) existing.qty += 1;
+      else cart.push({ id, title, price, qty: 1 });
+      updateCartUI();
+      showToast("Added to Cart!");
+    }
+
+    function updateCartUI() {
+      const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+      const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      document.getElementById('cartCount').innerText = totalCount;
+      document.getElementById('cartTotal').innerText = `₹${totalPrice}`;
+
+      const list = document.getElementById('cartItems');
+      list.innerHTML = cart.length ? cart.map(item => `
+        <div class="cart-item">
+          <div>
+            <div style="font-weight:600;">${item.title}</div>
+            <div style="font-size:12px; color:#565959;">₹${item.price} x ${item.qty}</div>
+          </div>
+          <div>
+            <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
+            <span style="padding: 0 6px;">${item.qty}</span>
+            <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
+          </div>
+        </div>`).join('') : '<p style="text-align:center; padding-top:20px; color:#565959;">Basket is empty.</p>';
+    }
+
+    function changeQty(id, delta) {
+      const item = cart.find(i => i.id === id);
+      if (item) {
+        item.qty += delta;
+        if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+      }
+      updateCartUI();
+    }
+
+    function toggleCart() { document.getElementById('cartDrawer').classList.toggle('open'); }
+
+    function openCheckoutModal() {
+      if (!cart.length) return showToast("Cart is empty!", true);
+      const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      document.getElementById('checkoutTotalText').innerText = `Payable Total: ₹${total}`;
+      document.getElementById('checkoutModal').style.display = 'flex';
+    }
+    function closeCheckoutModal() { document.getElementById('checkoutModal').style.display = 'none'; }
+
+    function openTrackerModal() {
+      document.getElementById('trackerModal').style.display = 'flex';
+      if (lastPlacedOrderId) {
+        document.getElementById('trackOrderIdInput').value = lastPlacedOrderId;
+        trackOrder();
+      }
+    }
+    function closeTrackerModal() { document.getElementById('trackerModal').style.display = 'none'; }
+    // Current time se exact delivery clock time (e.g., "1:29 AM") calculate karne ke liye
+    function getEstimatedDeliveryClockTime(minutesToAdd = 15) {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() + minutesToAdd);
+      return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+    }
+
+    async function handleCustomerOrder(e) {
+      e.preventDefault();
+      const custName = document.getElementById('custName').value;
+      const custPhone = document.getElementById('custPhone').value;
+      const custAddress = document.getElementById('custAddress').value;
+      const storeName = document.getElementById('currentStoreTitle').innerText;
+
+      if (!cart.length) return showToast("Cart is empty!", true);
+
+      const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+      try {
+        const res = await fetch('/api/orders/place', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customerName: custName, phone: custPhone, address: custAddress,
+            items: cart, totalAmount: totalPrice, storeName: storeName
+          })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          lastPlacedOrderId = data.order.orderId;
+          closeCheckoutModal();
+          cart = [];
+          updateCartUI();
+          toggleCart();
+
+          // Notification toast
+          showToast(`🎉 Order Placed Successfully!`);
+
+          // Open tracking modal with UI notice
+          openTrackerModal();
+        }
+      } catch (err) {
+        console.error("Error submitting order:", err);
+        showToast("Order placement failed!", true);
+      }
+    }
+
+    async function trackOrder() {
+      const orderId = document.getElementById('trackOrderIdInput').value.trim();
+      const trackInput = document.getElementById('trackOrderIdInput');
+
+      if (!orderId) {
+        trackInput.style.borderColor = '#ef4444';
+        return;
+      }
+      trackInput.style.borderColor = '#888c8c';
+
+      try {
+        const res = await fetch('/api/orders');
+        const orders = await res.json();
+        const order = orders.find(o => o.orderId.toLowerCase() === orderId.toLowerCase());
+
+        const resultBox = document.getElementById('trackingResult');
+
+        if (!order) {
+          resultBox.style.display = 'block';
+          resultBox.innerHTML = `
+            <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; text-align: center;">
+              ⚠️ Order ID "${orderId}" not found. Please check and try again!
+            </div>`;
+          return;
+        }
+
+        const deliveryClockTime = getEstimatedDeliveryClockTime(15);
+
+        resultBox.style.display = 'block';
+        resultBox.innerHTML = `
+          <!-- Attentive Delivery ETA Card -->
+          <div style="background: #f0fdf4; border: 1.5px solid #22c55e; color: #15803d; padding: 12px; border-radius: 10px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(34, 197, 94, 0.15);">
+            <div style="font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+              🛵 Guaranteed Delivery by ${deliveryClockTime}
+            </div>
+            <div style="font-size: 12px; color: #166534; margin-top: 4px; font-weight: 500;">
+              Will be delivered in ~15 Mins by <b>${order.storeName}</b> local store rider.
+            </div>
+          </div>
+
+          <div style="font-size: 12px; color: #565959; margin-bottom: 4px;">Order ID: <b>${order.orderId}</b></div>
+          <div style="font-size: 12px; color: #565959; margin-bottom: 12px;">Customer: <b>${order.customerName}</b> (${order.phone})</div>
+
+          <div class="tracking-steps">
+            <div class="step-item" id="step-PENDING"><div class="step-icon">1</div> ⏳ Order Received</div>
+            <div class="step-item" id="step-PACKING"><div class="step-icon">2</div> 📦 Packing Items</div>
+            <div class="step-item" id="step-DISPATCHED"><div class="step-icon">3</div> 🚚 Out for Delivery</div>
+            <div class="step-item" id="step-DELIVERED"><div class="step-icon">4</div> ✅ Delivered</div>
+          </div>
+        `;
+
+        // Update tracking steps highlight
+        document.querySelectorAll('.step-item').forEach(s => s.classList.remove('active'));
+        const statuses = ['PENDING', 'PACKING', 'DISPATCHED', 'DELIVERED'];
+        const activeIndex = statuses.indexOf(order.status);
+
+        for (let i = 0; i <= activeIndex; i++) {
+          const stepElem = document.getElementById(`step-${statuses[i]}`);
+          if (stepElem) stepElem.classList.add('active');
+        }
+      } catch (err) {
+        console.error("Error tracking order:", err);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadCatalog);
+    /* Web Speech API Voice Search Engine */
+    function startVoiceSearch() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+      if (!SpeechRecognition) {
+        showToast("⚠️ Voice search is not supported in this browser.", true);
+        return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-IN'; // Hindi/English accents friendly
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      const micBtn = document.getElementById('micBtn');
+      const searchInput = document.getElementById('productSearchInput');
+
+      recognition.onstart = function () {
+        micBtn.classList.add('mic-listening');
+        showToast("🎙️ Listening... Speak item name (e.g., Milk, Atta, Chips)");
+      };
+
+      recognition.onspeechend = function () {
+        micBtn.classList.remove('mic-listening');
+        recognition.stop();
+      };
+
+      recognition.onresult = function (event) {
+        const transcript = event.results[0][0].transcript;
+        // Clean speech text (e.g. remove trailing dot)
+        const cleanedText = transcript.replace(/\.$/, '');
+
+        searchInput.value = cleanedText;
+        applyFilterAndSearch();
+        showToast(`🔍 Searching for: "${cleanedText}"`);
+      };
+
+      recognition.onerror = function (event) {
+        micBtn.classList.remove('mic-listening');
+        showToast("⚠️ Could not recognize voice. Try again!", true);
+      };
+
+      recognition.start();
+    }
+    // Dynamic ETA Calculation Logic
+    function calculateStoreETA(distanceStr) {
+      // Distance parse (e.g. "0.8 km" -> 0.8)
+      const distanceNum = parseFloat(distanceStr) || 1.0;
+
+      let minTime = Math.round(8 + (distanceNum * 4));
+      let maxTime = minTime + 5;
+
+      return `${minTime}–${maxTime} Mins`;
+    }
+
+    function updateETABadge(storeName, distanceStr) {
+      const etaTime = calculateStoreETA(distanceStr);
+      const etaDisplay = document.getElementById('etaTextDisplay');
+
+      if (etaDisplay) {
+        etaDisplay.innerHTML = `Estimated Delivery: <b style="color:#0284c7;">${etaTime}</b> (${distanceStr} away) from <b>${storeName}</b>`;
+      }
+    }
+
+    // Shop Selection Function Update
+    function selectShopCatalog(shopName, distance) {
+      document.getElementById('currentStoreTitle').innerText = shopName;
+
+      // Update Heading & ETA Badge
+      updateCustomerHeading(shopName);
+      updateETABadge(shopName, distance);
+
+      closeShopSelectorModal();
+      showToast(`Switched Store to ${shopName} (ETA: ${calculateStoreETA(distance)})`);
+      loadCatalog();
+    }
   </script>
-
 </body>
+
 </html>

@@ -4,8 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kirana Admin Dashboard</title>
+    <title>Retailer Admin Panel — Cartix</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-main: #f8fafc;
+            --surface: #ffffff;
+            --primary: #4f46e5;
+            --success-bg: #dcfce7;
+            --success-text: #15803d;
+            --warning-bg: #fef3c7;
+            --warning-text: #b45309;
+            --danger-bg: #fee2e2;
+            --danger-text: #b91c1c;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --radius: 12px;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -13,154 +30,293 @@
         }
 
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            padding: 15px;
-            background: #f4f6f9;
-            height: 100vh;
-            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-main);
+            color: var(--text-dark);
+            padding: 24px;
+            min-height: 100vh;
         }
 
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 24px;
         }
 
-        h2 {
-            color: #2c3e50;
-            font-size: 18px;
+        .header h2 {
+            font-size: 22px;
+            font-weight: 700;
         }
 
-        .store-link {
-            font-size: 12px;
-            color: #007bff;
-            text-decoration: none;
-            font-weight: bold;
+        .btn-logout {
+            font-size: 13px;
+            color: var(--danger-text);
+            background: var(--danger-bg);
+            border: none;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
         }
 
         .dashboard-container {
-            display: flex;
-            gap: 15px;
-            height: calc(100vh - 65px);
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 24px;
+            align-items: start;
         }
 
-        .form-card {
-            flex: 1;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #e0e0e0;
-            height: fit-content;
+        .card {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
         }
 
-        .form-card h3 {
-            font-size: 14px;
-            color: #333;
-            margin-bottom: 10px;
+        .card h3 {
+            font-size: 15px;
+            font-weight: 600;
         }
 
         .form-group {
-            margin-bottom: 10px;
+            margin-bottom: 14px;
+            position: relative;
         }
 
         label {
             display: block;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
-            color: #555;
-            margin-bottom: 3px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
         }
 
-        input {
+        input,
+        select {
             width: 100%;
-            padding: 6px;
-            font-size: 12px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            padding: 10px 12px;
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: #f8fafc;
         }
 
         .add-btn {
-            background: #28a745;
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 8px;
-            border-radius: 4px;
+            padding: 10px 16px;
+            border-radius: 8px;
             cursor: pointer;
             width: 100%;
-            font-weight: bold;
-            font-size: 12px;
-            margin-top: 5px;
+            font-weight: 600;
+            margin-top: 8px;
         }
 
-        .inventory-card {
-            flex: 2;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #e0e0e0;
+        .preset-suggestions-container {
             display: flex;
             flex-direction: column;
+            gap: 6px;
+            margin-top: 8px;
+            max-height: 200px;
+            overflow-y: auto;
         }
 
-        .inventory-card h3 {
-            font-size: 14px;
-            color: #333;
-            margin-bottom: 10px;
+        .preset-card {
+            background: #f1f5f9;
+            border: 1px dashed #cbd5e1;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preset-card.keyboard-active,
+        .preset-card:hover {
+            background: #e0e7ff;
+            border-color: var(--primary);
+        }
+
+        .preset-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .preset-price {
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--primary);
+            background: #ffffff;
+            padding: 2px 6px;
+            border-radius: 4px;
         }
 
         .table-wrapper {
-            flex: 1;
-            overflow-y: auto;
-            border: 1px solid #eee;
-            border-radius: 4px;
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12px;
+            font-size: 13px;
             text-align: left;
         }
 
         th {
-            background: #f8f9fa;
-            padding: 8px;
-            border-bottom: 2px solid #eee;
-            color: #444;
+            background: #f1f5f9;
+            padding: 12px 16px;
+            color: var(--text-muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border-color);
         }
 
         td {
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-            vertical-align: middle;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .status-badge {
-            padding: 2px 6px;
-            font-size: 10px;
-            border-radius: 3px;
-            font-weight: bold;
+            display: inline-flex;
+            padding: 4px 10px;
+            font-size: 11px;
+            border-radius: 20px;
+            font-weight: 600;
         }
 
-        .live {
-            background: #e8f5e9;
-            color: #2e7d32;
+        .live,
+        .in-stock {
+            background: var(--success-bg);
+            color: var(--success-text);
         }
 
-        .off {
-            background: #ffebee;
-            color: #c62828;
+        .low-stock {
+            background: var(--warning-bg);
+            color: var(--warning-text);
+        }
+
+        .off,
+        .out-of-stock {
+            background: var(--danger-bg);
+            color: var(--danger-text);
+        }
+
+        /* Order Card Status Update Pulse Animation */
+        .order-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .order-card.status-updated {
+            animation: pulseHighlight 0.8s ease-in-out;
+        }
+
+        @keyframes pulseHighlight {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+                border-left-color: #22c55e;
+            }
+
+            50% {
+                transform: scale(1.02);
+                box-shadow: 0 0 15px 2px rgba(34, 197, 94, 0.3);
+                border-left-color: #22c55e;
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+            }
+        }
+
+        /* Status Select Dropdown Animation & Styling */
+        .status-select {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 6px;
+            background: white;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .status-select:focus,
+        .status-select:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
         }
 
         .toggle-btn {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 3px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 6px 10px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 11px;
+        }
+
+        /* Live Orders UI Box */
+        .orders-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
+        .order-card {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--primary);
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .order-cust-info {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .order-items-list {
+            font-size: 12px;
+            background: #ffffff;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 8px;
+        }
+
+        .status-select {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: white;
+            width: auto;
+        }
+
+        @media (max-width: 860px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -168,96 +324,326 @@
 <body>
 
     <div class="header">
-        <h2>🏪 Local Retailer Dashboard</h2>
-        <a href="/index.html" class="store-link">View Customer Store ↗</a>
+        <div>
+            <h2>🏪 <span id="shopTitleHeader">Gorakhpur Central Kirana</span> — Retailer Dashboard</h2>
+            <p style="font-size: 12px; color: #64748b; margin-top: 2px;">Manage catalog stock & incoming ONDC customer
+                orders</p>
+        </div>
+
+        <!-- Right Actions Group -->
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <span id="timeGreetingBadge"
+                style="font-size: 13px; font-weight: 600; color: #4f46e5; background: #e0e7ff; padding: 6px 12px; border-radius: 20px;">
+                🌙 Good Evening
+            </span>
+            <button class="btn-logout" onclick="logoutRetailer()">Logout 🔒</button>
+        </div>
     </div>
 
     <div class="dashboard-container">
-        <div class="form-card">
+        <!-- Add Item -->
+        <div class="card">
             <h3>Add Item to Catalog</h3>
-            <div class="form-group">
-                <label>Item Name</label>
-                <input type="text" id="title" placeholder="e.g., Amul Milk" required>
+            <div class="form-group" style="margin-top: 14px;">
+                <label>Item Name (Type 'Amul' / 'Maggi')</label>
+                <input type="text" id="title" placeholder="e.g. Amul Milk"
+                    oninput="handleSmartPresetSuggestions(this.value)" onkeydown="handlePresetKeyNavigation(event)"
+                    autocomplete="off" required>
+                <div id="presetBox" class="preset-suggestions-container"></div>
             </div>
+
             <div class="form-group">
                 <label>Price (₹)</label>
-                <input type="number" id="price" placeholder="e.g., 30" required>
+                <input type="number" id="price" placeholder="e.g. 30" required>
             </div>
+
             <div class="form-group">
                 <label>Category</label>
-                <input type="text" id="category" placeholder="e.g., Dairy" required>
+                <select id="category">
+                    <option value="Dairy & Bakery">🥛 Dairy & Bakery</option>
+                    <option value="Grocery & Staples">🌾 Grocery & Staples</option>
+                    <option value="Snacks & Packaged Food">🍿 Snacks & Packaged Food</option>
+                    <option value="Beverages">🥤 Beverages</option>
+                </select>
             </div>
+
+            <div class="form-group">
+                <label>Initial Stock Status</label>
+                <select id="stockStatus">
+                    <option value="IN_STOCK">✅ In Stock</option>
+                    <option value="LOW_STOCK">⚠️ Low Stock</option>
+                    <option value="OUT_OF_STOCK">❌ Out of Stock</option>
+                </select>
+            </div>
+
             <button class="add-btn" onclick="addProduct()">+ Add Product</button>
         </div>
 
-        <div class="inventory-card">
-            <h3>Catalog & ONDC Sync Status</h3>
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Item</th>
-                            <th>Price</th>
-                            <th>Category</th>
-                            <th>ONDC Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="inventoryList"></tbody>
-                </table>
+        <!-- Right Column: Orders & Inventory Table -->
+        <div>
+            <!-- Live Orders Section -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3>🛍️ Live Customer Orders (<span id="ordersCount">0</span>)</h3>
+                    <button class="toggle-btn" onclick="fetchOrders()">🔄 Refresh Orders</button>
+                </div>
+                <div id="ordersContainer" class="orders-grid"></div>
+            </div>
+
+            <!-- Inventory List -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3>Catalog & Stock Status</h3>
+                    <button class="toggle-btn" style="color: var(--danger-text);" onclick="clearAllProducts()">Clear
+                        Listing 🗑️</button>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Price</th>
+                                <th>Category</th>
+                                <th>Stock Status</th>
+                                <th>ONDC Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryList"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        const smartPresets = [
+            { title: 'Amul Taaza T-Pouch (500ml)', price: 27, category: 'Dairy & Bakery' },
+            { title: 'Aashirvaad Shuddh Chakki Atta (5kg)', price: 245, category: 'Grocery & Staples' },
+            { title: 'Maggi 2-Minute Masala Noodles (70g)', price: 14, category: 'Snacks & Packaged Food' },
+            { title: 'Lays Magic Masala Chips (50g)', price: 20, category: 'Snacks & Packaged Food' }
+        ];
+
+        let activePresetIndex = -1;
+
+        function setAdminGreeting() {
+            const hour = new Date().getHours();
+            let timeText = "🌅 Good Morning";
+            if (hour >= 12 && hour < 17) timeText = "☀️ Good Afternoon";
+            else if (hour >= 17 || hour < 5) timeText = "🌙 Good Evening";
+
+            // Store Name from LocalStorage
+            const storeName = localStorage.getItem('selectedStoreName') || "Gorakhpur Central Kirana";
+            document.getElementById('shopTitleHeader').innerText = storeName;
+
+            // Time Greeting Badge (Right side before Logout)
+            document.getElementById('timeGreetingBadge').innerText = timeText;
+        }
+
+        async function fetchOrders() {
+            try {
+                const res = await fetch('/api/orders');
+                const orders = await res.json();
+                document.getElementById('ordersCount').innerText = orders.length;
+
+                const container = document.getElementById('ordersContainer');
+                if (!orders || !orders.length) {
+                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted); text-align: center; padding: 10px;">No incoming orders yet.</p>';
+                    return;
+                }
+
+                container.innerHTML = orders.map(o => `
+    <div class="order-card" id="card-${o.orderId}">
+        <div class="order-header">
+            <span>🆔 ${o.orderId}</span>
+            <span style="color: var(--primary);">₹${o.totalAmount}</span>
+        </div>
+        <div class="order-cust-info">
+            <b>👤 ${o.customerName}</b> (${o.phone}) • 📍 ${o.address} • 🕒 ${o.createdAt}
+        </div>
+        <div class="order-items-list">
+            ${o.items.map(i => `<div>• ${i.title} (x${i.qty}) - ₹${i.price * i.qty}</div>`).join('')}
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label style="font-size:11px; margin:0; font-weight:600;">Status:</label>
+            <select class="status-select" onchange="updateOrderStatus('${o.orderId}', this.value, this)">
+                <option value="PENDING" ${o.status === 'PENDING' ? 'selected' : ''}>⏳ Pending</option>
+                <option value="PACKING" ${o.status === 'PACKING' ? 'selected' : ''}>📦 Packing</option>
+                <option value="DISPATCHED" ${o.status === 'DISPATCHED' ? 'selected' : ''}>🚚 Out for Delivery</option>
+                <option value="DELIVERED" ${o.status === 'DELIVERED' ? 'selected' : ''}>✅ Delivered</option>
+            </select>
+        </div>
+    </div>
+`).join('');
+            } catch (err) {
+                console.error("Error fetching orders:", err);
+            }
+        }
+
+        async function updateOrderStatus(orderId, newStatus, selectElement) {
+            try {
+                // Select element parent card ko target karke animation apply karna
+                const orderCard = selectElement.closest('.order-card');
+
+                const res = await fetch(`/api/orders/status/${orderId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                if (res.ok) {
+                    // Trigger Instant UI Animation Feedback
+                    if (orderCard) {
+                        orderCard.classList.add('status-updated');
+                        setTimeout(() => orderCard.classList.remove('status-updated'), 800);
+                    }
+
+                    // Visual Toast / Alert Feedback
+                    showAdminToast(`Order ${orderId} status updated to ${newStatus}!`);
+                }
+            } catch (err) {
+                console.error("Error updating order status:", err);
+            }
+        }
+
+        // Order Select Element me `this` pass karna:
+        // HTML Template inside fetchOrders():
+        // <select class="status-select" onchange="updateOrderStatus('${o.orderId}', this.value, this)">
+
+        function handleSmartPresetSuggestions(query) {
+            const presetBox = document.getElementById('presetBox');
+            presetBox.innerHTML = '';
+            activePresetIndex = -1;
+            if (!query.trim()) return;
+
+            const matches = smartPresets.filter(p => p.title.toLowerCase().includes(query.toLowerCase()));
+            matches.forEach((item, index) => {
+                presetBox.innerHTML += `
+                    <div class="preset-card" id="preset-item-${index}" onclick="applyPreset('${item.title}', ${item.price}, '${item.category}')">
+                        <span class="preset-title">⚡ ${item.title}</span>
+                        <span class="preset-price">₹${item.price}</span>
+                    </div>`;
+            });
+        }
+
+        function handlePresetKeyNavigation(event) {
+            const presetCards = document.querySelectorAll('.preset-card');
+            if (!presetCards.length) return;
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                activePresetIndex = (activePresetIndex + 1) % presetCards.length;
+                updatePresetHighlight(presetCards);
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                activePresetIndex = (activePresetIndex - 1 + presetCards.length) % presetCards.length;
+                updatePresetHighlight(presetCards);
+            } else if (event.key === 'Enter') {
+                if (activePresetIndex >= 0 && activePresetIndex < presetCards.length) {
+                    event.preventDefault();
+                    presetCards[activePresetIndex].click();
+                }
+            }
+        }
+
+        function updatePresetHighlight(cards) {
+            cards.forEach(card => card.classList.remove('keyboard-active'));
+            if (activePresetIndex >= 0 && cards[activePresetIndex]) {
+                const activeCard = cards[activePresetIndex];
+                activeCard.classList.add('keyboard-active');
+                activeCard.scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function applyPreset(title, price, category) {
+            document.getElementById('title').value = title;
+            document.getElementById('price').value = price;
+            const categoryDropdown = document.getElementById('category');
+            for (let option of categoryDropdown.options) {
+                if (option.value === category) { option.selected = true; break; }
+            }
+            document.getElementById('presetBox').innerHTML = '';
+            activePresetIndex = -1;
+        }
+
+        function enforceAuth() {
+            if (localStorage.getItem('isRetailerLogged') !== 'true') window.location.href = '/';
+        }
+
+        function logoutRetailer() {
+            localStorage.removeItem('isRetailerLogged');
+            window.location.href = '/';
+        }
+
+        function getStockBadgeClass(status) {
+            if (status === "LOW_STOCK") return "low-stock";
+            if (status === "OUT_OF_STOCK") return "out-of-stock";
+            return "in-stock";
+        }
+
+        function getStockText(status) {
+            if (status === "LOW_STOCK") return "⚠️ Low Stock";
+            if (status === "OUT_OF_STOCK") return "❌ Out of Stock";
+            return "✅ In Stock";
+        }
+
         async function fetchProducts() {
             try {
                 const res = await fetch('/api/products');
                 const data = await res.json();
                 const tbody = document.getElementById('inventoryList');
                 tbody.innerHTML = '';
-
-                if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">No items in inventory.</td></tr>';
+                if (!data.length) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">No items in inventory.</td></tr>';
                     return;
                 }
-
                 data.forEach(p => {
                     const isLive = p.ondcStatus === "Live on ONDC Network";
+                    const currentStock = p.stockStatus || "IN_STOCK";
                     tbody.innerHTML += `
-            <tr>
-              <td><b>${p.title || 'N/A'}</b></td>
-              <td>₹${p.price || 0}</td>
-              <td>${p.category || 'General'}</td>
-              <td><span class="status-badge ${isLive ? 'live' : 'off'}">${p.ondcStatus}</span></td>
-              <td><button class="toggle-btn" onclick="toggleONDC('${p._id}')">${isLive ? 'Disable ONDC' : 'Enable ONDC'}</button></td>
-            </tr>`;
+                    <tr>
+                      <td><b>${p.title}</b></td>
+                      <td>₹${p.price}</td>
+                      <td>${p.category || 'General'}</td>
+                      <td><span class="status-badge ${getStockBadgeClass(currentStock)}">${getStockText(currentStock)}</span></td>
+                      <td><span class="status-badge ${isLive ? 'live' : 'off'}">${p.ondcStatus}</span></td>
+                      <td>
+                        <button class="toggle-btn" onclick="cycleStock('${p._id}', '${currentStock}')">📦 Stock</button>
+                        <button class="toggle-btn" onclick="toggleONDC('${p._id}')">${isLive ? 'Disable ONDC' : 'Enable ONDC'}</button>
+                      </td>
+                    </tr>`;
                 });
-            } catch (err) {
-                console.error("Error fetching inventory:", err);
-            }
+            } catch (err) { console.error(err); }
         }
 
         async function addProduct() {
             const title = document.getElementById('title').value;
             const price = document.getElementById('price').value;
             const category = document.getElementById('category').value;
-
-            if (!title || !price) {
-                alert("Please enter Item Name and Price!");
-                return;
-            }
+            const stockStatus = document.getElementById('stockStatus').value;
+            if (!title || !price) return alert("Enter Item Name & Price!");
 
             await fetch('/api/products/add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, price, category })
+                body: JSON.stringify({ title, price, category, stockStatus })
             });
-
             document.getElementById('title').value = '';
             document.getElementById('price').value = '';
-            document.getElementById('category').value = '';
+            document.getElementById('presetBox').innerHTML = '';
+            fetchProducts();
+        }
 
+        async function cycleStock(id, currentStatus) {
+            let nextStatus = "IN_STOCK";
+            if (currentStatus === "IN_STOCK") nextStatus = "LOW_STOCK";
+            else if (currentStatus === "LOW_STOCK") nextStatus = "OUT_OF_STOCK";
+
+            await fetch(`/api/products/stock/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ stockStatus: nextStatus })
+            });
             fetchProducts();
         }
 
@@ -266,9 +652,19 @@
             fetchProducts();
         }
 
-        fetchProducts();
-    </script>
+        async function clearAllProducts() {
+            if (confirm("⚠️ Clear all listed items?")) {
+                await fetch('/api/products/clear-all', { method: 'DELETE' });
+                fetchProducts();
+            }
+        }
 
+        enforceAuth();
+        setAdminGreeting();
+        fetchProducts();
+        fetchOrders();
+        setInterval(fetchOrders, 3000); // Automatically updates orders every 3 seconds
+    </script>
 </body>
 
 </html>
