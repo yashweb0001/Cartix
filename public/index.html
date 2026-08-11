@@ -335,6 +335,32 @@
       margin-bottom: 10px;
     }
 
+    /* Restored Stock Status Badges */
+    .stock-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 12px;
+      margin-bottom: 6px;
+      width: fit-content;
+    }
+
+    .stock-in {
+      background: var(--success-bg);
+      color: var(--success-text);
+    }
+
+    .stock-low {
+      background: var(--warning-bg);
+      color: var(--warning-text);
+    }
+
+    .stock-out {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+    }
+
     .card-actions-brick-group {
       display: flex;
       flex-direction: column;
@@ -573,7 +599,7 @@
       font-size: 14px;
     }
 
-    /* Order Tracking Steps Styles */
+    /* Live Tracking Timeline Step Styles */
     .tracking-steps {
       display: flex;
       flex-direction: column;
@@ -705,15 +731,19 @@
     </div>
   </div>
 
+  <!-- Customer Checkout Modal with Auto-filled Predefined Inputs -->
   <div id="checkoutModal" class="modal-overlay">
     <div class="modal-card">
       <span class="close-btn" onclick="closeCheckoutModal()">&times;</span>
       <h3>Delivery Details</h3>
       <p id="checkoutTotalText" style="font-size: 13px; color: #15803d; font-weight: 700; margin-bottom: 14px;"></p>
       <form id="customerOrderForm" onsubmit="handleCustomerOrder(event)">
-        <div class="form-group"><label>Your Name</label><input type="text" id="custName" required></div>
-        <div class="form-group"><label>Phone Number</label><input type="tel" id="custPhone" required></div>
-        <div class="form-group"><label>Delivery Address</label><input type="text" id="custAddress" required></div>
+        <div class="form-group"><label>Your Name</label><input type="text" id="custName" value="Rahul Sharma"
+            placeholder="e.g. Rahul Sharma" required></div>
+        <div class="form-group"><label>Phone Number</label><input type="tel" id="custPhone" value="9876543210"
+            placeholder="10-digit Mobile" required></div>
+        <div class="form-group"><label>Delivery Address</label><input type="text" id="custAddress"
+            value="Civil Lines, Gorakhpur" placeholder="House/Flat No., Landmark" required></div>
         <button type="submit" class="checkout-btn">Place Order (UPI / COD)</button>
       </form>
     </div>
@@ -786,6 +816,12 @@
       return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
     }
 
+    function getStockBadgeHTML(status) {
+      if (status === "LOW_STOCK") return `<span class="stock-badge stock-low">⚠️ Low Stock</span>`;
+      if (status === "OUT_OF_STOCK") return `<span class="stock-badge stock-out">❌ Out of Stock</span>`;
+      return `<span class="stock-badge stock-in">✅ In Stock</span>`;
+    }
+
     function showToast(msg) {
       const toast = document.getElementById('toastNotification');
       if (!toast) return;
@@ -796,15 +832,36 @@
 
     async function loadCatalog() {
       try {
+        const localCustomData = localStorage.getItem('cartix_custom_catalog');
+
         const res = await fetch('/api/products');
         let data = await res.json();
-        if (!data || data.length === 0) masterCatalog = predefinedItems;
-        else masterCatalog = data;
+
+        if (localCustomData !== null) {
+          masterCatalog = JSON.parse(localCustomData);
+        } else if (!data || data.length === 0) {
+          masterCatalog = predefinedItems;
+        } else {
+          masterCatalog = data;
+        }
       } catch (err) {
-        masterCatalog = predefinedItems;
+        const localCustomData = localStorage.getItem('cartix_custom_catalog');
+        if (localCustomData !== null) {
+          masterCatalog = JSON.parse(localCustomData);
+        } else {
+          masterCatalog = predefinedItems;
+        }
       }
       applyFilterAndSearch();
     }
+
+    // Cross-Tab Storage Observer Listener for Instant Reflect
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'cartix_catalog_updated_at' || e.key === 'cartix_custom_catalog') {
+        loadCatalog();
+        showToast("🔄 Catalog updated by Retailer!");
+      }
+    });
 
     function filterCategory(cat, btn) {
       selectedCategory = cat;
@@ -835,25 +892,28 @@
       if (!grid) return;
       grid.innerHTML = '';
       if (!items || !items.length) {
-        grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:20px;">No items found.</p>';
+        grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:30px; font-size:14px; color:var(--text-muted);">Catalog is empty!</p>';
         return;
       }
       const hasCart = cart.length > 0;
       items.forEach(p => {
-        const out = p.stockStatus === "OUT_OF_STOCK";
+        const stockStatus = p.stockStatus || "IN_STOCK";
+        const out = stockStatus === "OUT_OF_STOCK";
+
         grid.innerHTML += `
-          <div class="product-card">
-            <div>
-              <div class="image-container"><img src="${getProductImage(p)}" class="product-img"></div>
-              <div class="product-title">${p.title}</div>
-              <div class="product-category">${p.category || 'General'}</div>
-              <div class="product-price">₹${p.price}</div>
-            </div>
-            <div class="card-actions-brick-group">
-              <button class="btn-black-brick ${hasCart ? 'blurred-buy-btn' : ''}" ${out || hasCart ? 'disabled' : ''} onclick="buyNowInstant('${p._id}', '${p.title}', ${p.price})">⚡ Buy Now</button>
-              <button class="btn-black-brick" ${out ? 'disabled' : ''} onclick="addToCart('${p._id}', '${p.title}', ${p.price})">${out ? 'Out of Stock' : '🛒 Add to Cart'}</button>
-            </div>
-          </div>`;
+        <div class="product-card">
+          <div>
+            <div class="image-container"><img src="${getProductImage(p)}" class="product-img"></div>
+            <div class="product-title">${p.title}</div>
+            <div class="product-category">${p.category || 'General'}</div>
+            ${getStockBadgeHTML(stockStatus)}
+            <div class="product-price">₹${p.price}</div>
+          </div>
+          <div class="card-actions-brick-group">
+            <button class="btn-black-brick ${hasCart ? 'blurred-buy-btn' : ''}" ${out || hasCart ? 'disabled' : ''} onclick="buyNowInstant('${p._id}', '${p.title}', ${p.price})">⚡ Buy Now</button>
+            <button class="btn-black-brick" ${out ? 'disabled' : ''} onclick="addToCart('${p._id}', '${p.title}', ${p.price})">${out ? 'Out of Stock' : '🛒 Add to Cart'}</button>
+          </div>
+        </div>`;
       });
     }
 
@@ -876,10 +936,10 @@
       document.getElementById('cartTotal').innerText = `₹${cart.reduce((s, i) => s + (i.price * i.qty), 0)}`;
       const list = document.getElementById('cartItems');
       list.innerHTML = cart.length ? cart.map(i => `
-        <div class="cart-item">
-          <div><b>${i.title}</b><br><small>₹${i.price} x ${i.qty}</small></div>
-          <div><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button> <span>${i.qty}</span> <button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div>
-        </div>`).join('') : '<p style="text-align:center; padding:20px;">Basket is empty.</p>';
+      <div class="cart-item">
+        <div><b>${i.title}</b><br><small>₹${i.price} x ${i.qty}</small></div>
+        <div><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button> <span>${i.qty}</span> <button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div>
+      </div>`).join('') : '<p style="text-align:center; padding:20px;">Basket is empty.</p>';
       applyFilterAndSearch();
     }
 
@@ -940,13 +1000,13 @@
 
       shops.forEach(s => {
         container.innerHTML += `
-          <div class="shop-card">
-            <div class="shop-info">
-              <h4>${s.name}</h4>
-              <p>📍 ${s.distance} • 📞 ${s.phone}</p>
-            </div>
-            <button class="select-shop-btn" onclick="selectShopCatalog('${s.name}')">Select</button>
-          </div>`;
+        <div class="shop-card">
+          <div class="shop-info">
+            <h4>${s.name}</h4>
+            <p>📍 ${s.distance} • 📞 ${s.phone}</p>
+          </div>
+          <button class="select-shop-btn" onclick="selectShopCatalog('${s.name}')">Select</button>
+        </div>`;
         const m = L.marker([s.lat, s.lng]).addTo(markersGroup);
         m.bindPopup(`<b>${s.name}</b>`);
       });
@@ -1018,33 +1078,31 @@
 
         if (!order) {
           resultBox.innerHTML = `
-            <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; padding: 10px; border-radius: 8px; font-size: 12px; text-align: center;">
-              ⚠️ Order ID "${orderId}" not found.
-            </div>`;
+          <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; padding: 10px; border-radius: 8px; font-size: 12px; text-align: center;">
+            ⚠️ Order ID "${orderId}" not found.
+          </div>`;
           return;
         }
 
         const deliveryClockTime = getEstimatedDeliveryClockTime(15);
 
-        // Render Guaranteed Delivery Notice + Order ID + Timeline Steps
         resultBox.innerHTML = `
-          <div style="background: #f0fdf4; border: 1.5px solid #22c55e; color: #15803d; padding: 12px; border-radius: 10px; margin-bottom: 12px;">
-            <div style="font-size: 14px; font-weight: 700;">🛵 Guaranteed Delivery by ${deliveryClockTime}</div>
-            <div style="font-size: 12px; color: #166534; margin-top: 3px;">Will be delivered in ~15 Mins by <b>${order.storeName}</b> local store rider.</div>
-          </div>
+        <div style="background: #f0fdf4; border: 1.5px solid #22c55e; color: #15803d; padding: 12px; border-radius: 10px; margin-bottom: 12px;">
+          <div style="font-size: 14px; font-weight: 700;">🛵 Guaranteed Delivery by ${deliveryClockTime}</div>
+          <div style="font-size: 12px; color: #166534; margin-top: 3px;">Will be delivered in ~15 Mins by <b>${order.storeName}</b> local store rider.</div>
+        </div>
 
-          <div style="font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px;">Order ID: <span style="color:#2563eb;">${order.orderId}</span></div>
-          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Customer: <b>${order.customerName}</b> (${order.phone})</div>
+        <div style="font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px;">Order ID: <span style="color:#2563eb;">${order.orderId}</span></div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Customer: <b>${order.customerName}</b> (${order.phone})</div>
 
-          <div class="tracking-steps">
-            <div class="step-item" id="step-PENDING"><div class="step-icon">1</div> ⏳ Order Received</div>
-            <div class="step-item" id="step-PACKING"><div class="step-icon">2</div> 📦 Packing Items</div>
-            <div class="step-item" id="step-DISPATCHED"><div class="step-icon">3</div> 🚚 Out for Delivery</div>
-            <div class="step-item" id="step-DELIVERED"><div class="step-icon">4</div> ✅ Delivered</div>
-          </div>
-        `;
+        <div class="tracking-steps">
+          <div class="step-item" id="step-PENDING"><div class="step-icon">1</div> ⏳ Order Received</div>
+          <div class="step-item" id="step-PACKING"><div class="step-icon">2</div> 📦 Packing Items</div>
+          <div class="step-item" id="step-DISPATCHED"><div class="step-icon">3</div> 🚚 Out for Delivery</div>
+          <div class="step-item" id="step-DELIVERED"><div class="step-icon">4</div> ✅ Delivered</div>
+        </div>
+      `;
 
-        // Highlight step statuses based on order status
         document.querySelectorAll('.step-item').forEach(s => s.classList.remove('active'));
         const statuses = ['PENDING', 'PACKING', 'DISPATCHED', 'DELIVERED'];
         const activeIndex = statuses.indexOf(order.status);

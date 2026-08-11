@@ -26,7 +26,6 @@
             --danger-text: #b91c1c;
         }
 
-        /* Dark Mode Variable Overrides */
         body.dark-theme {
             --bg: #0f172a;
             --surface: #1e293b;
@@ -51,7 +50,6 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* Toast Notification */
         .admin-toast {
             position: fixed;
             top: 20px;
@@ -74,7 +72,6 @@
             transform: translateY(0);
         }
 
-        /* Header Section */
         header {
             background: var(--surface);
             border-bottom: 1px solid var(--border);
@@ -84,7 +81,6 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 12px;
-            transition: background-color 0.3s ease;
         }
 
         .header-left h2 {
@@ -116,23 +112,15 @@
             cursor: pointer;
             font-size: 12px;
             font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .theme-toggle-btn:hover {
-            background: var(--border);
         }
 
         .greeting-badge {
             font-size: 12px;
             font-weight: 600;
             color: #4f46e5;
-            background: #e0e7ff;
+            background: #e0f2fe;
             padding: 6px 14px;
             border-radius: 20px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
         }
 
         .btn-logout {
@@ -144,21 +132,14 @@
             font-weight: 700;
             font-size: 12px;
             cursor: pointer;
-            transition: all 0.2s;
         }
 
-        .btn-logout:hover {
-            background: #fca5a5;
-        }
-
-        /* Layout Content */
         main {
             max-width: 1300px;
             margin: 24px auto;
             padding: 0 20px;
         }
 
-        /* Stats Overview Cards */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -171,12 +152,11 @@
             border: 1px solid var(--card-border);
             padding: 18px;
             border-radius: 12px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s ease;
         }
 
         .stat-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
         }
 
         .stat-card .label {
@@ -184,20 +164,17 @@
             font-weight: 600;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .stat-card .value {
             font-size: 22px;
             font-weight: 700;
             margin-top: 6px;
-            color: var(--text);
         }
 
-        /* Dashboard Split Layout */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 1fr 380px;
+            grid-template-columns: 1fr 400px;
             gap: 24px;
         }
 
@@ -216,7 +193,6 @@
             justify-content: space-between;
         }
 
-        /* Orders Section & Cards */
         .orders-wrapper {
             display: flex;
             flex-direction: column;
@@ -228,16 +204,9 @@
             border: 1px solid var(--card-border);
             border-radius: 12px;
             padding: 16px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
+            transition: all 0.3s ease;
         }
 
-        .order-card:hover {
-            border-color: var(--primary);
-            box-shadow: 0 8px 18px rgba(79, 70, 229, 0.08);
-        }
-
-        /* Order Status Update Glow Animation */
         .order-card.status-updated {
             animation: pulseGlow 0.8s ease-in-out;
         }
@@ -245,18 +214,15 @@
         @keyframes pulseGlow {
             0% {
                 transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
             }
 
             50% {
                 transform: scale(1.02);
-                box-shadow: 0 0 15px 4px rgba(34, 197, 94, 0.3);
                 border-color: #22c55e;
             }
 
             100% {
                 transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
             }
         }
 
@@ -294,16 +260,8 @@
             color: var(--text);
             border: 1px solid var(--card-border);
             cursor: pointer;
-            outline: none;
-            transition: border-color 0.2s;
         }
 
-        .status-select:focus,
-        .status-select:hover {
-            border-color: var(--primary);
-        }
-
-        /* Inventory Management Side Box */
         .inventory-card {
             background: var(--surface);
             border: 1px solid var(--card-border);
@@ -313,6 +271,7 @@
 
         .form-group {
             margin-bottom: 12px;
+            position: relative;
         }
 
         .form-group label {
@@ -332,13 +291,29 @@
             color: var(--text);
             border-radius: 8px;
             font-size: 13px;
-            outline: none;
-            transition: border-color 0.2s;
         }
 
-        .form-group input:focus,
-        .form-group select:focus {
-            border-color: var(--primary);
+        /* Auto-complete suggestions list */
+        .autocomplete-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            max-height: 160px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+            display: none;
+        }
+
+        .autocomplete-item {
+            padding: 8px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
         }
 
         .btn-submit {
@@ -351,32 +326,112 @@
             font-weight: 700;
             font-size: 13px;
             cursor: pointer;
-            transition: all 0.2s ease;
         }
 
         .btn-submit:hover {
             background: var(--primary-hover);
-            transform: translateY(-1px);
         }
 
+        .btn-clear-catalog {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-clear-catalog:hover {
+            background: #fca5a5;
+            transform: scale(1.02);
+        }
+
+        /* Rectangular Cards with Fade Out Disintegrate Animation */
         .catalog-list-mini {
-            margin-top: 18px;
-            max-height: 320px;
+            margin-top: 14px;
+            max-height: 340px;
             overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 10px;
+        }
+
+        .mini-prod-card {
+            background: var(--bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 10px 12px;
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
             gap: 8px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .mini-prod-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
+        .mini-prod-card.fade-out {
+            opacity: 0;
+            transform: scale(0.85);
+        }
+
+        .mini-prod-title {
             font-size: 12px;
+            font-weight: 700;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mini-stock-select {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 6px;
+            border-radius: 6px;
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--card-border);
+            cursor: pointer;
+            width: 100%;
+        }
+
+        /* Modal Overlay Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.65);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-card {
+            background: var(--surface);
+            color: var(--text);
+            border-radius: 14px;
+            width: 340px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+            animation: popModal 0.25s ease;
+        }
+
+        @keyframes popModal {
+            0% {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -385,7 +440,24 @@
 
     <div id="adminToast" class="admin-toast"></div>
 
-    <!-- Header -->
+    <!-- Confirmation Modal for Clear Catalog -->
+    <div id="confirmClearModal" class="modal-overlay">
+        <div class="modal-card">
+            <div style="font-size: 32px; margin-bottom: 8px;">🗑️</div>
+            <h3 style="font-size: 16px; margin-bottom: 6px;">Clear Entire Catalog?</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 18px;">Are you sure you want to remove
+                all listed products from store inventory?</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button
+                    style="flex:1; background: var(--chip-bg); color: var(--text); border: 1px solid var(--border); padding: 8px; border-radius: 8px; font-weight: 600; cursor: pointer;"
+                    onclick="closeConfirmModal()">Cancel</button>
+                <button
+                    style="flex:1; background: #ef4444; color: white; border: none; padding: 8px; border-radius: 8px; font-weight: 700; cursor: pointer;"
+                    onclick="executeClearCatalog()">Yes, Clear All</button>
+            </div>
+        </div>
+    </div>
+
     <header>
         <div class="header-left">
             <h2>🏪 <span id="shopTitleHeader">Gorakhpur Central Kirana</span> — Retailer Hub</h2>
@@ -400,7 +472,6 @@
     </header>
 
     <main>
-        <!-- Stats Overview Cards -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="label">Total Orders</div>
@@ -420,10 +491,8 @@
             </div>
         </div>
 
-        <!-- Main Grid Split -->
         <div class="dashboard-grid">
 
-            <!-- Live Incoming Orders Column -->
             <div>
                 <div class="section-title">
                     <span>📦 Incoming Customer Orders</span>
@@ -432,19 +501,21 @@
                 <div class="orders-wrapper" id="ordersContainer"></div>
             </div>
 
-            <!-- Add Product & Inventory Control Column -->
             <div>
                 <div class="inventory-card">
-                    <h3 style="font-size: 15px; margin-bottom: 14px;">➕ Add Catalog Item</h3>
+                    <h3 style="font-size: 15px; margin-bottom: 12px;">➕ Add Catalog Item</h3>
 
                     <form id="addProductForm" onsubmit="handleAddProduct(event)">
                         <div class="form-group">
-                            <label>Product Name</label>
-                            <input type="text" id="pTitle" placeholder="e.g. Fortune Mustard Oil (1L)" required>
+                            <label>Product Name (Type to Search Suggestions)</label>
+                            <input type="text" id="pTitle" placeholder="Start typing e.g. Maggi, Milk, Oil..."
+                                autocomplete="off" oninput="handleTitleSearchInput(this.value)">
+                            <div class="autocomplete-list" id="autoCompleteList"></div>
                         </div>
+
                         <div class="form-group">
                             <label>Price (₹)</label>
-                            <input type="number" id="pPrice" placeholder="e.g. 150" required>
+                            <input type="number" id="pPrice" placeholder="Price" required>
                         </div>
                         <div class="form-group">
                             <label>Category</label>
@@ -463,10 +534,15 @@
                                 <option value="OUT_OF_STOCK">❌ Out of Stock</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn-submit">+ Save Item to Store</button>
+                        <button type="submit" class="btn-submit">+ Save Item to Store Catalog</button>
                     </form>
 
-                    <h4 style="font-size: 13px; margin-top: 20px; margin-bottom: 8px;">📦 Active Catalog Items</h4>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; margin-bottom: 8px;">
+                        <h4 style="font-size: 13px; margin: 0;">📦 Active Store Items</h4>
+                        <button class="btn-clear-catalog" onclick="openConfirmModal()">🗑️ Clear Listing</button>
+                    </div>
+
                     <div class="catalog-list-mini" id="miniCatalog"></div>
                 </div>
             </div>
@@ -475,24 +551,140 @@
     </main>
 
     <script>
+        const kiranaPresetDatabase = [
+            { title: 'Maggi 2-Min Noodles (70g)', price: 15, category: 'Snacks & Packaged Food' },
+            { title: 'Maggi Family Pack (560g)', price: 85, category: 'Snacks & Packaged Food' },
+            { title: 'Amul Taaza Milk (1L)', price: 68, category: 'Dairy & Bakery' },
+            { title: 'Amul Butter (100g)', price: 58, category: 'Dairy & Bakery' },
+            { title: 'Fortune Mustard Oil (1L)', price: 155, category: 'Grocery & Staples' },
+            { title: 'Aashirvaad Shuddh Atta (5kg)', price: 245, category: 'Grocery & Staples' },
+            { title: 'Tata Salt (1kg)', price: 28, category: 'Grocery & Staples' },
+            { title: 'Parle-G Gold Biscuits (100g)', price: 10, category: 'Snacks & Packaged Food' },
+            { title: 'Lays Salted Chips (20g)', price: 10, category: 'Snacks & Packaged Food' },
+            { title: 'Coca-Cola (750ml)', price: 45, category: 'Beverages' },
+            { title: 'Colgate Strong Teeth (100g)', price: 65, category: 'Grocery & Staples' },
+            { title: 'Surf Excel Powder (500g)', price: 72, category: 'Grocery & Staples' }
+        ];
+
+        let currentFocusIndex = -1;
+        let localProducts = [];
+
         function showAdminToast(msg) {
             const toast = document.getElementById('adminToast');
+            if (!toast) return;
             toast.innerText = msg;
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
+        // Sync Event Trigger for Customer Panel
+        function notifyCustomerPanelSync() {
+            localStorage.setItem('cartix_catalog_updated_at', Date.now().toString());
+        }
+
+        function openConfirmModal() { document.getElementById('confirmClearModal').style.display = 'flex'; }
+        function closeConfirmModal() { document.getElementById('confirmClearModal').style.display = 'none'; }
+
+        function executeClearCatalog() {
+            closeConfirmModal();
+            const cards = document.querySelectorAll('.mini-prod-card');
+
+            cards.forEach(card => card.classList.add('fade-out'));
+
+            setTimeout(() => {
+                localProducts = [];
+                renderMiniCatalog();
+                document.getElementById('statStock').innerText = `0 Items`;
+
+                // Clear storage & trigger customer side update
+                localStorage.setItem('cartix_custom_catalog', JSON.stringify([]));
+                notifyCustomerPanelSync();
+
+                showAdminToast("🗑️ All catalog items cleared successfully!");
+            }, 400);
+        }
+
+        function handleTitleSearchInput(val) {
+            const list = document.getElementById('autoCompleteList');
+            const query = val.toLowerCase().trim();
+            currentFocusIndex = -1;
+
+            if (!query) {
+                list.style.display = 'none';
+                return;
+            }
+
+            const matches = kiranaPresetDatabase.filter(item => item.title.toLowerCase().includes(query));
+
+            if (!matches.length) {
+                list.style.display = 'none';
+                return;
+            }
+
+            list.innerHTML = matches.map((item, index) => `
+      <div class="autocomplete-item" id="auto-item-${index}" onclick="selectAutoCompleteItem('${item.title}', ${item.price}, '${item.category}')">
+        <b>${item.title}</b> — ₹${item.price}
+      </div>
+    `).join('');
+
+            list.style.display = 'block';
+        }
+
+        // Keyboard Arrow Keys & Enter Handler
+        document.getElementById('pTitle').addEventListener('keydown', function (e) {
+            const list = document.getElementById('autoCompleteList');
+            if (!list || list.style.display === 'none' || !list.children.length) return;
+
+            const items = list.getElementsByClassName('autocomplete-item');
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                currentFocusIndex++;
+                if (currentFocusIndex >= items.length) currentFocusIndex = 0;
+                addActiveItem(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                currentFocusIndex--;
+                if (currentFocusIndex < 0) currentFocusIndex = items.length - 1;
+                addActiveItem(items);
+            } else if (e.key === 'Enter') {
+                if (currentFocusIndex > -1 && items[currentFocusIndex]) {
+                    e.preventDefault();
+                    items[currentFocusIndex].click();
+                }
+            } else if (e.key === 'Escape') {
+                list.style.display = 'none';
+            }
+        });
+
+        function addActiveItem(items) {
+            removeActiveItems(items);
+            if (currentFocusIndex >= 0 && currentFocusIndex < items.length) {
+                items[currentFocusIndex].style.background = '#4f46e5';
+                items[currentFocusIndex].style.color = '#ffffff';
+                items[currentFocusIndex].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function removeActiveItems(items) {
+            for (let i = 0; i < items.length; i++) {
+                items[i].style.background = '';
+                items[i].style.color = '';
+            }
+        }
+
+        function selectAutoCompleteItem(title, price, category) {
+            document.getElementById('pTitle').value = title;
+            document.getElementById('pPrice').value = price;
+            document.getElementById('pCategory').value = category;
+            document.getElementById('autoCompleteList').style.display = 'none';
+            currentFocusIndex = -1;
+            showAdminToast(`⚡ Auto-filled: ${title}`);
+        }
+
         function toggleAdminTheme() {
             const isDark = document.body.classList.toggle('dark-theme');
             document.getElementById('adminThemeBtn').innerText = isDark ? '☀️ Light' : '🌙 Dark';
-            localStorage.setItem('cartix_admin_theme', isDark ? 'dark' : 'light');
-        }
-
-        function initTheme() {
-            if (localStorage.getItem('cartix_admin_theme') === 'dark') {
-                document.body.classList.add('dark-theme');
-                document.getElementById('adminThemeBtn').innerText = '☀️ Light';
-            }
         }
 
         function setAdminGreeting() {
@@ -516,7 +708,6 @@
                 const res = await fetch('/api/orders');
                 const orders = await res.json();
 
-                // Update Dashboard Analytics Stats
                 document.getElementById('statOrders').innerText = orders.length;
                 const totalRev = orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
                 document.getElementById('statRevenue').innerText = `₹${totalRev}`;
@@ -531,38 +722,35 @@
                 }
 
                 container.innerHTML = orders.map(o => `
-          <div class="order-card" id="card-${o.orderId}">
-            <div class="order-header">
-              <span>🆔 ${o.orderId}</span>
-              <span style="color: var(--primary);">₹${o.totalAmount}</span>
-            </div>
-            <div class="order-cust-info">
-              <b>👤 ${o.customerName}</b> (${o.phone}) • 📍 ${o.address}<br>
-              <span style="font-size:11px; opacity:0.8;">🕒 Order Time: ${o.createdAt || 'Just now'}</span>
-            </div>
-            <div class="order-items-list">
-              ${(o.items || []).map(i => `<div>• <b>${i.title}</b> (x${i.qty}) - ₹${i.price * i.qty}</div>`).join('')}
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <label style="font-size:11px; margin:0; font-weight:700;">Update Status:</label>
-              <select class="status-select" onchange="updateOrderStatus('${o.orderId}', this.value, this)">
-                <option value="PENDING" ${o.status === 'PENDING' ? 'selected' : ''}>⏳ Pending</option>
-                <option value="PACKING" ${o.status === 'PACKING' ? 'selected' : ''}>📦 Packing</option>
-                <option value="DISPATCHED" ${o.status === 'DISPATCHED' ? 'selected' : ''}>🚚 Out for Delivery</option>
-                <option value="DELIVERED" ${o.status === 'DELIVERED' ? 'selected' : ''}>✅ Delivered</option>
-              </select>
-            </div>
+        <div class="order-card" id="card-${o.orderId}">
+          <div class="order-header">
+            <span>🆔 ${o.orderId}</span>
+            <span style="color: var(--primary);">₹${o.totalAmount}</span>
           </div>
-        `).join('');
-            } catch (err) {
-                console.error("Error fetching orders:", err);
-            }
+          <div class="order-cust-info">
+            <b>👤 ${o.customerName}</b> (${o.phone}) • 📍 ${o.address}<br>
+            <span style="font-size:11px; opacity:0.8;">🕒 Order Time: ${o.createdAt || 'Just now'}</span>
+          </div>
+          <div class="order-items-list">
+            ${(o.items || []).map(i => `<div>• <b>${i.title}</b> (x${i.qty}) - ₹${i.price * i.qty}</div>`).join('')}
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label style="font-size:11px; margin:0; font-weight:700;">Update Order Status:</label>
+            <select class="status-select" onchange="updateOrderStatus('${o.orderId}', this.value, this)">
+              <option value="PENDING" ${o.status === 'PENDING' ? 'selected' : ''}>⏳ Pending</option>
+              <option value="PACKING" ${o.status === 'PACKING' ? 'selected' : ''}>📦 Packing</option>
+              <option value="DISPATCHED" ${o.status === 'DISPATCHED' ? 'selected' : ''}>🚚 Out for Delivery</option>
+              <option value="DELIVERED" ${o.status === 'DELIVERED' ? 'selected' : ''}>✅ Delivered</option>
+            </select>
+          </div>
+        </div>
+      `).join('');
+            } catch (err) { console.error(err); }
         }
 
         async function updateOrderStatus(orderId, newStatus, selectElement) {
             try {
                 const orderCard = selectElement.closest('.order-card');
-
                 const res = await fetch(`/api/orders/status/${orderId}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
@@ -574,31 +762,66 @@
                         orderCard.classList.add('status-updated');
                         setTimeout(() => orderCard.classList.remove('status-updated'), 800);
                     }
-                    showAdminToast(`Order ${orderId} status updated to ${newStatus}!`);
+                    showAdminToast(`Order ${orderId} updated to ${newStatus}!`);
                 }
-            } catch (err) {
-                console.error("Error updating status:", err);
-            }
+            } catch (err) { console.error(err); }
         }
 
         async function fetchProducts() {
             try {
                 const res = await fetch('/api/products');
-                const products = await res.json();
+                let products = await res.json();
 
-                document.getElementById('statStock').innerText = `${products.length} Items`;
+                const savedData = localStorage.getItem('cartix_custom_catalog');
 
-                const miniContainer = document.getElementById('miniCatalog');
-                miniContainer.innerHTML = products.map(p => `
-          <div class="mini-prod-item">
-            <div>
-              <b>${p.title}</b><br>
-              <small style="color:var(--text-muted);">₹${p.price} • ${p.category || 'General'}</small>
-            </div>
-            <span style="font-size:10px; font-weight:700; color:var(--primary);">${p.stockStatus || 'IN_STOCK'}</span>
-          </div>
-        `).join('');
-            } catch (err) { console.error(err); }
+                if (savedData !== null) {
+                    products = JSON.parse(savedData);
+                } else if (!products || products.length === 0) {
+                    products = kiranaPresetDatabase;
+                }
+
+                localProducts = products;
+                renderMiniCatalog();
+            } catch (err) {
+                const savedData = localStorage.getItem('cartix_custom_catalog');
+                if (savedData !== null) localProducts = JSON.parse(savedData);
+                else localProducts = kiranaPresetDatabase;
+                renderMiniCatalog();
+            }
+        }
+
+        function renderMiniCatalog() {
+            document.getElementById('statStock').innerText = `${localProducts.length} Items`;
+            const miniContainer = document.getElementById('miniCatalog');
+
+            if (!localProducts.length) {
+                miniContainer.innerHTML = `<p style="grid-column:1/-1; text-align:center; padding:20px; font-size:12px; color:var(--text-muted);">Catalog khali hai. Upar se item add karein!</p>`;
+                return;
+            }
+
+            miniContainer.innerHTML = localProducts.map(p => `
+      <div class="mini-prod-card">
+        <div>
+          <div class="mini-prod-title" title="${p.title}">${p.title}</div>
+          <div style="font-size:11px; font-weight:700; color:var(--primary);">₹${p.price}</div>
+        </div>
+        
+        <select class="mini-stock-select" onchange="changeItemStockLive('${p._id || p.title}', this.value)">
+          <option value="IN_STOCK" ${p.stockStatus === 'IN_STOCK' || !p.stockStatus ? 'selected' : ''}>🟢 In Stock</option>
+          <option value="LOW_STOCK" ${p.stockStatus === 'LOW_STOCK' ? 'selected' : ''}>⚠️ Low Stock</option>
+          <option value="OUT_OF_STOCK" ${p.stockStatus === 'OUT_OF_STOCK' ? 'selected' : ''}>🔴 Out of Stock</option>
+        </select>
+      </div>
+    `).join('');
+        }
+
+        function changeItemStockLive(pId, newStock) {
+            const item = localProducts.find(p => (p._id === pId || p.title === pId));
+            if (item) item.stockStatus = newStock;
+
+            localStorage.setItem('cartix_custom_catalog', JSON.stringify(localProducts));
+            notifyCustomerPanelSync();
+            showAdminToast(`📦 Stock Status changed to ${newStock}!`);
         }
 
         async function handleAddProduct(e) {
@@ -608,27 +831,38 @@
             const category = document.getElementById('pCategory').value;
             const stockStatus = document.getElementById('pStock').value;
 
+            const newItem = { _id: 'item_' + Date.now(), title, price, category, stockStatus };
+
             try {
-                const res = await fetch('/api/products/add', {
+                await fetch('/api/products/add', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ title, price, category, stockStatus })
+                    body: JSON.stringify(newItem)
                 });
+            } catch (err) { console.log("Saving locally"); }
 
-                if (res.ok) {
-                    showAdminToast(`✅ "${title}" added to inventory!`);
-                    document.getElementById('addProductForm').reset();
-                    fetchProducts();
-                }
-            } catch (err) { console.error(err); }
+            localProducts.unshift(newItem);
+            localStorage.setItem('cartix_custom_catalog', JSON.stringify(localProducts));
+            notifyCustomerPanelSync();
+
+            renderMiniCatalog();
+            showAdminToast(`✅ "${title}" added to inventory!`);
+            document.getElementById('addProductForm').reset();
+            document.getElementById('autoCompleteList').style.display = 'none';
         }
 
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest('.form-group')) {
+                const list = document.getElementById('autoCompleteList');
+                if (list) list.style.display = 'none';
+            }
+        });
+
         document.addEventListener("DOMContentLoaded", () => {
-            initTheme();
             setAdminGreeting();
             fetchProducts();
             fetchOrders();
-            setInterval(fetchOrders, 3000); // 3-second live auto sync
+            setInterval(fetchOrders, 3000);
         });
     </script>
 </body>
