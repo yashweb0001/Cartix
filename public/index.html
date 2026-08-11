@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cartix — Neighborhood Kirana Hub</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Leaflet CSS for Map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     :root {
@@ -14,13 +13,36 @@
       --dark: #131921;
       --secondary-dark: #232f3e;
       --bg: #f4f6f8;
+      --surface: #ffffff;
+      --text: #0f1111;
+      --text-muted: #565959;
       --border: #e2e8f0;
+      --card-border: #d5d9d9;
+      --controls-bg: #ffffff;
+      --chip-bg: #f1f5f9;
+      --btn-black-bg: #0f172a;
+      --btn-black-text: #ffffff;
+      --btn-black-hover: #1e293b;
       --success-bg: #dcfce7;
       --success-text: #15803d;
       --warning-bg: #fef3c7;
       --warning-text: #b45309;
       --danger-bg: #fee2e2;
       --danger-text: #b91c1c;
+    }
+
+    body.dark-theme {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --card-border: #334155;
+      --controls-bg: #1e293b;
+      --chip-bg: #334155;
+      --btn-black-bg: #f8fafc;
+      --btn-black-text: #0f172a;
+      --btn-black-hover: #e2e8f0;
     }
 
     * {
@@ -33,9 +55,10 @@
       font-family: 'Inter', sans-serif;
       background: var(--bg);
       min-height: 100vh;
+      color: var(--text);
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    /* Toast Notification */
     .toast-notification {
       position: fixed;
       top: 20px;
@@ -57,7 +80,6 @@
       opacity: 1;
     }
 
-    /* Header */
     header {
       background: var(--dark);
       color: white;
@@ -104,15 +126,21 @@
       cursor: pointer;
     }
 
-    .change-shop-btn:hover {
-      background: #ffd814;
-      color: #131921;
-    }
-
     .nav-actions {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       align-items: center;
+    }
+
+    .theme-toggle-btn {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 7px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
     }
 
     .track-btn {
@@ -147,60 +175,8 @@
       cursor: pointer;
     }
 
-    /* Search Bar & Category Controls Bar */
-    .search-box-container {
-      position: relative;
-      flex: 1;
-      min-width: 280px;
-      max-width: 480px;
-    }
-
-    .catalog-search-input {
-      width: 100%;
-      padding: 10px 42px 10px 38px;
-      /* Right padding for Mic Button */
-      border: 1px solid #888c8c;
-      border-radius: 20px;
-      font-size: 14px;
-      outline: none;
-    }
-
-    .mic-inside-btn {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      font-size: 16px;
-      cursor: pointer;
-      padding: 4px;
-      border-radius: 50%;
-      transition: transform 0.2s ease;
-    }
-
-    .mic-inside-btn:hover {
-      transform: translateY(-50%) scale(1.2);
-    }
-
-    .mic-listening {
-      animation: pulseMic 1s infinite alternate;
-      background: #fee2e2;
-      border-radius: 50%;
-    }
-
-    @keyframes pulseMic {
-      0% {
-        transform: translateY(-50%) scale(1);
-      }
-
-      100% {
-        transform: translateY(-50%) scale(1.25);
-      }
-    }
-
     .catalog-controls-bar {
-      background: #ffffff;
+      background: var(--controls-bg);
       border-bottom: 1px solid var(--border);
       padding: 14px 20px;
     }
@@ -224,15 +200,13 @@
 
     .catalog-search-input {
       width: 100%;
-      padding: 10px 14px 10px 38px;
-      border: 1px solid #888c8c;
+      padding: 10px 42px 10px 38px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
       border-radius: 20px;
       font-size: 14px;
       outline: none;
-    }
-
-    .catalog-search-input:focus {
-      border-color: var(--dark);
     }
 
     .search-icon-inside {
@@ -241,7 +215,35 @@
       top: 50%;
       transform: translateY(-50%);
       font-size: 14px;
-      color: #888c8c;
+      color: var(--text-muted);
+    }
+
+    .mic-inside-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .mic-listening {
+      animation: pulseMic 0.8s infinite alternate;
+      background: #fee2e2;
+      border-radius: 50%;
+    }
+
+    @keyframes pulseMic {
+      0% {
+        transform: translateY(-50%) scale(1);
+      }
+
+      100% {
+        transform: translateY(-50%) scale(1.25);
+      }
     }
 
     .filter-chips-container {
@@ -252,7 +254,8 @@
     }
 
     .filter-chip {
-      background: #f1f5f9;
+      background: var(--chip-bg);
+      color: var(--text);
       border: 1px solid var(--border);
       padding: 6px 14px;
       border-radius: 20px;
@@ -260,7 +263,6 @@
       font-weight: 600;
       cursor: pointer;
       white-space: nowrap;
-      transition: all 0.2s ease;
     }
 
     .filter-chip.active,
@@ -270,7 +272,6 @@
       border-color: var(--dark);
     }
 
-    /* Product Grid Layout */
     main {
       padding: 20px;
       max-width: 1200px;
@@ -279,24 +280,30 @@
 
     .product-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
       gap: 20px;
     }
 
     .product-card {
-      border: 1px solid #d5d9d9;
+      border: 1px solid var(--card-border);
       padding: 15px;
-      border-radius: 8px;
-      background: white;
+      border-radius: 12px;
+      background: var(--surface);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      transition: all 0.2s ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
     }
 
     .image-container {
       width: 100%;
       height: 140px;
-      border-radius: 6px;
+      border-radius: 8px;
       overflow: hidden;
       background: #f7f8f8;
       margin-bottom: 10px;
@@ -311,75 +318,60 @@
     .product-title {
       font-size: 15px;
       font-weight: 700;
-      color: #0f1111;
+      color: var(--text);
       margin-bottom: 4px;
     }
 
     .product-category {
       font-size: 12px;
-      color: #565959;
+      color: var(--text-muted);
       margin-bottom: 6px;
     }
 
     .product-price {
       font-size: 18px;
       font-weight: 700;
-      color: #0f1111;
+      color: var(--text);
       margin-bottom: 10px;
     }
 
-    .stock-badge {
-      display: inline-block;
-      padding: 3px 8px;
-      font-size: 10px;
-      font-weight: 700;
-      border-radius: 12px;
-      margin-bottom: 6px;
-      width: fit-content;
+    .card-actions-brick-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 12px;
     }
 
-    .stock-in {
-      background: var(--success-bg);
-      color: var(--success-text);
-    }
-
-    .stock-low {
-      background: var(--warning-bg);
-      color: var(--warning-text);
-    }
-
-    .stock-out {
-      background: var(--danger-bg);
-      color: var(--danger-text);
-    }
-
-    .add-cart-btn {
-      background: #ffd814;
-      color: #0f1111;
-      border: 1px solid #fcd200;
-      padding: 9px;
-      border-radius: 20px;
-      cursor: pointer;
+    .btn-black-brick {
       width: 100%;
-      font-weight: 600;
+      background: var(--btn-black-bg);
+      color: var(--btn-black-text);
+      border: 1px solid var(--btn-black-bg);
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
     }
 
-    .add-cart-btn:disabled {
-      background: #cbd5e1;
-      border-color: #d5d9d9;
-      color: #888c8c;
+    .btn-black-brick.blurred-buy-btn,
+    .btn-black-brick:disabled {
+      opacity: 0.3;
+      filter: blur(0.6px);
       cursor: not-allowed;
+      background: #94a3b8 !important;
+      color: #ffffff !important;
     }
 
-    /* Cart Drawer */
     .cart-drawer {
       position: fixed;
       top: 0;
       right: -360px;
       width: 340px;
       height: 100%;
-      background: white;
-      box-shadow: -4px 0 15px rgba(0, 0, 0, 0.15);
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: -4px 0 15px rgba(0, 0, 0, 0.25);
       z-index: 1001;
       transition: right 0.3s ease;
       display: flex;
@@ -414,11 +406,12 @@
     }
 
     .qty-btn {
-      width: 24px;
-      height: 24px;
+      width: 26px;
+      height: 26px;
       border: 1px solid var(--border);
-      background: #f0f2f2;
-      border-radius: 4px;
+      background: var(--chip-bg);
+      color: var(--text);
+      border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
     }
@@ -426,7 +419,7 @@
     .cart-footer {
       padding: 15px;
       border-top: 1px solid var(--border);
-      background: #f7f8f8;
+      background: var(--surface);
     }
 
     .checkout-btn {
@@ -440,7 +433,6 @@
       cursor: pointer;
     }
 
-    /* Modals Layout */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -448,28 +440,28 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.65);
       z-index: 2000;
       justify-content: center;
       align-items: center;
     }
 
     .modal-card {
-      background: white;
-      border-radius: 12px;
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 16px;
       width: 380px;
       padding: 24px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
       position: relative;
     }
 
     .shop-modal-card {
-      background: white;
-      border-radius: 12px;
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 16px;
       width: 90%;
       max-width: 850px;
       padding: 20px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
       position: relative;
     }
 
@@ -482,7 +474,9 @@
     .pincode-input {
       flex: 1;
       padding: 8px 12px;
-      border: 1px solid #888c8c;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
       border-radius: 6px;
       font-size: 14px;
     }
@@ -517,7 +511,7 @@
     }
 
     .shop-card {
-      background: #ffffff;
+      background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 10px 12px;
@@ -528,31 +522,12 @@
 
     .shop-info h4 {
       font-size: 14px;
-      color: #0f1111;
-      margin-bottom: 2px;
+      color: var(--text);
     }
 
     .shop-info p {
       font-size: 11px;
-      color: #565959;
-    }
-
-    .status-badge-shop {
-      display: inline-block;
-      padding: 2px 6px;
-      border-radius: 10px;
-      font-size: 9px;
-      font-weight: bold;
-    }
-
-    .status-open {
-      background: var(--success-bg);
-      color: var(--success-text);
-    }
-
-    .status-closed {
-      background: var(--danger-bg);
-      color: var(--danger-text);
+      color: var(--text-muted);
     }
 
     .select-shop-btn {
@@ -573,30 +548,32 @@
       cursor: pointer;
       font-size: 20px;
       font-weight: bold;
+      color: var(--text-muted);
     }
 
     .form-group {
       margin-bottom: 14px;
-      text-align: left;
     }
 
     .form-group label {
       display: block;
       font-size: 12px;
       font-weight: 600;
-      color: #565959;
+      color: var(--text-muted);
       margin-bottom: 4px;
     }
 
     .form-group input {
       width: 100%;
       padding: 10px;
-      border: 1px solid #888c8c;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
       border-radius: 6px;
       font-size: 14px;
     }
 
-    /* Order Tracking Step UI */
+    /* Order Tracking Steps Styles */
     .tracking-steps {
       display: flex;
       flex-direction: column;
@@ -611,6 +588,7 @@
       font-size: 13px;
       font-weight: 600;
       opacity: 0.4;
+      transition: opacity 0.3s ease;
     }
 
     .step-item.active {
@@ -622,23 +600,20 @@
       width: 28px;
       height: 28px;
       border-radius: 50%;
-      background: #e2e8f0;
+      background: var(--chip-bg);
+      color: var(--text);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 12px;
+      transition: all 0.3s ease;
     }
 
     .step-item.active .step-icon {
       background: #dcfce7;
       color: #15803d;
       border: 1px solid #15803d;
-    }
-
-    @media (max-width: 768px) {
-      .hub-content-container {
-        grid-template-columns: 1fr;
-      }
+      transform: scale(1.1);
     }
   </style>
 </head>
@@ -647,8 +622,6 @@
 
   <div id="toastNotification" class="toast-notification"></div>
 
-  <!-- Header -->
-  <!-- Header -->
   <header>
     <div class="header-left">
       <div class="brand" onclick="window.location.reload()">🛒 Cartix Kirana</div>
@@ -659,31 +632,23 @@
     </div>
 
     <div class="nav-actions">
+      <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleThemeMode()">🌙 Dark</button>
       <button class="track-btn" onclick="openTrackerModal()">Track Order 🚚</button>
-
-      <!-- Greeting Badge Positioned Right Next to Retailer Login -->
       <span id="customerTimeBadge"
-        style="font-size: 12px; font-weight: 600; color: #febd69; background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15);">
-        🌙 Good Evening
-      </span>
-
+        style="font-size: 12px; font-weight: 600; color: #febd69; background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15);">🌅
+        Good Morning</span>
       <button class="retailer-btn" onclick="openLoginModal()">Retailer Login 🔑</button>
       <button class="cart-btn" onclick="toggleCart()">🛍️ Basket (<span id="cartCount">0</span>)</button>
     </div>
   </header>
 
-  <!-- Real-Time Search & Category Filters Bar -->
   <section class="catalog-controls-bar">
     <div class="controls-wrapper">
-
-      <!-- Real-Time Search Box with Mic Voice Feature -->
       <div class="search-box-container">
         <span class="search-icon-inside">🔍</span>
         <input type="text" id="productSearchInput" class="catalog-search-input"
           placeholder="Search items or speak (e.g. Milk, Atta)..." oninput="applyFilterAndSearch()">
-        <button type="button" id="micBtn" class="mic-inside-btn" onclick="startVoiceSearch()" title="Speak to Search">
-          🎙️
-        </button>
+        <button type="button" id="micBtn" class="mic-inside-btn" onclick="startVoiceSearch()">🎙️</button>
       </div>
 
       <div class="filter-chips-container">
@@ -693,29 +658,23 @@
         <button class="filter-chip" onclick="filterCategory('Snacks', this)">🍿 Snacks</button>
         <button class="filter-chip" onclick="filterCategory('Beverages', this)">🥤 Beverages</button>
       </div>
-
     </div>
   </section>
 
-  <!-- Main Catalog Section -->
   <main>
-    <!-- Single Line Clean Heading with Compact Delivery ETA Badge -->
     <div
       style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-      <h3 id="activeShopHeading" style="font-size: 18px; font-weight: 700; color: #0f1111; margin: 0;">
-        Catalog — Gorakhpur Central Kirana
-      </h3>
-
+      <h3 id="activeShopHeading" style="font-size: 18px; font-weight: 700; margin: 0;">Catalog — Gorakhpur Central
+        Kirana</h3>
       <div id="compactEtaBadge"
-        style="font-size: 12px; font-weight: 700; color: #0369a1; background: #e0f2fe; border: 1px solid #bae6fd; padding: 6px 14px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
-        <span>⚡ Delivered in <b id="etaTimeVal">10–12 Mins</b> by Local Store Rider</span>
+        style="font-size: 12px; font-weight: 700; color: #0369a1; background: #e0f2fe; border: 1px solid #bae6fd; padding: 6px 14px; border-radius: 20px;">
+        ⚡ Delivered in <b id="etaTimeVal">10–12 Mins</b> by Local Store Rider
       </div>
     </div>
 
-    <!-- Product Grid -->
     <div class="product-grid" id="products"></div>
   </main>
-  <!-- Cart Drawer -->
+
   <div class="cart-drawer" id="cartDrawer">
     <div class="cart-header">
       <h3>Your Basket</h3>
@@ -723,7 +682,7 @@
     </div>
     <div class="cart-items-list" id="cartItems"></div>
     <div class="cart-footer">
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-weight:bold; font-size:16px;">
+      <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-weight:bold;">
         <span>Total Amount:</span>
         <span id="cartTotal">₹0</span>
       </div>
@@ -731,18 +690,14 @@
     </div>
   </div>
 
-  <!-- Shop Selector Modal -->
   <div id="shopSelectorModal" class="modal-overlay">
     <div class="shop-modal-card">
       <span class="close-btn" onclick="closeShopSelectorModal()">&times;</span>
       <h3 style="margin-bottom: 12px;">Select Nearby Kirana Store</h3>
-
       <div class="pincode-search-bar">
-        <input type="text" id="pincodeInput" class="pincode-input" placeholder="Enter Pincode (e.g. 273001, 273015)"
-          value="273001">
+        <input type="text" id="pincodeInput" class="pincode-input" placeholder="Enter Pincode" value="273001">
         <button class="search-btn" onclick="searchByPincode()">Search Pincode 📍</button>
       </div>
-
       <div class="hub-content-container">
         <div id="map"></div>
         <div class="shops-card-wrapper" id="shopsList"></div>
@@ -750,44 +705,27 @@
     </div>
   </div>
 
-  <!-- Customer Checkout Modal -->
   <div id="checkoutModal" class="modal-overlay">
     <div class="modal-card">
       <span class="close-btn" onclick="closeCheckoutModal()">&times;</span>
-      <h3 style="margin-bottom: 4px;">Delivery Details</h3>
+      <h3>Delivery Details</h3>
       <p id="checkoutTotalText" style="font-size: 13px; color: #15803d; font-weight: 700; margin-bottom: 14px;"></p>
-
       <form id="customerOrderForm" onsubmit="handleCustomerOrder(event)">
-        <div class="form-group">
-          <label>Your Name</label>
-          <input type="text" id="custName" placeholder="e.g. Rahul Sharma" required>
-        </div>
-        <div class="form-group">
-          <label>Phone Number</label>
-          <input type="tel" id="custPhone" placeholder="10-digit Mobile Number" required>
-        </div>
-        <div class="form-group">
-          <label>Delivery Address</label>
-          <input type="text" id="custAddress" placeholder="House/Flat No., Landmark" required>
-        </div>
+        <div class="form-group"><label>Your Name</label><input type="text" id="custName" required></div>
+        <div class="form-group"><label>Phone Number</label><input type="tel" id="custPhone" required></div>
+        <div class="form-group"><label>Delivery Address</label><input type="text" id="custAddress" required></div>
         <button type="submit" class="checkout-btn">Place Order (UPI / COD)</button>
       </form>
     </div>
   </div>
 
-  <!-- Retailer Login Modal -->
   <div id="loginModal" class="modal-overlay">
     <div class="modal-card">
       <span class="close-btn" onclick="closeLoginModal()">&times;</span>
-      <h3 style="margin-bottom: 6px;">Retailer Verification</h3>
-      <p style="font-size: 12px; color: #565959; margin-bottom: 16px;">Enter passcode to access inventory management.
-      </p>
-
+      <h3>Retailer Verification</h3>
       <form id="retailerLoginForm" onsubmit="handleLogin(event)">
-        <div class="form-group">
-          <label>Passcode</label>
-          <input type="password" id="loginKey" placeholder="Enter 'admin123'" required>
-        </div>
+        <div class="form-group"><label>Passcode</label><input type="password" id="loginKey"
+            placeholder="Enter 'admin123'" required></div>
         <button type="submit" class="checkout-btn">Verify & Open Dashboard</button>
       </form>
     </div>
@@ -797,36 +735,16 @@
   <div id="trackerModal" class="modal-overlay">
     <div class="modal-card">
       <span class="close-btn" onclick="closeTrackerModal()">&times;</span>
-      <h3 style="margin-bottom: 10px;">🚚 Live Order Tracking</h3>
-
-      <div class="form-group">
+      <h3>🚚 Live Order Tracking</h3>
+      <div class="form-group" style="margin-top:10px;">
         <input type="text" id="trackOrderIdInput" placeholder="Enter Order ID (e.g. ORD-1024)">
         <button class="checkout-btn" style="margin-top:8px;" onclick="trackOrder()">Track Status</button>
       </div>
-
       <div id="trackingResult" style="display:none; border-top:1px dashed #cbd5e1; padding-top:12px; margin-top:12px;">
-        <p style="font-size:12px; color:#565959;">Order ID: <b id="displayOrderId"></b></p>
-        <p style="font-size:12px; color:#565959; margin-bottom:10px;">Store: <b id="displayStoreName"></b></p>
-
-        <div class="tracking-steps">
-          <div class="step-item" id="step-PENDING">
-            <div class="step-icon">1</div> ⏳ Order Received
-          </div>
-          <div class="step-item" id="step-PACKING">
-            <div class="step-icon">2</div> 📦 Packing Items
-          </div>
-          <div class="step-item" id="step-DISPATCHED">
-            <div class="step-icon">3</div> 🚚 Out for Delivery
-          </div>
-          <div class="step-item" id="step-DELIVERED">
-            <div class="step-icon">4</div> ✅ Delivered
-          </div>
-        </div>
       </div>
     </div>
   </div>
 
-  <!-- Leaflet JS for Map -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     let masterCatalog = [];
@@ -836,11 +754,24 @@
     let isMapInitialized = false;
     let lastPlacedOrderId = "";
 
+    const predefinedItems = [
+      { _id: 'sample_1', title: 'Amul Taaza Milk (1L)', price: 68, category: 'Dairy & Bakery', stockStatus: 'IN_STOCK' },
+      { _id: 'sample_2', title: 'Britannia White Bread (400g)', price: 40, category: 'Dairy & Bakery', stockStatus: 'LOW_STOCK' },
+      { _id: 'sample_3', title: 'Lays Classic Salted Chips', price: 20, category: 'Snacks & Packaged Food', stockStatus: 'IN_STOCK' },
+      { _id: 'sample_4', title: 'Aashirvaad Shuddh Atta (5kg)', price: 245, category: 'Grocery & Staples', stockStatus: 'IN_STOCK' },
+      { _id: 'sample_5', title: 'Coca-Cola Drink (750ml)', price: 45, category: 'Beverages', stockStatus: 'OUT_OF_STOCK' }
+    ];
+
     const mockShopsDatabase = [
       { id: 'shop_1', name: 'Gorakhpur Central Kirana', phone: '+91 9876543210', pincode: '273001', status: 'OPEN', distance: '0.8 km', lat: 26.7606, lng: 83.3732 },
       { id: 'shop_2', name: 'Gupta General Store', phone: '+91 9123456789', pincode: '273001', status: 'OPEN', distance: '1.5 km', lat: 26.7650, lng: 83.3780 },
       { id: 'shop_3', name: 'Verma Super Mart', phone: '+91 9988776655', pincode: '273015', status: 'CLOSED', distance: '3.2 km', lat: 26.7520, lng: 83.3610 }
     ];
+
+    function toggleThemeMode() {
+      const isDark = document.body.classList.toggle('dark-theme');
+      document.getElementById('themeToggleBtn').innerText = isDark ? '☀️ Light' : '🌙 Dark';
+    }
 
     function getGreeting() {
       const hour = new Date().getHours();
@@ -849,221 +780,107 @@
       return "🌙 Good Evening";
     }
 
-    function updateCustomerHeading(shopName) {
-      const headingElem = document.getElementById('activeShopHeading');
-      if (headingElem) {
-        headingElem.innerText = `${getGreeting()}! Catalog — ${shopName}`;
-      }
+    function getEstimatedDeliveryClockTime(minutesToAdd = 15) {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() + minutesToAdd);
+      return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
     }
 
-    function showToast(message, isWarning = false) {
+    function showToast(msg) {
       const toast = document.getElementById('toastNotification');
-      toast.innerText = message;
-      toast.style.background = isWarning ? '#b45309' : '#15803d';
+      if (!toast) return;
+      toast.innerText = msg;
       toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 3500);
-    }
-
-    /* Shop Selector Map Handlers */
-    function openShopSelectorModal() {
-      document.getElementById('shopSelectorModal').style.display = 'flex';
-      setTimeout(() => {
-        if (!isMapInitialized) {
-          initMap();
-          isMapInitialized = true;
-        } else {
-          map.invalidateSize();
-        }
-      }, 200);
-    }
-
-    function closeShopSelectorModal() { document.getElementById('shopSelectorModal').style.display = 'none'; }
-
-    function initMap() {
-      map = L.map('map').setView([26.7606, 83.3732], 13);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
-      markersGroup = L.layerGroup().addTo(map);
-      searchByPincode();
-    }
-
-    function searchByPincode() {
-      const pin = document.getElementById('pincodeInput').value.trim();
-      const matchedShops = mockShopsDatabase.filter(s => s.pincode === pin || pin === '');
-      renderShopCards(matchedShops.length ? matchedShops : mockShopsDatabase);
-    }
-
-    function renderShopCards(shops) {
-      const container = document.getElementById('shopsList');
-      container.innerHTML = '';
-      markersGroup.clearLayers();
-
-      shops.forEach((shop, index) => {
-        const isOpen = shop.status === 'OPEN';
-        container.innerHTML += `
-          <div class="shop-card">
-            <div class="shop-info">
-              <h4>${shop.name}</h4>
-              <p>📍 ${shop.distance} • 📞 ${shop.phone}</p>
-              <span class="status-badge-shop ${isOpen ? 'status-open' : 'status-closed'}">
-                ${isOpen ? '🟢 OPEN' : '🔴 CLOSED'}
-              </span>
-            </div>
-            <button class="select-shop-btn" onclick="selectShopCatalog('${shop.name}', '${shop.distance}')">Select Store</button>
-          </div>`;
-
-        const marker = L.marker([shop.lat, shop.lng]).addTo(markersGroup);
-        marker.bindPopup(`<b>${shop.name}</b><br>${shop.phone}`);
-        if (index === 0) map.panTo([shop.lat, shop.lng]);
-      });
-    }
-
-    function selectShopCatalog(shopName, distance) {
-      document.getElementById('currentStoreTitle').innerText = shopName;
-      updateCustomerHeading(shopName);
-      closeShopSelectorModal();
-      showToast(`Selected Store: ${shopName}`);
-      loadCatalog();
-    }
-
-    function openLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
-    function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
-
-    function handleLogin(event) {
-      event.preventDefault();
-      const key = document.getElementById('loginKey').value;
-      if (key === 'admin123' || key.length >= 4) {
-        localStorage.setItem('isRetailerLogged', 'true');
-        closeLoginModal();
-        window.location.href = '/admin';
-      } else {
-        alert("Invalid Passcode! Try 'admin123'");
-      }
-    }
-
-    function getProductImage(item) {
-      if (item.imageUrl) return item.imageUrl;
-      const title = (item.title || '').toLowerCase();
-      if (title.includes('milk') || title.includes('paneer') || title.includes('dahi')) {
-        return 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&auto=format&fit=crop&q=80';
-      }
-      if (title.includes('chip') || title.includes('snack')) {
-        return 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400&auto=format&fit=crop&q=80';
-      }
-      return 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&auto=format&fit=crop&q=80';
-    }
-
-    function getStockBadgeHTML(status) {
-      if (status === "LOW_STOCK") return `<span class="stock-badge stock-low">⚠️ Low Stock</span>`;
-      if (status === "OUT_OF_STOCK") return `<span class="stock-badge stock-out">❌ Out of Stock</span>`;
-      return `<span class="stock-badge stock-in">✅ In Stock</span>`;
+      setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
     async function loadCatalog() {
       try {
-        const store = document.getElementById('currentStoreTitle').innerText;
-        updateCustomerHeading(store);
-
         const res = await fetch('/api/products');
         let data = await res.json();
-
-        if (!data || data.length === 0) {
-          data = [
-            { _id: 'sample_1', title: 'Amul Taaza Milk (1L)', price: 68, category: 'Dairy & Bakery', stockStatus: 'IN_STOCK' },
-            { _id: 'sample_2', title: 'Britannia White Bread (400g)', price: 40, category: 'Dairy & Bakery', stockStatus: 'LOW_STOCK' },
-            { _id: 'sample_3', title: 'Lays Classic Salted Chips', price: 20, category: 'Snacks & Packaged Food', stockStatus: 'IN_STOCK' },
-            { _id: 'sample_4', title: 'Aashirvaad Shuddh Atta (5kg)', price: 245, category: 'Grocery & Staples', stockStatus: 'IN_STOCK' },
-            { _id: 'sample_5', title: 'Coca-Cola Drink (750ml)', price: 45, category: 'Beverages', stockStatus: 'OUT_OF_STOCK' }
-          ];
-        }
-
-        masterCatalog = data;
-        applyFilterAndSearch();
+        if (!data || data.length === 0) masterCatalog = predefinedItems;
+        else masterCatalog = data;
       } catch (err) {
-        console.error("Error loading products:", err);
+        masterCatalog = predefinedItems;
       }
+      applyFilterAndSearch();
     }
 
-    function filterCategory(cat, btnElement) {
+    function filterCategory(cat, btn) {
       selectedCategory = cat;
       document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
-      if (btnElement) btnElement.classList.add('active');
+      if (btn) btn.classList.add('active');
       applyFilterAndSearch();
     }
 
     function applyFilterAndSearch() {
-      const searchQuery = document.getElementById('productSearchInput').value.toLowerCase().trim();
-
-      const filtered = masterCatalog.filter(item => {
-        const matchesCategory = selectedCategory === 'All' ||
-          (item.category && item.category.toLowerCase().includes(selectedCategory.toLowerCase()));
-
-        const matchesSearch = !searchQuery ||
-          (item.title && item.title.toLowerCase().includes(searchQuery)) ||
-          (item.category && item.category.toLowerCase().includes(searchQuery));
-
-        return matchesCategory && matchesSearch;
+      const query = document.getElementById('productSearchInput').value.toLowerCase().trim();
+      const filtered = masterCatalog.filter(i => {
+        const matchCat = selectedCategory === 'All' || (i.category && i.category.toLowerCase().includes(selectedCategory.toLowerCase()));
+        const matchSearch = !query || (i.title && i.title.toLowerCase().includes(query));
+        return matchCat && matchSearch;
       });
-
       renderProducts(filtered);
+    }
+
+    function getProductImage(p) {
+      const t = (p.title || '').toLowerCase();
+      if (t.includes('milk') || t.includes('paneer')) return 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400';
+      if (t.includes('chip') || t.includes('snack')) return 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400';
+      return 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400';
     }
 
     function renderProducts(items) {
       const grid = document.getElementById('products');
+      if (!grid) return;
       grid.innerHTML = '';
       if (!items || !items.length) {
-        grid.innerHTML = '<p style="font-size: 14px; color:#565959; grid-column: 1/-1;">No products found matching your search.</p>';
+        grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:20px;">No items found.</p>';
         return;
       }
-
+      const hasCart = cart.length > 0;
       items.forEach(p => {
-        const stockStatus = p.stockStatus || "IN_STOCK";
-        const isOutOfStock = stockStatus === "OUT_OF_STOCK";
-
+        const out = p.stockStatus === "OUT_OF_STOCK";
         grid.innerHTML += `
           <div class="product-card">
             <div>
-              <div class="image-container">
-                <img src="${getProductImage(p)}" class="product-img" alt="${p.title}">
-              </div>
+              <div class="image-container"><img src="${getProductImage(p)}" class="product-img"></div>
               <div class="product-title">${p.title}</div>
               <div class="product-category">${p.category || 'General'}</div>
-              ${getStockBadgeHTML(stockStatus)}
-              <div class="product-price">₹${p.price || 0}</div>
+              <div class="product-price">₹${p.price}</div>
             </div>
-            <button class="add-cart-btn" ${isOutOfStock ? 'disabled' : ''} onclick="addToCart('${p._id}', '${p.title}', ${p.price || 0})">
-              ${isOutOfStock ? 'Out of Stock' : '+ Add to Cart'}
-            </button>
+            <div class="card-actions-brick-group">
+              <button class="btn-black-brick ${hasCart ? 'blurred-buy-btn' : ''}" ${out || hasCart ? 'disabled' : ''} onclick="buyNowInstant('${p._id}', '${p.title}', ${p.price})">⚡ Buy Now</button>
+              <button class="btn-black-brick" ${out ? 'disabled' : ''} onclick="addToCart('${p._id}', '${p.title}', ${p.price})">${out ? 'Out of Stock' : '🛒 Add to Cart'}</button>
+            </div>
           </div>`;
       });
     }
 
+    function buyNowInstant(id, title, price) {
+      cart = [{ id, title, price, qty: 1 }];
+      updateCartUI();
+      openCheckoutModal();
+    }
+
     function addToCart(id, title, price) {
-      const existing = cart.find(i => i.id === id);
-      if (existing) existing.qty += 1;
+      const item = cart.find(i => i.id === id);
+      if (item) item.qty += 1;
       else cart.push({ id, title, price, qty: 1 });
       updateCartUI();
-      showToast("Added to Cart!");
+      showToast(`🛒 "${title}" added to Basket!`);
     }
 
     function updateCartUI() {
-      const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
-      const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-      document.getElementById('cartCount').innerText = totalCount;
-      document.getElementById('cartTotal').innerText = `₹${totalPrice}`;
-
+      document.getElementById('cartCount').innerText = cart.reduce((s, i) => s + i.qty, 0);
+      document.getElementById('cartTotal').innerText = `₹${cart.reduce((s, i) => s + (i.price * i.qty), 0)}`;
       const list = document.getElementById('cartItems');
-      list.innerHTML = cart.length ? cart.map(item => `
+      list.innerHTML = cart.length ? cart.map(i => `
         <div class="cart-item">
-          <div>
-            <div style="font-weight:600;">${item.title}</div>
-            <div style="font-size:12px; color:#565959;">₹${item.price} x ${item.qty}</div>
-          </div>
-          <div>
-            <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
-            <span style="padding: 0 6px;">${item.qty}</span>
-            <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
-          </div>
-        </div>`).join('') : '<p style="text-align:center; padding-top:20px; color:#565959;">Basket is empty.</p>';
+          <div><b>${i.title}</b><br><small>₹${i.price} x ${i.qty}</small></div>
+          <div><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button> <span>${i.qty}</span> <button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div>
+        </div>`).join('') : '<p style="text-align:center; padding:20px;">Basket is empty.</p>';
+      applyFilterAndSearch();
     }
 
     function changeQty(id, delta) {
@@ -1076,10 +893,9 @@
     }
 
     function toggleCart() { document.getElementById('cartDrawer').classList.toggle('open'); }
-
     function openCheckoutModal() {
       if (!cart.length) return showToast("Cart is empty!", true);
-      const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
       document.getElementById('checkoutTotalText').innerText = `Payable Total: ₹${total}`;
       document.getElementById('checkoutModal').style.display = 'flex';
     }
@@ -1093,11 +909,60 @@
       }
     }
     function closeTrackerModal() { document.getElementById('trackerModal').style.display = 'none'; }
-    // Current time se exact delivery clock time (e.g., "1:29 AM") calculate karne ke liye
-    function getEstimatedDeliveryClockTime(minutesToAdd = 15) {
-      const now = new Date();
-      now.setMinutes(now.getMinutes() + minutesToAdd);
-      return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+    function openLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
+    function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
+    function openShopSelectorModal() {
+      document.getElementById('shopSelectorModal').style.display = 'flex';
+      setTimeout(() => {
+        if (!isMapInitialized) { initMap(); isMapInitialized = true; }
+      }, 200);
+    }
+    function closeShopSelectorModal() { document.getElementById('shopSelectorModal').style.display = 'none'; }
+
+    function initMap() {
+      map = L.map('map').setView([26.7606, 83.3732], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+      markersGroup = L.layerGroup().addTo(map);
+      searchByPincode();
+    }
+
+    function searchByPincode() {
+      const pin = document.getElementById('pincodeInput').value.trim();
+      const matched = mockShopsDatabase.filter(s => s.pincode === pin || pin === '');
+      renderShopCards(matched.length ? matched : mockShopsDatabase);
+    }
+
+    function renderShopCards(shops) {
+      const container = document.getElementById('shopsList');
+      if (!container) return;
+      container.innerHTML = '';
+      markersGroup.clearLayers();
+
+      shops.forEach(s => {
+        container.innerHTML += `
+          <div class="shop-card">
+            <div class="shop-info">
+              <h4>${s.name}</h4>
+              <p>📍 ${s.distance} • 📞 ${s.phone}</p>
+            </div>
+            <button class="select-shop-btn" onclick="selectShopCatalog('${s.name}')">Select</button>
+          </div>`;
+        const m = L.marker([s.lat, s.lng]).addTo(markersGroup);
+        m.bindPopup(`<b>${s.name}</b>`);
+      });
+    }
+
+    function selectShopCatalog(name) {
+      document.getElementById('currentStoreTitle').innerText = name;
+      document.getElementById('activeShopHeading').innerText = `Catalog — ${name}`;
+      closeShopSelectorModal();
+      showToast(`Selected Store: ${name}`);
+      loadCatalog();
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      if (document.getElementById('loginKey').value === 'admin123') window.location.href = '/admin';
     }
 
     async function handleCustomerOrder(e) {
@@ -1107,82 +972,69 @@
       const custAddress = document.getElementById('custAddress').value;
       const storeName = document.getElementById('currentStoreTitle').innerText;
 
-      if (!cart.length) return showToast("Cart is empty!", true);
-
-      const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      if (!cart.length) return showToast("Basket is empty!");
 
       try {
         const res = await fetch('/api/orders/place', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            customerName: custName, phone: custPhone, address: custAddress,
-            items: cart, totalAmount: totalPrice, storeName: storeName
+            customerName: custName,
+            phone: custPhone,
+            address: custAddress,
+            items: cart,
+            totalAmount: cart.reduce((s, i) => s + (i.price * i.qty), 0),
+            storeName: storeName
           })
         });
         const data = await res.json();
-
         if (data.success) {
           lastPlacedOrderId = data.order.orderId;
           closeCheckoutModal();
           cart = [];
           updateCartUI();
-          toggleCart();
-
-          // Notification toast
-          showToast(`🎉 Order Placed Successfully!`);
-
-          // Open tracking modal with UI notice
+          showToast(`🎉 Order Placed! ID: ${lastPlacedOrderId}`);
           openTrackerModal();
         }
-      } catch (err) {
-        console.error("Error submitting order:", err);
-        showToast("Order placement failed!", true);
-      }
+      } catch (err) { console.error(err); }
     }
 
     async function trackOrder() {
       const orderId = document.getElementById('trackOrderIdInput').value.trim();
-      const trackInput = document.getElementById('trackOrderIdInput');
+      const resultBox = document.getElementById('trackingResult');
 
       if (!orderId) {
-        trackInput.style.borderColor = '#ef4444';
+        resultBox.style.display = 'block';
+        resultBox.innerHTML = `<p style="color:#b91c1c; font-size:12px;">⚠️ Please enter an Order ID!</p>`;
         return;
       }
-      trackInput.style.borderColor = '#888c8c';
 
       try {
         const res = await fetch('/api/orders');
         const orders = await res.json();
         const order = orders.find(o => o.orderId.toLowerCase() === orderId.toLowerCase());
 
-        const resultBox = document.getElementById('trackingResult');
+        resultBox.style.display = 'block';
 
         if (!order) {
-          resultBox.style.display = 'block';
           resultBox.innerHTML = `
-            <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; text-align: center;">
-              ⚠️ Order ID "${orderId}" not found. Please check and try again!
+            <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; padding: 10px; border-radius: 8px; font-size: 12px; text-align: center;">
+              ⚠️ Order ID "${orderId}" not found.
             </div>`;
           return;
         }
 
         const deliveryClockTime = getEstimatedDeliveryClockTime(15);
 
-        resultBox.style.display = 'block';
+        // Render Guaranteed Delivery Notice + Order ID + Timeline Steps
         resultBox.innerHTML = `
-          <!-- Attentive Delivery ETA Card -->
-          <div style="background: #f0fdf4; border: 1.5px solid #22c55e; color: #15803d; padding: 12px; border-radius: 10px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(34, 197, 94, 0.15);">
-            <div style="font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px;">
-              🛵 Guaranteed Delivery by ${deliveryClockTime}
-            </div>
-            <div style="font-size: 12px; color: #166534; margin-top: 4px; font-weight: 500;">
-              Will be delivered in ~15 Mins by <b>${order.storeName}</b> local store rider.
-            </div>
+          <div style="background: #f0fdf4; border: 1.5px solid #22c55e; color: #15803d; padding: 12px; border-radius: 10px; margin-bottom: 12px;">
+            <div style="font-size: 14px; font-weight: 700;">🛵 Guaranteed Delivery by ${deliveryClockTime}</div>
+            <div style="font-size: 12px; color: #166534; margin-top: 3px;">Will be delivered in ~15 Mins by <b>${order.storeName}</b> local store rider.</div>
           </div>
 
-          <div style="font-size: 12px; color: #565959; margin-bottom: 4px;">Order ID: <b>${order.orderId}</b></div>
-          <div style="font-size: 12px; color: #565959; margin-bottom: 12px;">Customer: <b>${order.customerName}</b> (${order.phone})</div>
+          <div style="font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px;">Order ID: <span style="color:#2563eb;">${order.orderId}</span></div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Customer: <b>${order.customerName}</b> (${order.phone})</div>
 
           <div class="tracking-steps">
             <div class="step-item" id="step-PENDING"><div class="step-icon">1</div> ⏳ Order Received</div>
@@ -1192,7 +1044,7 @@
           </div>
         `;
 
-        // Update tracking steps highlight
+        // Highlight step statuses based on order status
         document.querySelectorAll('.step-item').forEach(s => s.classList.remove('active'));
         const statuses = ['PENDING', 'PACKING', 'DISPATCHED', 'DELIVERED'];
         const activeIndex = statuses.indexOf(order.status);
@@ -1201,88 +1053,27 @@
           const stepElem = document.getElementById(`step-${statuses[i]}`);
           if (stepElem) stepElem.classList.add('active');
         }
-      } catch (err) {
-        console.error("Error tracking order:", err);
-      }
+
+      } catch (err) { console.error(err); }
     }
 
-    document.addEventListener("DOMContentLoaded", loadCatalog);
-    /* Web Speech API Voice Search Engine */
     function startVoiceSearch() {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-      if (!SpeechRecognition) {
-        showToast("⚠️ Voice search is not supported in this browser.", true);
-        return;
-      }
-
-      const recognition = new SpeechRecognition();
-      recognition.lang = 'en-IN'; // Hindi/English accents friendly
-      recognition.continuous = false;
-      recognition.interimResults = false;
-
-      const micBtn = document.getElementById('micBtn');
-      const searchInput = document.getElementById('productSearchInput');
-
-      recognition.onstart = function () {
-        micBtn.classList.add('mic-listening');
-        showToast("🎙️ Listening... Speak item name (e.g., Milk, Atta, Chips)");
-      };
-
-      recognition.onspeechend = function () {
-        micBtn.classList.remove('mic-listening');
-        recognition.stop();
-      };
-
-      recognition.onresult = function (event) {
-        const transcript = event.results[0][0].transcript;
-        // Clean speech text (e.g. remove trailing dot)
-        const cleanedText = transcript.replace(/\.$/, '');
-
-        searchInput.value = cleanedText;
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) return showToast("Voice Search Not Supported");
+      const r = new SR();
+      r.lang = 'en-IN';
+      r.onstart = () => showToast("🎙️ Listening...");
+      r.onresult = (e) => {
+        document.getElementById('productSearchInput').value = e.results[0][0].transcript;
         applyFilterAndSearch();
-        showToast(`🔍 Searching for: "${cleanedText}"`);
       };
-
-      recognition.onerror = function (event) {
-        micBtn.classList.remove('mic-listening');
-        showToast("⚠️ Could not recognize voice. Try again!", true);
-      };
-
-      recognition.start();
-    }
-    // Dynamic ETA Calculation Logic
-    function calculateStoreETA(distanceStr) {
-      // Distance parse (e.g. "0.8 km" -> 0.8)
-      const distanceNum = parseFloat(distanceStr) || 1.0;
-
-      let minTime = Math.round(8 + (distanceNum * 4));
-      let maxTime = minTime + 5;
-
-      return `${minTime}–${maxTime} Mins`;
+      r.start();
     }
 
-    function updateETABadge(storeName, distanceStr) {
-      const etaTime = calculateStoreETA(distanceStr);
-      const etaDisplay = document.getElementById('etaTextDisplay');
-
-      if (etaDisplay) {
-        etaDisplay.innerHTML = `Estimated Delivery: <b style="color:#0284c7;">${etaTime}</b> (${distanceStr} away) from <b>${storeName}</b>`;
-      }
-    }
-
-    // Shop Selection Function Update
-    function selectShopCatalog(shopName, distance) {
-      document.getElementById('currentStoreTitle').innerText = shopName;
-
-      // Update Heading & ETA Badge
-      updateCustomerHeading(shopName);
-      updateETABadge(shopName, distance);
-
-      closeShopSelectorModal();
-      showToast(`Switched Store to ${shopName} (ETA: ${calculateStoreETA(distance)})`);
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById('customerTimeBadge').innerText = getGreeting();
       loadCatalog();
-    }
+    });
   </script>
 </body>
 
