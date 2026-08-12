@@ -1320,27 +1320,47 @@
       const orderId = document.getElementById('trackOrderIdInput').value.trim();
       const resultBox = document.getElementById('trackingResult');
       if (!orderId) return;
-
       const orders = JSON.parse(localStorage.getItem('cartix_orders') || '[]');
       const order = orders.find(o => o.orderId.toLowerCase() === orderId.toLowerCase());
-
       resultBox.style.display = 'block';
       if (!order) {
         resultBox.innerHTML = `<p style="color:#b91c1c; font-size:12px;">⚠️ Order ID "${orderId}" not found.</p>`;
         return;
       }
 
+      // Cancel button HTML check
+      let cancelBtnHtml = '';
+      if (order.status === 'PENDING' || order.status === 'PACKING') {
+        cancelBtnHtml = `<button onclick="cancelCustomerOrder('${order.orderId}')" style="background:#ef4444; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer; margin-top:14px; width:100%;">❌ Cancel My Order</button>`;
+      } else if (order.status === 'CANCELLED') {
+        cancelBtnHtml = `<div style="color:#b91c1c; font-size:13px; font-weight:bold; margin-top:14px; text-align:center; background:#fee2e2; padding:8px; border-radius:6px;">🚫 Order Cancelled</div>`;
+      }
+
       resultBox.innerHTML = `
       <div style="background: #f0fdf4; border: 1px solid #22c55e; color: #15803d; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size:12px;">
-        🛵 Guaranteed Delivery in ~15 Mins by <b>${order.storeName}</b> Rider.
+          Guaranteed Delivery in ~15 Mins by <b>${order.storeName}</b> Rider.
       </div>
-      <div style="font-size:12px; margin-bottom:6px;">Order ID: <b>${order.orderId}</b> | Status: <b style="color:#2563eb;">${order.status}</b></div>
+      <div style="font-size:12px; margin-bottom:6px;">Order ID: <b>${order.orderId}</b> | Status: <b style="color:${order.status === 'CANCELLED' ? '#ef4444' : '#2563eb'};">${order.status}</b></div>
       <div class="tracking-steps">
-        <div class="step-item ${order.status === 'PENDING' || order.status === 'PACKING' || order.status === 'DISPATCHED' || order.status === 'DELIVERED' ? 'active' : ''}"><div class="step-icon">1</div> ⏳ Order Received</div>
+        <div class="step-item ${order.status !== 'CANCELLED' ? 'active' : ''}"><div class="step-icon">1</div> 🛒 Order Received</div>
         <div class="step-item ${order.status === 'PACKING' || order.status === 'DISPATCHED' || order.status === 'DELIVERED' ? 'active' : ''}"><div class="step-icon">2</div> 📦 Packing Items</div>
         <div class="step-item ${order.status === 'DISPATCHED' || order.status === 'DELIVERED' ? 'active' : ''}"><div class="step-icon">3</div> 🚚 Out for Delivery</div>
         <div class="step-item ${order.status === 'DELIVERED' ? 'active' : ''}"><div class="step-icon">4</div> ✅ Delivered</div>
-      </div>`;
+      </div>
+      ${cancelBtnHtml}`;
+    }
+    function cancelCustomerOrder(orderId) {
+      let orders = JSON.parse(localStorage.getItem('cartix_orders') || '[]');
+      const order = orders.find(o => o.orderId === orderId);
+
+      if (order && (order.status === 'PENDING' || order.status === 'PACKING')) {
+        order.status = 'CANCELLED';
+        localStorage.setItem('cartix_orders', JSON.stringify(orders));
+        showToast("⚠️ Order Cancelled Successfully!");
+        trackOrder(); // Tracker ko turant refresh karega
+      } else {
+        showToast("Cannot cancel. Order already dispatched!");
+      }
     }
 
     function startVoiceSearch() {
