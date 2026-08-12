@@ -668,6 +668,105 @@
       border: 1px solid #15803d;
       transform: scale(1.1);
     }
+
+    /* ===== Mobile Responsive ===== */
+    @media (max-width: 900px) {
+      .hub-content-container {
+        grid-template-columns: 1fr;
+      }
+
+      #map {
+        height: 220px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 12px 16px;
+      }
+
+      .header-left {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .nav-actions {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
+
+      .shop-location-badge {
+        flex-wrap: wrap;
+        font-size: 11px;
+      }
+
+      main {
+        padding: 14px;
+      }
+
+      .controls-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search-box-container {
+        max-width: none;
+        min-width: 0;
+      }
+
+      .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 12px;
+      }
+
+      .cart-drawer {
+        width: 88%;
+        right: -100%;
+      }
+
+      .modal-card {
+        width: 90%;
+        max-width: 360px;
+        padding: 18px;
+      }
+
+      .shop-modal-card {
+        width: 94%;
+        padding: 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .brand {
+        font-size: 17px;
+      }
+
+      #compactEtaBadge {
+        display: none;
+      }
+
+      .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .image-container {
+        height: 100px;
+      }
+
+      .product-title {
+        font-size: 13px;
+      }
+
+      .product-price {
+        font-size: 15px;
+      }
+
+      .pincode-search-bar {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 
@@ -685,14 +784,15 @@
     </div>
 
     <div class="nav-actions">
-      <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleThemeMode()">🌙 Dark</button>
-      <button class="track-btn" onclick="openTrackerModal()">Track Order 🚚</button>
-      <button class="rider-nav-btn" onclick="window.location.href='/rider.html'">🛵 Rider View</button>
       <span id="customerTimeBadge"
         style="font-size: 12px; font-weight: 600; color: #febd69; background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15);">🌅
         Good Morning</span>
+      <button class="track-btn" onclick="openTrackerModal()">Track Order 🚚</button>
+      <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleThemeMode()">🌙 Dark</button>
+      <button class="rider-nav-btn" onclick="window.location.href='/rider.html'">🛵 Rider Login</button>
+
       <button class="retailer-btn" onclick="openLoginModal()">Retailer Hub 🔑</button>
-      <button class="cart-btn" onclick="toggleCart()">🛍️ Basket (<span id="cartCount">0</span>)</button>
+      <!-- <button class="cart-btn" onclick="toggleCart()">🛍️ Basket (<span id="cartCount">0</span>)</button> -->
     </div>
   </header>
 
@@ -714,6 +814,7 @@
         <button class="filter-chip" onclick="filterCategory('Masala', this)">🌶️ Masala</button>
         <button class="filter-chip" onclick="filterCategory('Atta, Rice & Dal', this)">🌾 Atta, Rice & Dal</button>
       </div>
+      <button class="cart-btn" onclick="toggleCart()">🛍️ Basket (<span id="cartCount">0</span>)</button>
     </div>
   </section>
 

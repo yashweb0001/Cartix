@@ -254,6 +254,69 @@
             padding: 20px;
             text-align: center;
         }
+
+        /* ===== Mobile Responsive ===== */
+        @media (max-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 14px 16px;
+            }
+
+            main {
+                margin: 16px auto;
+                padding: 0 14px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 14px;
+            }
+
+            .stat-card .value {
+                font-size: 18px;
+            }
+
+            .modal-card {
+                width: 90%;
+                max-width: 340px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            header>div:last-child {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .mini-prod-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .stock-toggle-btn {
+                align-self: stretch;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 
