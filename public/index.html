@@ -1137,34 +1137,38 @@
       return 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400';
     }
 
-    function renderProducts(items) {
-      const grid = document.getElementById('products');
-      if (!grid) return;
-      grid.innerHTML = '';
-      if (!items || !items.length) {
-        grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:30px; font-size:14px; color:var(--text-muted);">No products found in this store.</p>';
+    function renderShopCards(shops) {
+      const container = document.getElementById('shopsList');
+      if (!container) return;
+
+      container.innerHTML = `
+        <div class="shop-card" style="border: 2px dashed #10b981; background: #f0fdf4;">
+          <div class="shop-info">
+            <h4 style="color: #15803d;">🌐 View All Network Stores</h4>
+            <p>Show items from all nearby Kiranas</p>
+          </div>
+          <button class="select-shop-btn" style="background: #10b981;" onclick="selectShopCatalog('ALL', 'All ONDC Network Stores')">View All</button>
+        </div>`;
+
+      markersGroup.clearLayers();
+
+      // 🔴 FIX: Agar array khali hai (koi shop uss pincode par nahi hai), toh "Not found" dikhao
+      if (shops.length === 0) {
+        container.innerHTML += `<div style="text-align:center; padding:20px; font-size:13px; font-weight:600; color:var(--text-muted);">❌ No shops found for this Pincode.</div>`;
         return;
       }
-      const hasCart = cart.length > 0;
-      items.forEach(p => {
-        const stockStatus = p.stockStatus || "IN_STOCK";
-        const out = stockStatus === "OUT_OF_STOCK";
 
-        grid.innerHTML += `
-        <div class="product-card">
-          <div>
-            <div class="image-container"><img src="${getProductImage(p)}" class="product-img" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=400'"></div>
-            <span class="seller-tag">🏪 ${p.shopName || selectedShopName}</span>
-            <div class="product-title">${p.title}</div>
-            <div class="product-category">${p.category || 'General'}</div>
-            ${getStockBadgeHTML(stockStatus)}
-            <div class="product-price">₹${p.price}</div>
+      shops.forEach(s => {
+        container.innerHTML += `
+        <div class="shop-card">
+          <div class="shop-info">
+            <h4>${s.name}</h4>
+            <p>📍 ${s.distance} • 📞 ${s.phone}</p>
           </div>
-          <div class="card-actions-brick-group">
-            <button class="btn-black-brick ${hasCart ? 'blurred-buy-btn' : ''}" ${out || hasCart ? 'disabled' : ''} onclick="buyNowInstant('${p._id}', '${p.title}', ${p.price}, '${p.shopName || selectedShopName}')">⚡ Buy Now</button>
-            <button class="btn-black-brick" ${out ? 'disabled' : ''} onclick="addToCart('${p._id}', '${p.title}', ${p.price}, '${p.shopName || selectedShopName}')">${out ? 'Out of Stock' : '🛒 Add to Cart'}</button>
-          </div>
+          <button class="select-shop-btn" onclick="selectShopCatalog('${s.id}', '${s.name}')">Select</button>
         </div>`;
+        const m = L.marker([s.lat, s.lng]).addTo(markersGroup);
+        m.bindPopup(`<b>${s.name}</b>`);
       });
     }
 
@@ -1348,10 +1352,12 @@
     function searchByPincode() {
       const pin = document.getElementById('pincodeInput').value.trim();
       const shops = getShopsList();
-      const matched = shops.filter(s => s.pincode === pin || pin === '');
-      renderShopCards(matched.length ? matched : shops);
-    }
 
+      // 🔴 FIX: Agar pincode box khali hai toh sab dikhao, nahi toh sirf wahi dikhao jo match ho
+      const matched = pin === '' ? shops : shops.filter(s => s.pincode === pin);
+
+      renderShopCards(matched);
+    }
     function renderShopCards(shops) {
       const container = document.getElementById('shopsList');
       if (!container) return;
