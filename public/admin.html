@@ -453,14 +453,16 @@
             document.getElementById('statRevenue').innerText = `₹${myOrders.reduce((s, o) => s + o.totalAmount, 0)}`;
 
             const container = document.getElementById('ordersContainer');
-            if (!myOrders.length) return container.innerHTML = `<p style="font-size:12px; color:var(--text-muted);">No orders received for ${currentShopName} yet.</p>`;
+            if (!myOrders.length) {
+                container.innerHTML = `<p style="font-size:12px; color:var(--text-muted);">No orders received for ${currentShopName} yet.</p>`;
+                return;
+            }
 
             container.innerHTML = myOrders.map(o => `
             <div class="order-card">
                 <div style="display:flex; justify-content:space-between; font-weight:bold;"><span>🛒 ${o.orderId}</span><span>₹${o.totalAmount}</span></div>
                 <div style="font-size:12px; color:var(--text-muted); margin:6px 0;">👤 ${o.customerName} (${o.phone}) 📍 ${o.address}</div>
                 
-                <!-- NAYA ADDITION: ORDERED ITEMS DIKHANE KE LIYE BINA KUCH HATAAYE -->
                 <div style="background: #f1f5f9; padding: 8px; border-radius: 6px; margin: 8px 0; font-size: 11px; border: 1px solid #e2e8f0;">
                     <strong style="display:block; margin-bottom:4px; color:#0f172a;">📦 Items to Pack:</strong>
                     ${o.items ? o.items.map(item => `
@@ -470,7 +472,6 @@
                         </div>
                     `).join('') : '<span style="color:red;">No items data</span>'}
                 </div>
-                <!-- END NAYA ADDITION -->
 
                 ${o.riderName ? `<div style="font-size:11px; color:#2563eb; font-weight:600; margin-bottom:6px;">🛵 Picked up by ${o.riderName} (${o.riderPhone || 'no phone'})</div>` : ''}
                 
@@ -482,114 +483,117 @@
                     <option value="CANCELLED" ${o.status === 'CANCELLED' ? 'selected' : ''}>❌ Cancelled (No Stock)</option>
                 </select>
             </div>
-        `).join('');
+            `).join('');
+        }
 
-            function updateOrderStatus(orderId, status) {
-                let orders = JSON.parse(localStorage.getItem('cartix_orders') || '[]');
-                const order = orders.find(o => o.orderId === orderId);
-                if (order) { order.status = status; localStorage.setItem('cartix_orders', JSON.stringify(orders)); fetchOrders(); }
+        function updateOrderStatus(orderId, status) {
+            let orders = JSON.parse(localStorage.getItem('cartix_orders') || '[]');
+            const order = orders.find(o => o.orderId === orderId);
+            if (order) {
+                order.status = status;
+                localStorage.setItem('cartix_orders', JSON.stringify(orders));
+                fetchOrders();
             }
+        }
 
-            // Fetch Products (With Auto-Preset Logic Restored)
-            function fetchProducts() {
-                const savedData = localStorage.getItem(`cartix_custom_catalog_${currentShopId}`);
+        // Fetch Products (With Auto-Preset Logic Restored)
+        function fetchProducts() {
+            const savedData = localStorage.getItem(`cartix_custom_catalog_${currentShopId}`);
 
-                // If data exists (even if it's an empty array from clearing), load it.
-                // If it's completely null (new store), auto-populate with preset database!
-                if (savedData !== null) {
-                    localProducts = JSON.parse(savedData);
+            if (savedData !== null) {
+                localProducts = JSON.parse(savedData);
+            } else {
+                localProducts = kiranaPresetDatabase.map((item, idx) => ({
+                    ...item,
+                    _id: 'preset_' + Date.now() + '_' + idx,
+                    stockStatus: 'IN_STOCK',
+                    shopId: currentShopId
+                }));
+                localStorage.setItem(`cartix_custom_catalog_${currentShopId}`, JSON.stringify(localProducts));
+            }
+            renderMiniCatalog();
+        }
+
+        function toggleStockStatus(productId) {
+            const prod = localProducts.find(p => p._id === productId);
+            if (prod) {
+                if (prod.stockStatus === 'IN_STOCK' || !prod.stockStatus) {
+                    prod.stockStatus = 'LOW_STOCK';
+                } else if (prod.stockStatus === 'LOW_STOCK') {
+                    prod.stockStatus = 'OUT_OF_STOCK';
                 } else {
-                    localProducts = kiranaPresetDatabase.map((item, idx) => ({
-                        ...item,
-                        _id: 'preset_' + Date.now() + '_' + idx,
-                        stockStatus: 'IN_STOCK',
-                        shopId: currentShopId
-                    }));
-                    // Save it so it persists for this shop
-                    localStorage.setItem(`cartix_custom_catalog_${currentShopId}`, JSON.stringify(localProducts));
-                }
-                renderMiniCatalog();
-            }
-            function toggleStockStatus(productId) {
-                const prod = localProducts.find(p => p._id === productId);
-                if (prod) {
-                    // 3-way cycle: IN_STOCK -> LOW_STOCK -> OUT_OF_STOCK -> IN_STOCK
-                    if (prod.stockStatus === 'IN_STOCK' || !prod.stockStatus) {
-                        prod.stockStatus = 'LOW_STOCK';
-                    } else if (prod.stockStatus === 'LOW_STOCK') {
-                        prod.stockStatus = 'OUT_OF_STOCK';
-                    } else {
-                        prod.stockStatus = 'IN_STOCK';
-                    }
-
-                    localStorage.setItem(`cartix_custom_catalog_${currentShopId}`, JSON.stringify(localProducts));
-                    renderMiniCatalog();
-                    showAdminToast(`Stock updated for "${prod.title}"`);
-                }
-            }
-            function renderMiniCatalog() {
-                const inStockCount = localProducts.filter(p => p.stockStatus !== 'OUT_OF_STOCK').length;
-                document.getElementById('statStock').innerText = `${inStockCount} / ${localProducts.length} Items`;
-
-                const miniContainer = document.getElementById('miniCatalog');
-                if (!localProducts.length) {
-                    miniContainer.innerHTML = `<p style="font-size:12px; color:var(--text-muted);">No items listed in your store yet.</p>`;
-                    return;
+                    prod.stockStatus = 'IN_STOCK';
                 }
 
-                miniContainer.innerHTML = localProducts.map(p => {
-                    let btnClass = 'in';
-                    let btnText = '✅ In Stock';
-
-                    if (p.stockStatus === 'LOW_STOCK') {
-                        btnClass = 'low';
-                        btnText = '🔥 Few Left';
-                    } else if (p.stockStatus === 'OUT_OF_STOCK') {
-                        btnClass = 'out';
-                        btnText = '❌ Out of Stock';
-                    }
-
-                    return `
-    <div class="mini-prod-card">
-        <div>
-            <b>${p.title}</b><br>
-            <small style="color:var(--primary);">₹${p.price}</small>
-        </div>
-        <button class="stock-toggle-btn ${btnClass}" onclick="toggleStockStatus('${p._id}')">
-            ${btnText}
-        </button>
-    </div>`;
-                }).join('');
-            }
-
-            function handleAddProduct(e) {
-                e.preventDefault();
-                const title = document.getElementById('pTitle').value;
-                const price = Number(document.getElementById('pPrice').value);
-                const category = document.getElementById('pCategory').value;
-
-                localProducts.unshift({ _id: 'item_' + Date.now(), title, price, category, stockStatus: 'IN_STOCK', shopId: currentShopId });
                 localStorage.setItem(`cartix_custom_catalog_${currentShopId}`, JSON.stringify(localProducts));
                 renderMiniCatalog();
-                showAdminToast(`✅ "${title}" added to ${currentShopName}!`);
-                e.target.reset();
+                showAdminToast(`Stock updated for "${prod.title}"`);
+            }
+        }
+
+        function renderMiniCatalog() {
+            const inStockCount = localProducts.filter(p => p.stockStatus !== 'OUT_OF_STOCK').length;
+            document.getElementById('statStock').innerText = `${inStockCount} / ${localProducts.length} Items`;
+
+            const miniContainer = document.getElementById('miniCatalog');
+            if (!localProducts.length) {
+                miniContainer.innerHTML = `<p style="font-size:12px; color:var(--text-muted);">No items listed in your store yet.</p>`;
+                return;
             }
 
-            // Close dropdown when clicking outside
-            document.addEventListener("click", (e) => {
-                if (!e.target.closest('.form-group')) {
-                    const list = document.getElementById('autoCompleteList');
-                    if (list) list.style.display = 'none';
-                }
-            });
+            miniContainer.innerHTML = localProducts.map(p => {
+                let btnClass = 'in';
+                let btnText = '✅ In Stock';
 
-            document.addEventListener("DOMContentLoaded", () => {
-                document.getElementById('shopTitleHeader').innerText = currentShopName;
-                document.getElementById('shopIdHeader').innerText = currentShopId;
-                fetchProducts();
-                fetchOrders();
-                setInterval(fetchOrders, 2000);
-            });
+                if (p.stockStatus === 'LOW_STOCK') {
+                    btnClass = 'low';
+                    btnText = '🔥 Few Left';
+                } else if (p.stockStatus === 'OUT_OF_STOCK') {
+                    btnClass = 'out';
+                    btnText = '❌ Out of Stock';
+                }
+
+                return `
+                <div class="mini-prod-card">
+                    <div>
+                        <b>${p.title}</b><br>
+                        <small style="color:var(--primary);">₹${p.price}</small>
+                    </div>
+                    <button class="stock-toggle-btn ${btnClass}" onclick="toggleStockStatus('${p._id}')">
+                        ${btnText}
+                    </button>
+                </div>`;
+            }).join('');
+        }
+
+        function handleAddProduct(e) {
+            e.preventDefault();
+            const title = document.getElementById('pTitle').value;
+            const price = Number(document.getElementById('pPrice').value);
+            const category = document.getElementById('pCategory').value;
+
+            localProducts.unshift({ _id: 'item_' + Date.now(), title, price, category, stockStatus: 'IN_STOCK', shopId: currentShopId });
+            localStorage.setItem(`cartix_custom_catalog_${currentShopId}`, JSON.stringify(localProducts));
+            renderMiniCatalog();
+            showAdminToast(`✅ "${title}" added to ${currentShopName}!`);
+            e.target.reset();
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest('.form-group')) {
+                const list = document.getElementById('autoCompleteList');
+                if (list) list.style.display = 'none';
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById('shopTitleHeader').innerText = currentShopName;
+            document.getElementById('shopIdHeader').innerText = currentShopId;
+            fetchProducts();
+            fetchOrders();
+            setInterval(fetchOrders, 2000);
+        });
     </script>
 </body>
 
