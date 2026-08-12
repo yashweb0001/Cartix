@@ -57,6 +57,7 @@
       min-height: 100vh;
       color: var(--text);
       transition: background-color 0.3s ease, color 0.3s ease;
+      overflow-x: hidden;
     }
 
     .toast-notification {
@@ -83,7 +84,7 @@
     header {
       background: var(--dark);
       color: white;
-      padding: 12px 20px;
+      padding: 12px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -94,11 +95,12 @@
     .header-left {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
     .brand {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
       color: #febd69;
       cursor: pointer;
@@ -107,89 +109,83 @@
     .shop-location-badge {
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 6px 12px;
+      padding: 5px 10px;
       border-radius: 20px;
-      font-size: 12px;
+      font-size: 11px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      flex-wrap: wrap;
     }
 
     .change-shop-btn {
       background: #131921;
       color: #ffd814;
       border: 1px solid #ffd814;
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-size: 10px;
       font-weight: 700;
       cursor: pointer;
     }
 
     .nav-actions {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .theme-toggle-btn,
+    .track-btn,
+    .rider-nav-btn,
+    .retailer-btn,
+    .cart-btn {
+      padding: 6px 10px;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
     }
 
     .theme-toggle-btn {
       background: rgba(255, 255, 255, 0.12);
       color: #ffffff;
       border: 1px solid rgba(255, 255, 255, 0.25);
-      padding: 7px 12px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
     }
 
     .track-btn {
       background: #38bdf8;
       color: #0f172a;
       border: none;
-      padding: 8px 14px;
-      border-radius: 20px;
       font-weight: 700;
-      cursor: pointer;
-      font-size: 12px;
     }
 
     .rider-nav-btn {
       background: #10b981;
       color: #ffffff;
       border: none;
-      padding: 8px 12px;
-      border-radius: 20px;
       font-weight: 700;
-      cursor: pointer;
-      font-size: 12px;
     }
 
     .retailer-btn {
       background: var(--secondary-dark);
       color: #febd69;
       border: 1px solid #3a4553;
-      padding: 8px 14px;
       border-radius: 6px;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
     }
 
     .cart-btn {
       background: #ffd814;
       color: #0f1111;
       border: 1px solid #fcd200;
-      padding: 8px 16px;
-      border-radius: 20px;
       font-weight: 700;
-      cursor: pointer;
     }
 
     .catalog-controls-bar {
       background: var(--controls-bg);
       border-bottom: 1px solid var(--border);
-      padding: 14px 20px;
+      padding: 12px 16px;
     }
 
     .controls-wrapper {
@@ -197,7 +193,7 @@
       margin: 0 auto;
       display: flex;
       flex-wrap: wrap;
-      gap: 15px;
+      gap: 10px;
       align-items: center;
       justify-content: space-between;
     }
@@ -205,27 +201,26 @@
     .search-box-container {
       position: relative;
       flex: 1;
-      min-width: 280px;
-      max-width: 480px;
+      min-width: 100%;
     }
 
     .catalog-search-input {
       width: 100%;
-      padding: 10px 42px 10px 38px;
+      padding: 10px 40px 10px 36px;
       border: 1px solid var(--border);
       background: var(--surface);
       color: var(--text);
       border-radius: 20px;
-      font-size: 14px;
+      font-size: 13px;
       outline: none;
     }
 
     .search-icon-inside {
       position: absolute;
-      left: 14px;
+      left: 12px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 14px;
+      font-size: 13px;
       color: var(--text-muted);
     }
 
@@ -236,25 +231,31 @@
       transform: translateY(-50%);
       background: none;
       border: none;
-      font-size: 16px;
+      font-size: 14px;
       cursor: pointer;
       padding: 4px;
     }
 
     .filter-chips-container {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       overflow-x: auto;
+      width: 100%;
       padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+
+    .filter-chips-container::-webkit-scrollbar {
+      display: none;
     }
 
     .filter-chip {
       background: var(--chip-bg);
       color: var(--text);
       border: 1px solid var(--border);
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 16px;
+      font-size: 11px;
       font-weight: 600;
       cursor: pointer;
       white-space: nowrap;
@@ -268,40 +269,76 @@
     }
 
     main {
-      padding: 20px;
+      padding: 12px;
       max-width: 1200px;
       margin: 0 auto;
     }
 
     .product-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    @media (min-width: 640px) {
+      .product-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+      }
+
+      .search-box-container {
+        min-width: 260px;
+        flex: 1;
+      }
+
+      .filter-chips-container {
+        width: auto;
+        flex: 1;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .product-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+      }
+
+      header {
+        padding: 12px 20px;
+      }
+
+      main {
+        padding: 20px;
+      }
     }
 
     .product-card {
       border: 1px solid var(--card-border);
-      padding: 15px;
-      border-radius: 12px;
+      padding: 10px;
+      border-radius: 10px;
       background: var(--surface);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: all 0.2s ease;
-    }
-
-    .product-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
     }
 
     .image-container {
       width: 100%;
-      height: 140px;
-      border-radius: 8px;
+      height: 110px;
+      border-radius: 6px;
       overflow: hidden;
       background: #f7f8f8;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
+    }
+
+    @media (min-width: 640px) {
+      .image-container {
+        height: 140px;
+      }
+
+      .product-card {
+        padding: 14px;
+      }
     }
 
     .product-img {
@@ -311,45 +348,58 @@
     }
 
     .product-title {
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--text);
-      margin-bottom: 4px;
+      margin-bottom: 3px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     .product-category {
-      font-size: 12px;
+      font-size: 10px;
       color: var(--text-muted);
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .product-price {
-      font-size: 18px;
+      font-size: 15px;
       font-weight: 700;
       color: var(--text);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
+    }
+
+    @media (min-width: 640px) {
+      .product-title {
+        font-size: 14px;
+      }
+
+      .product-price {
+        font-size: 17px;
+      }
     }
 
     .seller-tag {
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 700;
       color: #0284c7;
       background: #e0f2fe;
       border: 1px solid #bae6fd;
-      padding: 3px 8px;
-      border-radius: 6px;
-      margin-bottom: 6px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-bottom: 4px;
       display: inline-block;
     }
 
     .stock-badge {
       display: inline-block;
-      padding: 3px 8px;
-      font-size: 10px;
+      padding: 2px 6px;
+      font-size: 9px;
       font-weight: 700;
-      border-radius: 12px;
-      margin-bottom: 6px;
-      width: fit-content;
+      border-radius: 10px;
+      margin-bottom: 4px;
     }
 
     .stock-in {
@@ -370,8 +420,8 @@
     .card-actions-brick-group {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-top: 12px;
+      gap: 6px;
+      margin-top: 8px;
     }
 
     .btn-black-brick {
@@ -379,9 +429,9 @@
       background: var(--btn-black-bg);
       color: var(--btn-black-text);
       border: 1px solid var(--btn-black-bg);
-      padding: 9px 12px;
-      border-radius: 8px;
-      font-size: 12px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-size: 11px;
       font-weight: 700;
       cursor: pointer;
     }
@@ -398,8 +448,9 @@
     .cart-drawer {
       position: fixed;
       top: 0;
-      right: -360px;
-      width: 340px;
+      right: -100%;
+      width: 90%;
+      max-width: 340px;
       height: 100%;
       background: var(--surface);
       color: var(--text);
@@ -415,7 +466,7 @@
     }
 
     .cart-header {
-      padding: 15px;
+      padding: 14px;
       background: var(--dark);
       color: white;
       display: flex;
@@ -425,7 +476,7 @@
 
     .cart-items-list {
       flex: 1;
-      padding: 15px;
+      padding: 12px;
       overflow-y: auto;
     }
 
@@ -433,23 +484,24 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 0;
+      padding: 10px 0;
       border-bottom: 1px solid var(--border);
+      font-size: 12px;
     }
 
     .qty-btn {
-      width: 26px;
-      height: 26px;
+      width: 24px;
+      height: 24px;
       border: 1px solid var(--border);
       background: var(--chip-bg);
       color: var(--text);
-      border-radius: 6px;
+      border-radius: 4px;
       cursor: pointer;
       font-weight: bold;
     }
 
     .cart-footer {
-      padding: 15px;
+      padding: 14px;
       border-top: 1px solid var(--border);
       background: var(--surface);
     }
@@ -458,11 +510,12 @@
       background: #ffd814;
       color: #0f1111;
       border: 1px solid #fcd200;
-      padding: 12px;
+      padding: 10px;
       width: 100%;
-      border-radius: 20px;
+      border-radius: 16px;
       font-weight: 700;
       cursor: pointer;
+      font-size: 13px;
     }
 
     .modal-overlay {
@@ -476,89 +529,108 @@
       z-index: 2000;
       justify-content: center;
       align-items: center;
+      padding: 10px;
     }
 
     .modal-card {
       background: var(--surface);
       color: var(--text);
-      border-radius: 16px;
-      width: 380px;
-      padding: 24px;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 380px;
+      padding: 18px;
       position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
     }
 
     .shop-modal-card {
       background: var(--surface);
       color: var(--text);
-      border-radius: 16px;
-      width: 90%;
-      max-width: 850px;
-      padding: 20px;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 800px;
+      padding: 16px;
       position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
     }
 
     .pincode-search-bar {
       display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
+      gap: 8px;
+      margin-bottom: 12px;
     }
 
     .pincode-input {
       flex: 1;
-      padding: 8px 12px;
+      padding: 8px 10px;
       border: 1px solid var(--border);
       background: var(--surface);
       color: var(--text);
       border-radius: 6px;
-      font-size: 14px;
+      font-size: 13px;
     }
 
     .search-btn {
       background: #ffd814;
       border: 1px solid #fcd200;
-      padding: 8px 16px;
+      padding: 8px 12px;
       border-radius: 6px;
       font-weight: 700;
       cursor: pointer;
+      font-size: 12px;
     }
 
     .hub-content-container {
       display: grid;
-      grid-template-columns: 1fr 320px;
-      gap: 15px;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 768px) {
+      .hub-content-container {
+        grid-template-columns: 1fr 300px;
+      }
     }
 
     #map {
-      height: 280px;
-      border-radius: 8px;
+      height: 200px;
+      border-radius: 6px;
       border: 1px solid var(--border);
+    }
+
+    @media (min-width: 768px) {
+      #map {
+        height: 260px;
+      }
     }
 
     .shops-card-wrapper {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      max-height: 280px;
+      gap: 8px;
+      max-height: 240px;
       overflow-y: auto;
     }
 
     .shop-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 12px;
+      border-radius: 6px;
+      padding: 8px 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
     .shop-info h4 {
-      font-size: 14px;
+      font-size: 13px;
       color: var(--text);
     }
 
     .shop-info p {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-muted);
     }
 
@@ -566,58 +638,58 @@
       background: var(--dark);
       color: white;
       border: none;
-      padding: 6px 10px;
-      border-radius: 12px;
-      font-size: 11px;
+      padding: 5px 8px;
+      border-radius: 10px;
+      font-size: 10px;
       font-weight: 600;
       cursor: pointer;
     }
 
     .close-btn {
       position: absolute;
-      top: 12px;
-      right: 16px;
+      top: 10px;
+      right: 14px;
       cursor: pointer;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: bold;
       color: var(--text-muted);
     }
 
     .form-group {
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .form-group label {
       display: block;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       color: var(--text-muted);
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
 
     .form-group input {
       width: 100%;
-      padding: 10px;
+      padding: 9px;
       border: 1px solid var(--border);
       background: var(--surface);
       color: var(--text);
       border-radius: 6px;
-      font-size: 14px;
+      font-size: 13px;
     }
 
     .tab-switch {
       display: flex;
       border-bottom: 1px solid var(--border);
-      margin-bottom: 15px;
+      margin-bottom: 12px;
     }
 
     .tab-btn {
       flex: 1;
-      padding: 10px;
+      padding: 8px;
       background: none;
       border: none;
       font-weight: 700;
-      font-size: 13px;
+      font-size: 12px;
       color: var(--text-muted);
       cursor: pointer;
     }
@@ -630,15 +702,15 @@
     .tracking-steps {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      margin-top: 16px;
+      gap: 10px;
+      margin-top: 14px;
     }
 
     .step-item {
       display: flex;
       align-items: center;
-      gap: 12px;
-      font-size: 13px;
+      gap: 10px;
+      font-size: 12px;
       font-weight: 600;
       opacity: 0.4;
       transition: opacity 0.3s ease;
@@ -650,122 +722,21 @@
     }
 
     .step-icon {
-      width: 28px;
-      height: 28px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       background: var(--chip-bg);
       color: var(--text);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
-      transition: all 0.3s ease;
+      font-size: 11px;
     }
 
     .step-item.active .step-icon {
       background: #dcfce7;
       color: #15803d;
       border: 1px solid #15803d;
-      transform: scale(1.1);
-    }
-
-    /* ===== Mobile Responsive ===== */
-    @media (max-width: 900px) {
-      .hub-content-container {
-        grid-template-columns: 1fr;
-      }
-
-      #map {
-        height: 220px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      header {
-        padding: 12px 16px;
-      }
-
-      .header-left {
-        width: 100%;
-        justify-content: space-between;
-      }
-
-      .nav-actions {
-        width: 100%;
-        justify-content: flex-start;
-        flex-wrap: wrap;
-      }
-
-      .shop-location-badge {
-        flex-wrap: wrap;
-        font-size: 11px;
-      }
-
-      main {
-        padding: 14px;
-      }
-
-      .controls-wrapper {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .search-box-container {
-        max-width: none;
-        min-width: 0;
-      }
-
-      .product-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 12px;
-      }
-
-      .cart-drawer {
-        width: 88%;
-        right: -100%;
-      }
-
-      .modal-card {
-        width: 90%;
-        max-width: 360px;
-        padding: 18px;
-      }
-
-      .shop-modal-card {
-        width: 94%;
-        padding: 16px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .brand {
-        font-size: 17px;
-      }
-
-      #compactEtaBadge {
-        display: none;
-      }
-
-      .product-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-      }
-
-      .image-container {
-        height: 100px;
-      }
-
-      .product-title {
-        font-size: 13px;
-      }
-
-      .product-price {
-        font-size: 15px;
-      }
-
-      .pincode-search-bar {
-        flex-direction: column;
-      }
     }
   </style>
 </head>
@@ -778,21 +749,16 @@
     <div class="header-left">
       <div class="brand" onclick="window.location.reload()">🛒 Cartix Kirana</div>
       <div class="shop-location-badge">
-        <span>📍 Store: <b id="currentStoreTitle">Gorakhpur Central Kirana</b> (0.8 km)</span>
-        <button class="change-shop-btn" onclick="openShopSelectorModal()">View Other Shops ⚙️</button>
+        <span>📍 Store: <b id="currentStoreTitle">Gorakhpur Central Kirana</b></span>
+        <button class="change-shop-btn" onclick="openShopSelectorModal()">Change ⚙️</button>
       </div>
     </div>
 
     <div class="nav-actions">
-      <span id="customerTimeBadge"
-        style="font-size: 12px; font-weight: 600; color: #febd69; background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15);">🌅
-        Good Morning</span>
-      <button class="track-btn" onclick="openTrackerModal()">Track Order 🚚</button>
-      <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleThemeMode()">🌙 Dark</button>
-      <button class="rider-nav-btn" onclick="window.location.href='/rider.html'">🛵 Rider Login</button>
-
-      <button class="retailer-btn" onclick="openLoginModal()">Retailer Hub 🔑</button>
-      <!-- <button class="cart-btn" onclick="toggleCart()">🛍️ Basket (<span id="cartCount">0</span>)</button> -->
+      <button class="track-btn" onclick="openTrackerModal()">Track 🚚</button>
+      <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleThemeMode()">🌙</button>
+      <button class="rider-nav-btn" onclick="window.location.href='/rider.html'">🛵 Rider</button>
+      <button class="retailer-btn" onclick="openLoginModal()">Hub 🔑</button>
     </div>
   </header>
 
@@ -801,31 +767,30 @@
       <div class="search-box-container">
         <span class="search-icon-inside">🔍</span>
         <input type="text" id="productSearchInput" class="catalog-search-input"
-          placeholder="Search entire ONDC network (e.g. Milk, Atta, Maggi)..." oninput="applyFilterAndSearch()">
+          placeholder="Search entire ONDC network..." oninput="applyFilterAndSearch()">
         <button type="button" id="micBtn" class="mic-inside-btn" onclick="startVoiceSearch()">🎙️</button>
       </div>
 
       <div class="filter-chips-container">
-        <button class="filter-chip active" onclick="filterCategory('All', this)">All Items</button>
+        <button class="filter-chip active" onclick="filterCategory('All', this)">All</button>
         <button class="filter-chip" onclick="filterCategory('Snacks', this)">🍿 Snacks</button>
-        <button class="filter-chip" onclick="filterCategory('Cleaning Essentials', this)">🧽 Cleaning
-          Essentials</button>
-        <button class="filter-chip" onclick="filterCategory('Tea, Coffee & Milk Drinks', this)">☕ Tea & Coffee</button>
+        <button class="filter-chip" onclick="filterCategory('Cleaning Essentials', this)">🧽 Cleaning</button>
+        <button class="filter-chip" onclick="filterCategory('Tea, Coffee & Milk Drinks', this)">☕ Tea & Milk</button>
         <button class="filter-chip" onclick="filterCategory('Masala', this)">🌶️ Masala</button>
-        <button class="filter-chip" onclick="filterCategory('Atta, Rice & Dal', this)">🌾 Atta, Rice & Dal</button>
+        <button class="filter-chip" onclick="filterCategory('Atta, Rice & Dal', this)">🌾 Atta & Rice</button>
       </div>
-      <button class="cart-btn" onclick="toggleCart()">🛍️ Basket (<span id="cartCount">0</span>)</button>
+      <button class="cart-btn" onclick="toggleCart()">🛍️ (<span id="cartCount">0</span>)</button>
     </div>
   </section>
 
   <main>
     <div
-      style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-      <h3 id="activeShopHeading" style="font-size: 18px; font-weight: 700; margin: 0;">Catalog — Gorakhpur Central
+      style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+      <h3 id="activeShopHeading" style="font-size: 15px; font-weight: 700; margin: 0;">Catalog — Gorakhpur Central
         Kirana</h3>
       <div id="compactEtaBadge"
-        style="font-size: 12px; font-weight: 700; color: #0369a1; background: #e0f2fe; border: 1px solid #bae6fd; padding: 6px 14px; border-radius: 20px;">
-        ⚡ Delivered in <b id="etaTimeVal">10–12 Mins</b> by Network Rider
+        style="font-size: 11px; font-weight: 700; color: #0369a1; background: #e0f2fe; border: 1px solid #bae6fd; padding: 4px 10px; border-radius: 16px;">
+        ⚡ 10–12 Mins Delivery
       </div>
     </div>
 
@@ -836,17 +801,17 @@
   <div class="cart-drawer" id="cartDrawer">
     <div class="cart-header">
       <h3>Your Basket</h3>
-      <div style="display: flex; gap: 10px; align-items: center;">
+      <div style="display: flex; gap: 8px; align-items: center;">
         <button onclick="clearBasket()"
-          style="background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 11px; cursor: pointer; display: none;"
-          id="clearCartBtn">🗑️ Clear All</button>
-        <span style="cursor:pointer; font-size: 20px;" onclick="toggleCart()">&times;</span>
+          style="background: #ef4444; color: white; border: none; padding: 3px 6px; border-radius: 4px; font-size: 10px; cursor: pointer; display: none;"
+          id="clearCartBtn">🗑️ Clear</button>
+        <span style="cursor:pointer; font-size: 18px;" onclick="toggleCart()">&times;</span>
       </div>
     </div>
     <div class="cart-items-list" id="cartItems"></div>
     <div class="cart-footer">
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-weight:bold;">
-        <span>Total Amount:</span>
+      <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-weight:bold; font-size: 13px;">
+        <span>Total:</span>
         <span id="cartTotal">₹0</span>
       </div>
       <button class="checkout-btn" onclick="openCheckoutModal()">Proceed to Order</button>
@@ -857,15 +822,14 @@
   <div id="shopSelectorModal" class="modal-overlay">
     <div class="shop-modal-card">
       <span class="close-btn" onclick="closeShopSelectorModal()">&times;</span>
-      <h3 style="margin-bottom: 12px;">Select Nearby Kirana Store</h3>
+      <h3 style="margin-bottom: 10px; font-size: 15px;">Select Nearby Kirana Store</h3>
       <div
-        style="background:#e0f2fe; border:1px solid #7dd3fc; color:#0369a1; padding:9px 12px; border-radius:8px; font-size:11px; margin-bottom:14px; line-height:1.5;">
-        🌐 <b>Powered by the ONDC Network</b> — every store below is an independent seller discovered live through the
-        open protocol (Beckn).
+        style="background:#e0f2fe; border:1px solid #7dd3fc; color:#0369a1; padding:8px 10px; border-radius:6px; font-size:10px; margin-bottom:12px; line-height:1.4;">
+        🌐 <b>ONDC Network</b> — discovered live through open protocol.
       </div>
       <div class="pincode-search-bar">
         <input type="text" id="pincodeInput" class="pincode-input" placeholder="Enter Pincode" value="273001">
-        <button class="search-btn" onclick="searchByPincode()">Search Pincode 📍</button>
+        <button class="search-btn" onclick="searchByPincode()">Search 📍</button>
       </div>
       <div class="hub-content-container">
         <div id="map"></div>
@@ -878,8 +842,8 @@
   <div id="checkoutModal" class="modal-overlay">
     <div class="modal-card">
       <span class="close-btn" onclick="closeCheckoutModal()">&times;</span>
-      <h3>Delivery Details</h3>
-      <p id="checkoutTotalText" style="font-size: 13px; color: #15803d; font-weight: 700; margin-bottom: 14px;"></p>
+      <h3 style="font-size: 15px;">Delivery Details</h3>
+      <p id="checkoutTotalText" style="font-size: 12px; color: #15803d; font-weight: 700; margin-bottom: 12px;"></p>
       <form id="customerOrderForm" onsubmit="handleCustomerOrder(event)">
         <div class="form-group"><label>Your Name</label><input type="text" id="custName" value="Rahul Sharma" required>
         </div>
@@ -890,17 +854,17 @@
 
         <div class="form-group">
           <label>Payment Method</label>
-          <div style="display:flex; gap:16px; padding:4px 2px;">
-            <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; cursor:pointer;">
+          <div style="display:flex; gap:14px; padding:2px;">
+            <label style="display:flex; align-items:center; gap:5px; font-size:12px; font-weight:600; cursor:pointer;">
               <input type="radio" name="paymentMethod" value="UPI" checked> 📱 UPI
             </label>
-            <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; cursor:pointer;">
-              <input type="radio" name="paymentMethod" value="COD"> 💵 Cash on Delivery
+            <label style="display:flex; align-items:center; gap:5px; font-size:12px; font-weight:600; cursor:pointer;">
+              <input type="radio" name="paymentMethod" value="COD"> 💵 COD
             </label>
           </div>
         </div>
 
-        <button type="submit" class="checkout-btn">Place Order</button>
+        <button type="submit" class="checkout-btn" style="margin-top: 4px;">Place Order</button>
       </form>
     </div>
   </div>
@@ -909,20 +873,19 @@
   <div id="upiPaymentModal" class="modal-overlay">
     <div class="modal-card" style="text-align:center;">
       <span class="close-btn" onclick="cancelUpiPayment()">&times;</span>
-      <h3 style="margin-bottom: 6px;">📱 Pay via UPI</h3>
-      <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px;">Scan with any UPI app (GPay, PhonePe,
-        Paytm)</p>
+      <h3 style="margin-bottom: 4px; font-size: 15px;">📱 Pay via UPI</h3>
+      <p style="font-size:11px; color:var(--text-muted); margin-bottom:10px;">Scan with GPay, PhonePe, Paytm</p>
       <img id="upiQrImage" src="" alt="UPI QR Code"
-        style="width:200px; height:200px; border:1px solid var(--border); border-radius:8px; margin-bottom:12px;">
+        style="width:180px; height:180px; border:1px solid var(--border); border-radius:6px; margin-bottom:10px;">
       <a id="upiDeepLink" href="#" class="checkout-btn"
-        style="display:block; text-decoration:none; background:#10b981; color:white; margin-bottom:12px;">🚀 Pay Direct
-        via UPI App</a>
-      <p style="font-size:13px; font-weight:700; margin-bottom:4px;">Amount: <span id="upiAmountText">₹0</span></p>
-      <p style="font-size:11px; color:var(--text-muted); margin-bottom:16px;">Paying to: <b>cartix.store@upi</b></p>
+        style="display:block; text-decoration:none; background:#10b981; color:white; margin-bottom:10px; font-size:12px; padding: 8px;">🚀
+        Pay Direct via UPI App</a>
+      <p style="font-size:12px; font-weight:700; margin-bottom:4px;">Amount: <span id="upiAmountText">₹0</span></p>
+      <p style="font-size:10px; color:var(--text-muted); margin-bottom:14px;">Paying to: <b>cartix.store@upi</b></p>
       <button class="checkout-btn" onclick="confirmUpiPayment()">✅ I've Paid</button>
       <button class="checkout-btn"
-        style="background:var(--chip-bg); color:var(--text); border:1px solid var(--border); margin-top:8px;"
-        onclick="cancelUpiPayment()">Cancel & Go Back</button>
+        style="background:var(--chip-bg); color:var(--text); border:1px solid var(--border); margin-top:6px;"
+        onclick="cancelUpiPayment()">Cancel</button>
     </div>
   </div>
 
@@ -931,7 +894,7 @@
     <div class="modal-card">
       <span class="close-btn" onclick="closeLoginModal()">&times;</span>
       <div class="tab-switch">
-        <button class="tab-btn active" id="tabLoginBtn" onclick="switchAuthTab('login')">Retailer Login</button>
+        <button class="tab-btn active" id="tabLoginBtn" onclick="switchAuthTab('login')">Login</button>
         <button class="tab-btn" id="tabRegisterBtn" onclick="switchAuthTab('register')">➕ Register Shop</button>
       </div>
 
@@ -941,9 +904,7 @@
         <div class="form-group"><label>PIN</label><input type="password" id="loginKey" placeholder="4-digit PIN"
             required></div>
         <button type="submit" class="checkout-btn">Verify & Open Dashboard</button>
-        <p style="font-size:10px; color:var(--text-muted); margin-top:10px; line-height:1.5;">Demo logins — Gorakhpur
-          Central Kirana: 9876543210 / 1111 · Gupta General Store: 9123456789 / 2222 · Verma Super Mart: 9988776655 /
-          3333</p>
+        <p style="font-size:9px; color:var(--text-muted); margin-top:8px; line-height:1.4;">Demo: 9876543210 / 1111</p>
       </form>
 
       <form id="retailerRegisterForm" style="display:none;" onsubmit="handleShopRegistration(event)">
@@ -955,7 +916,7 @@
         <div class="form-group"><label>Phone Number</label><input type="tel" id="regPhone" placeholder="Mobile Number"
             required></div>
         <button type="submit" class="checkout-btn" style="background:#4f46e5; color:white; border:none;">Register Shop
-          on ONDC 🚀</button>
+          🚀</button>
       </form>
     </div>
   </div>
@@ -964,14 +925,13 @@
   <div id="trackerModal" class="modal-overlay">
     <div class="modal-card">
       <span class="close-btn" onclick="closeTrackerModal()">&times;</span>
-      <h3>🚚 Live Order Tracking <span
-          style="font-size:10px; color:#16a34a; background:#dcfce7; padding:2px 6px; border-radius:10px;">● Live
-          Updates</span></h3>
-      <div class="form-group" style="margin-top:10px;">
+      <h3 style="font-size: 15px;">🚚 Live Order Tracking</h3>
+      <div class="form-group" style="margin-top:8px;">
         <input type="text" id="trackOrderIdInput" placeholder="Enter Order ID (e.g. ORD-1024)">
-        <button class="checkout-btn" style="margin-top:8px;" onclick="trackOrder()">Track Status</button>
+        <button class="checkout-btn" style="margin-top:6px; font-size: 12px; padding: 8px;" onclick="trackOrder()">Track
+          Status</button>
       </div>
-      <div id="trackingResult" style="display:none; border-top:1px dashed #cbd5e1; padding-top:12px; margin-top:12px;">
+      <div id="trackingResult" style="display:none; border-top:1px dashed #cbd5e1; padding-top:10px; margin-top:10px;">
       </div>
     </div>
   </div>
@@ -1057,19 +1017,12 @@
 
     function toggleThemeMode() {
       const isDark = document.body.classList.toggle('dark-theme');
-      document.getElementById('themeToggleBtn').innerText = isDark ? '☀️ Light' : '🌙 Dark';
-    }
-
-    function getGreeting() {
-      const hour = new Date().getHours();
-      if (hour >= 5 && hour < 12) return "🌅 Good Morning";
-      if (hour >= 12 && hour < 17) return "☀️ Good Afternoon";
-      return "🌙 Good Evening";
+      document.getElementById('themeToggleBtn').innerText = isDark ? '☀️' : '🌙';
     }
 
     function getStockBadgeHTML(status) {
-      if (status === "LOW_STOCK") return `<span class="stock-badge stock-low">🔥 Hurry, few left!</span>`;
-      if (status === "OUT_OF_STOCK") return `<span class="stock-badge stock-out">❌ Out of Stock</span>`;
+      if (status === "LOW_STOCK") return `<span class="stock-badge stock-low">🔥 Few left</span>`;
+      if (status === "OUT_OF_STOCK") return `<span class="stock-badge stock-out">❌ Out</span>`;
       return `<span class="stock-badge stock-in">✅ In Stock</span>`;
     }
 
@@ -1130,11 +1083,52 @@
       renderProducts(filtered);
     }
 
+    function renderProducts(items) {
+      const grid = document.getElementById('products');
+      if (!grid) return;
+      grid.innerHTML = '';
+      if (!items || !items.length) {
+        grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:30px; font-size:13px; color:var(--text-muted);">No products found.</p>';
+        return;
+      }
+      const hasCart = cart.length > 0;
+      items.forEach(p => {
+        const stockStatus = p.stockStatus || "IN_STOCK";
+        const out = stockStatus === "OUT_OF_STOCK";
+
+        const safeTitle = (p.title || '').replace(/'/g, "\\'");
+        const safeShopName = (p.shopName || selectedShopName).replace(/'/g, "\\'");
+
+        grid.innerHTML += `
+        <div class="product-card">
+          <div>
+            <div class="image-container"><img src="${getProductImage(p)}" class="product-img" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=400'"></div>
+            <span class="seller-tag">🏪 ${p.shopName || selectedShopName}</span>
+            <div class="product-title">${p.title}</div>
+            <div class="product-category">${p.category || 'General'}</div>
+            ${getStockBadgeHTML(stockStatus)}
+            <div class="product-price">₹${p.price}</div>
+          </div>
+          <div class="card-actions-brick-group">
+            <button class="btn-black-brick ${hasCart ? 'blurred-buy-btn' : ''}" ${out || hasCart ? 'disabled' : ''} onclick="buyNowInstant('${p._id}', '${safeTitle}', ${p.price}, '${safeShopName}')">⚡ Buy Now</button>
+            <button class="btn-black-brick" ${out ? 'disabled' : ''} onclick="addToCart('${p._id}', '${safeTitle}', ${p.price}, '${safeShopName}')">${out ? 'Out of Stock' : '🛒 Add'}</button>
+          </div>
+        </div>`;
+      });
+    }
+
     function getProductImage(p) {
       if (p.image) return p.image;
       const preset = kiranaPresetDatabase.find(k => k.title.toLowerCase() === p.title.toLowerCase());
       if (preset && preset.image) return preset.image;
       return 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400';
+    }
+
+    function searchByPincode() {
+      const pin = document.getElementById('pincodeInput').value.trim();
+      const shops = getShopsList();
+      const matched = pin === '' ? shops : shops.filter(s => s.pincode === pin);
+      renderShopCards(matched);
     }
 
     function renderShopCards(shops) {
@@ -1150,11 +1144,10 @@
           <button class="select-shop-btn" style="background: #10b981;" onclick="selectShopCatalog('ALL', 'All ONDC Network Stores')">View All</button>
         </div>`;
 
-      markersGroup.clearLayers();
+      if (markersGroup) markersGroup.clearLayers();
 
-      // 🔴 FIX: Agar array khali hai (koi shop uss pincode par nahi hai), toh "Not found" dikhao
       if (shops.length === 0) {
-        container.innerHTML += `<div style="text-align:center; padding:20px; font-size:13px; font-weight:600; color:var(--text-muted);">❌ No shops found for this Pincode.</div>`;
+        container.innerHTML += `<div style="text-align:center; padding:15px; font-size:12px; color:var(--text-muted);">❌ No shops found.</div>`;
         return;
       }
 
@@ -1167,8 +1160,10 @@
           </div>
           <button class="select-shop-btn" onclick="selectShopCatalog('${s.id}', '${s.name}')">Select</button>
         </div>`;
-        const m = L.marker([s.lat, s.lng]).addTo(markersGroup);
-        m.bindPopup(`<b>${s.name}</b>`);
+        if (markersGroup) {
+          const m = L.marker([s.lat, s.lng]).addTo(markersGroup);
+          m.bindPopup(`<b>${s.name}</b>`);
+        }
       });
     }
 
@@ -1180,14 +1175,14 @@
 
     function addToCart(id, title, price, shopName) {
       if (cart.length && cart[0].shopName !== shopName) {
-        showToast(`⚠️ Basket has items from "${cart[0].shopName}". Clear it first to switch stores.`);
+        showToast(`⚠️ Basket has items from another store.`);
         return;
       }
       const item = cart.find(i => i.id === id);
       if (item) item.qty += 1;
       else cart.push({ id, title, price, qty: 1, shopName });
       updateCartUI();
-      showToast(`🛒 "${title}" added!`);
+      showToast(`🛒 Added to basket!`);
     }
 
     function updateCartUI() {
@@ -1198,13 +1193,13 @@
       list.innerHTML = cart.length ? cart.map(i => `
       <div class="cart-item">
         <div><b>${i.title}</b><br><small>₹ ${i.price} x ${i.qty}</small></div>
-        <div style="display: flex; align-items: center; gap: 6px;">
+        <div style="display: flex; align-items: center; gap: 4px;">
           <button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button> 
           <span>${i.qty}</span> 
           <button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button>
-          <button style="background: #fee2e2; color: #b91c1c; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-left: 4px;" onclick="removeItem('${i.id}')">❌</button>
+          <button style="background: #fee2e2; color: #b91c1c; border: none; padding: 3px 6px; border-radius: 4px; cursor: pointer; font-size: 11px;" onclick="removeItem('${i.id}')">❌</button>
         </div>
-      </div>`).join('') : '<p style="text-align:center; padding:20px;">Basket is empty.</p>';
+      </div>`).join('') : '<p style="text-align:center; padding:20px; font-size:12px;">Basket is empty.</p>';
 
       const clearBtn = document.getElementById('clearCartBtn');
       if (clearBtn) clearBtn.style.display = cart.length ? 'block' : 'none';
@@ -1244,7 +1239,7 @@
       const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
       const upiString = `upi://pay?pa=cartix.store@upi&pn=CartixKirana&am=${total}&cu=INR`;
       document.getElementById('upiAmountText').innerText = `₹ ${total}`;
-      document.getElementById('upiQrImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiString)}`;
+      document.getElementById('upiQrImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiString)}`;
       document.getElementById('upiDeepLink').href = upiString;
       document.getElementById('checkoutModal').style.display = 'none';
       document.getElementById('upiPaymentModal').style.display = 'flex';
@@ -1259,7 +1254,7 @@
       document.getElementById('upiPaymentModal').style.display = 'none';
       showToast('⏳ Verifying payment...');
       setTimeout(() => {
-        showToast('✅ Payment Successful via UPI!');
+        showToast('✅ Payment Successful!');
         placeOrderNow('UPI');
       }, 1000);
     }
@@ -1338,53 +1333,19 @@
 
     function openShopSelectorModal() {
       document.getElementById('shopSelectorModal').style.display = 'flex';
-      setTimeout(() => { if (!isMapInitialized) { initMap(); isMapInitialized = true; } }, 200);
+      setTimeout(() => {
+        if (!isMapInitialized) {
+          map = L.map('map').setView([26.7606, 83.3732], 13);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+          markersGroup = L.layerGroup().addTo(map);
+          isMapInitialized = true;
+        } else {
+          map.invalidateSize();
+        }
+        searchByPincode();
+      }, 200);
     }
     function closeShopSelectorModal() { document.getElementById('shopSelectorModal').style.display = 'none'; }
-
-    function initMap() {
-      map = L.map('map').setView([26.7606, 83.3732], 13);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-      markersGroup = L.layerGroup().addTo(map);
-      searchByPincode();
-    }
-
-    function searchByPincode() {
-      const pin = document.getElementById('pincodeInput').value.trim();
-      const shops = getShopsList();
-
-      // 🔴 FIX: Agar pincode box khali hai toh sab dikhao, nahi toh sirf wahi dikhao jo match ho
-      const matched = pin === '' ? shops : shops.filter(s => s.pincode === pin);
-
-      renderShopCards(matched);
-    }
-    function renderShopCards(shops) {
-      const container = document.getElementById('shopsList');
-      if (!container) return;
-
-      container.innerHTML = `
-        <div class="shop-card" style="border: 2px dashed #10b981; background: #f0fdf4;">
-          <div class="shop-info">
-            <h4 style="color: #15803d;">🌐 View All Network Stores</h4>
-            <p>Show items from all nearby Kiranas</p>
-          </div>
-          <button class="select-shop-btn" style="background: #10b981;" onclick="selectShopCatalog('ALL', 'All ONDC Network Stores')">View All</button>
-        </div>`;
-
-      markersGroup.clearLayers();
-      shops.forEach(s => {
-        container.innerHTML += `
-        <div class="shop-card">
-          <div class="shop-info">
-            <h4>${s.name}</h4>
-            <p>📍 ${s.distance} • 📞 ${s.phone}</p>
-          </div>
-          <button class="select-shop-btn" onclick="selectShopCatalog('${s.id}', '${s.name}')">Select</button>
-        </div>`;
-        const m = L.marker([s.lat, s.lng]).addTo(markersGroup);
-        m.bindPopup(`<b>${s.name}</b>`);
-      });
-    }
 
     function selectShopCatalog(shopId, name) {
       selectedShopId = shopId;
@@ -1394,7 +1355,7 @@
       document.getElementById('currentStoreTitle').innerText = name;
       document.getElementById('activeShopHeading').innerText = `Catalog — ${name}`;
       closeShopSelectorModal();
-      showToast(`Selected Store: ${name}`);
+      showToast(`Selected: ${name}`);
       loadCatalog();
     }
 
@@ -1408,7 +1369,7 @@
         localStorage.setItem('selectedStoreName', matchedShop.name);
         window.location.href = '/admin.html';
       } else {
-        showToast('❌ Invalid phone number or PIN');
+        showToast('❌ Invalid phone or PIN');
       }
     }
 
@@ -1443,27 +1404,27 @@
       const order = orders.find(o => o.orderId.toLowerCase() === orderId.toLowerCase());
       resultBox.style.display = 'block';
       if (!order) {
-        resultBox.innerHTML = `<p style="color:#b91c1c; font-size:12px;">⚠️ Order ID "${orderId}" not found.</p>`;
+        resultBox.innerHTML = `<p style="color:#b91c1c; font-size:11px;">⚠️ Order ID not found.</p>`;
         return;
       }
 
       let cancelBtnHtml = '';
       if (order.status === 'PENDING' || order.status === 'PACKING') {
-        cancelBtnHtml = `<button onclick="cancelCustomerOrder('${order.orderId}')" style="background:#ef4444; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer; margin-top:14px; width:100%;">❌ Cancel My Order</button>`;
+        cancelBtnHtml = `<button onclick="cancelCustomerOrder('${order.orderId}')" style="background:#ef4444; color:white; border:none; padding:6px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer; margin-top:10px; width:100%;">❌ Cancel Order</button>`;
       } else if (order.status === 'CANCELLED') {
-        cancelBtnHtml = `<div style="color:#b91c1c; font-size:13px; font-weight:bold; margin-top:14px; text-align:center; background:#fee2e2; padding:8px; border-radius:6px;">🚫 Order Cancelled</div>`;
+        cancelBtnHtml = `<div style="color:#b91c1c; font-size:12px; font-weight:bold; margin-top:10px; text-align:center; background:#fee2e2; padding:6px; border-radius:6px;">🚫 Order Cancelled</div>`;
       }
 
       resultBox.innerHTML = `
-      <div style="background: #f0fdf4; border: 1px solid #22c55e; color: #15803d; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size:12px;">
-          Guaranteed Delivery in ~15 Mins by <b>${order.storeName}</b> Rider.
+      <div style="background: #f0fdf4; border: 1px solid #22c55e; color: #15803d; padding: 8px; border-radius: 6px; margin-bottom: 8px; font-size:11px;">
+          Delivery by <b>${order.storeName}</b> Rider.
       </div>
-      <div style="font-size:12px; margin-bottom:6px;">Order ID: <b>${order.orderId}</b> | Status: <b style="color:${order.status === 'CANCELLED' ? '#ef4444' : '#2563eb'};">${order.status}</b></div>
+      <div style="font-size:11px; margin-bottom:6px;">Order ID: <b>${order.orderId}</b> | Status: <b style="color:${order.status === 'CANCELLED' ? '#ef4444' : '#2563eb'};">${order.status}</b></div>
       <div class="tracking-steps">
-        <div class="step-item ${order.status !== 'CANCELLED' ? 'active' : ''}"><div class="step-icon">1</div> 🛒 Order Received</div>
-        <div class="step-item ${order.status === 'PACKING' || order.status === 'DISPATCHED' || order.status === 'DELIVERED' ? 'active' : ''}"><div class="step-icon">2</div> 📦 Packing Items</div>
-        <div class="step-item ${order.status === 'DISPATCHED' || order.status === 'DELIVERED' ? 'active' : ''}"><div class="step-icon">3</div> 🚚 Out for Delivery</div>
-        <div class="step-item ${order.status === 'DELIVERED' ? 'active' : ''}"><div class="step-icon">4</div> ✅ Delivered</div>
+        <div class="step-item ${order.status !== 'CANCELLED' ? 'active' : ''}"><div class="step-icon">1</div> Order Received</div>
+        <div class="step-item ${order.status === 'PACKING' || order.status === 'DISPATCHED' || order.status === 'DELIVERED' ? 'active' : ''}"><div class="step-icon">2</div> Packing</div>
+        <div class="step-item ${order.status === 'DISPATCHED' || order.status === 'DELIVERED' ? 'active' : ''}"><div class="step-icon">3</div> Out for Delivery</div>
+        <div class="step-item ${order.status === 'DELIVERED' ? 'active' : ''}"><div class="step-icon">4</div> Delivered</div>
       </div>
       ${cancelBtnHtml}`;
     }
@@ -1475,10 +1436,10 @@
       if (order && (order.status === 'PENDING' || order.status === 'PACKING')) {
         order.status = 'CANCELLED';
         localStorage.setItem('cartix_orders', JSON.stringify(orders));
-        showToast("⚠️ Order Cancelled Successfully!");
+        showToast("⚠️ Order Cancelled!");
         trackOrder();
       } else {
-        showToast("Cannot cancel. Order already dispatched!");
+        showToast("Cannot cancel. Already dispatched!");
       }
     }
 
@@ -1496,13 +1457,10 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      document.getElementById('customerTimeBadge').innerText = getGreeting();
       ensureDefaultShopCatalogs();
-
       const savedShopName = localStorage.getItem('selectedStoreName') || DEFAULT_SHOP_NAME;
       document.getElementById('currentStoreTitle').innerText = savedShopName;
       document.getElementById('activeShopHeading').innerText = `Catalog — ${savedShopName}`;
-
       loadCatalog();
       setInterval(loadCatalog, 3000);
     });

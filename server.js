@@ -9,12 +9,14 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB Connection
-const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/kiranaDB'; // local fallback
-mongoose.connect(mongoURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => console.log("MongoDB Connected"))
-    .catch(err => console.log(err));
+// Ye line environment variable check karegi. 
+// Agar cloud pe hai toh Atlas URL legi, warna local DB legi.
+const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/kiranaDB';
+
+// Pichle error ke baad humne purane options hata diye the, wo aise hi rahenge
+mongoose.connect(mongoURI)
+    .then(() => console.log("✅ MongoDB Connected successfully!"))
+    .catch(err => console.log("❌ MongoDB Connection Error: ", err));
 
 // 1. Product Schema & Model
 const productSchema = new mongoose.Schema({
