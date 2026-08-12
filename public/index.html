@@ -888,13 +888,7 @@
     let selectedShopId = localStorage.getItem('selectedStoreId') || DEFAULT_SHOP_ID;
     let selectedShopName = localStorage.getItem('selectedStoreName') || DEFAULT_SHOP_NAME;
 
-    const predefinedItems = [
-      { _id: 'sample_1', title: 'Amul Taaza Milk (1L)', price: 68, category: 'Dairy & Bakery', stockStatus: 'IN_STOCK', shopName: 'Gorakhpur Central Kirana' },
-      { _id: 'sample_2', title: 'Britannia White Bread (400g)', price: 40, category: 'Dairy & Bakery', stockStatus: 'LOW_STOCK', shopName: 'Gorakhpur Central Kirana' },
-      { _id: 'sample_3', title: 'Lays Classic Salted Chips', price: 20, category: 'Snacks & Packaged Food', stockStatus: 'IN_STOCK', shopName: 'Gupta General Store' },
-      { _id: 'sample_4', title: 'Aashirvaad Shuddh Atta (5kg)', price: 245, category: 'Grocery & Staples', stockStatus: 'IN_STOCK', shopName: 'Gorakhpur Central Kirana' },
-      { _id: 'sample_5', title: 'Coca-Cola Drink (750ml)', price: 45, category: 'Beverages', stockStatus: 'OUT_OF_STOCK', shopName: 'Verma Super Mart' }
-    ];
+    const predefinedItems = [];
 
     const mockShopsDatabase = [
       { id: 'shop_1', name: 'Gorakhpur Central Kirana', phone: '+91 9876543210', pincode: '273001', status: 'OPEN', distance: '0.8 km', lat: 26.7606, lng: 83.3732, pin: '1111' },
@@ -992,12 +986,13 @@
     }
 
     function getProductImage(p) {
-      const t = (p.title || '').toLowerCase();
-      if (t.includes('milk') || t.includes('paneer')) return 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400';
-      if (t.includes('chip') || t.includes('snack')) return 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400';
+      // Agar database ya custom catalog mein image path saved hai, toh wahi dikhayein
+      if (p.image) {
+        return p.image;
+      }
+      // Fallback default image
       return 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400';
     }
-
     function renderProducts(items) {
       const grid = document.getElementById('products');
       if (!grid) return;

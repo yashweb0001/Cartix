@@ -352,15 +352,44 @@
         let currentFocusIndex = -1;
 
         // Auto Preset Database for Demo (Restored & Preserved!)
+        // Updated Master Catalog Database
         const kiranaPresetDatabase = [
-            { title: 'Maggi 2-Min Noodles (70g)', price: 15, category: 'Snacks & Packaged Food' },
-            { title: 'Amul Taaza Milk (1L)', price: 68, category: 'Dairy & Bakery' },
-            { title: 'Amul Butter (100g)', price: 58, category: 'Dairy & Bakery' },
-            { title: 'Fortune Mustard Oil (1L)', price: 155, category: 'Grocery & Staples' },
-            { title: 'Aashirvaad Shuddh Atta (5kg)', price: 245, category: 'Grocery & Staples' },
-            { title: 'Tata Salt (1kg)', price: 28, category: 'Grocery & Staples' }
+            { title: "Lay's Potato Chips (50g)", price: 21, category: "Snacks", image: "/images/lays.jpg" },
+            { title: "Kurkure (75g)", price: 20, category: "Snacks", image: "/images/kurkure.jpg" },
+            { title: "Rusk (200g)", price: 54, category: "Snacks", image: "/images/rusk.jpg" },
+            { title: "Haldiram's Bhujia (200g)", price: 60, category: "Snacks", image: "/images/bhujia.jpg" },
+            { title: "Butter Popcorn (47g)", price: 25, category: "Snacks", image: "/images/popcorn.jpg" },
+            { title: "Milk Bread (200g)", price: 35, category: "Snacks", image: "/images/bread.jpg" },
+            { title: "Dettol Antiseptic Liquid (250ml)", price: 167, category: "Cleaning Essentials", image: "/images/dettol.jpg" },
+            { title: "Gonyle Floor Cleaner (1 Ltr)", price: 75, category: "Cleaning Essentials", image: "/images/gonyle.jpg" },
+            { title: "Harpic Toilet Cleaner (600ml)", price: 123, category: "Cleaning Essentials", image: "/images/harpic.jpg" },
+            { title: "Air Freshener (150ml)", price: 90, category: "Cleaning Essentials", image: "/images/air_freshener.jpg" },
+            { title: "Surf Excel Detergent Powder (1kg)", price: 138, category: "Cleaning Essentials", image: "/images/surf_excel.jpg" },
+            { title: "Rin Detergent Bar (130g)", price: 10, category: "Cleaning Essentials", image: "/images/rin.jpg" },
+            { title: "Ariel Perfect Wash (1kg)", price: 149, category: "Cleaning Essentials", image: "/images/ariel.jpg" },
+            { title: "Horlicks Chocolate Drink Mix (200g)", price: 125, category: "Tea, Coffee & Milk Drinks", image: "/images/horlicks.jpg" },
+            { title: "Bournvita Chocolate Nutrition Drink (500g)", price: 241, category: "Tea, Coffee & Milk Drinks", image: "/images/bournvita.jpg" },
+            { title: "Glucon-D (200g)", price: 99, category: "Tea, Coffee & Milk Drinks", image: "/images/glucond.jpg" },
+            { title: "Nescafe Classic Coffee Powder (72g)", price: 199, category: "Tea, Coffee & Milk Drinks", image: "/images/nescafe.jpg" },
+            { title: "Brooke Bond Taaza Tea (1kg)", price: 250, category: "Tea, Coffee & Milk Drinks", image: "/images/taaza_tea.jpg" },
+            { title: "Amul Milk (500ml)", price: 36, category: "Tea, Coffee & Milk Drinks", image: "/images/amul_milk.jpg" },
+            { title: "Tata Garam Masala (100g)", price: 89, category: "Masala", image: "/images/garam_masala.jpg" },
+            { title: "Everest Hing (25g)", price: 50, category: "Masala", image: "/images/hing.jpg" },
+            { title: "Coriander Powder (100g)", price: 41, category: "Masala", image: "/images/coriander.jpg" },
+            { title: "Jeera (100g)", price: 56, category: "Masala", image: "/images/jeera.jpg" },
+            { title: "Tata Salt (1kg)", price: 29, category: "Masala", image: "/images/tata_salt.jpg" },
+            { title: "Red Chilli Powder (100g)", price: 45, category: "Masala", image: "/images/chilli_powder.jpg" },
+            { title: "Turmeric Powder (200g)", price: 61, category: "Masala", image: "/images/turmeric.jpg" },
+            { title: "Maggi Masala (72g)", price: 55, category: "Masala", image: "/images/maggi_masala.jpg" },
+            { title: "Maida (500g)", price: 45, category: "Atta, Rice & Dal", image: "/images/maida.jpg" },
+            { title: "Besan (500g)", price: 60, category: "Atta, Rice & Dal", image: "/images/besan.jpg" },
+            { title: "Chana Dal (500g)", price: 62, category: "Atta, Rice & Dal", image: "/images/chana_dal.jpg" },
+            { title: "Fortune Atta (5kg)", price: 222, category: "Atta, Rice & Dal", image: "/images/fortune_atta.jpg" },
+            { title: "Whole Farm Rice (5kg)", price: 392, category: "Atta, Rice & Dal", image: "/images/rice.jpg" },
+            { title: "Maggi (300g)", price: 60, category: "Atta, Rice & Dal", image: "/images/maggi.jpg" },
+            { title: "Moong Dal (1kg)", price: 121, category: "Atta, Rice & Dal", image: "/images/moong_dal.jpg" },
+            { title: "Soya Mini Chunks (200g)", price: 46, category: "Atta, Rice & Dal", image: "/images/soya_chunks.jpg" }
         ];
-
         function showAdminToast(msg) {
             const toast = document.getElementById('adminToast');
             if (!toast) return;
