@@ -707,10 +707,12 @@
 
       <div class="filter-chips-container">
         <button class="filter-chip active" onclick="filterCategory('All', this)">All Items</button>
-        <button class="filter-chip" onclick="filterCategory('Dairy', this)">🥛 Milk & Dairy</button>
-        <button class="filter-chip" onclick="filterCategory('Grocery', this)">🌾 Grocery</button>
         <button class="filter-chip" onclick="filterCategory('Snacks', this)">🍿 Snacks</button>
-        <button class="filter-chip" onclick="filterCategory('Beverages', this)">🥤 Beverages</button>
+        <button class="filter-chip" onclick="filterCategory('Cleaning Essentials', this)">🧽 Cleaning
+          Essentials</button>
+        <button class="filter-chip" onclick="filterCategory('Tea, Coffee & Milk Drinks', this)">☕ Tea & Coffee</button>
+        <button class="filter-chip" onclick="filterCategory('Masala', this)">🌶️ Masala</button>
+        <button class="filter-chip" onclick="filterCategory('Atta, Rice & Dal', this)">🌾 Atta, Rice & Dal</button>
       </div>
     </div>
   </section>
@@ -823,7 +825,7 @@
     </div>
   </div>
 
-  <!-- Retailer Auth & Onboarding Modal -->
+  <!-- Retailer Auth Modal -->
   <div id="loginModal" class="modal-overlay">
     <div class="modal-card">
       <span class="close-btn" onclick="closeLoginModal()">&times;</span>
@@ -875,6 +877,50 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
+    const kiranaPresetDatabase = [
+      { title: "Lay's Potato Chips (50g)", price: 21, category: "Snacks", image: "/images/lays.jpg" },
+      { title: "Kurkure (75g)", price: 20, category: "Snacks", image: "/images/kurkure.jpg" },
+      { title: "Rusk (200g)", price: 54, category: "Snacks", image: "/images/rusk.jpg" },
+      { title: "Haldiram's Bhujia (200g)", price: 60, category: "Snacks", image: "/images/bhujia.jpg" },
+      { title: "Butter Popcorn (47g)", price: 25, category: "Snacks", image: "/images/popcorn.jpg" },
+      { title: "Milk Bread (200g)", price: 35, category: "Snacks", image: "/images/bread.jpg" },
+      { title: "Dettol Antiseptic Liquid (250ml)", price: 167, category: "Cleaning Essentials", image: "/images/dettol.jpg" },
+      { title: "Gonyle Floor Cleaner (1 Ltr)", price: 75, category: "Cleaning Essentials", image: "/images/gonyle.jpg" },
+      { title: "Harpic Toilet Cleaner (600ml)", price: 123, category: "Cleaning Essentials", image: "/images/harpic.jpg" },
+      { title: "Air Freshener (150ml)", price: 90, category: "Cleaning Essentials", image: "/images/air_freshener.jpg" },
+      { title: "Surf Excel Detergent Powder (1kg)", price: 138, category: "Cleaning Essentials", image: "/images/surf_excel.jpg" },
+      { title: "Rin Detergent Bar (130g)", price: 10, category: "Cleaning Essentials", image: "/images/rin.jpg" },
+      { title: "Ariel Perfect Wash (1kg)", price: 149, category: "Cleaning Essentials", image: "/images/ariel.jpg" },
+      { title: "Horlicks Chocolate Drink Mix (200g)", price: 125, category: "Tea, Coffee & Milk Drinks", image: "/images/horlicks.jpg" },
+      { title: "Bournvita Chocolate Nutrition Drink (500g)", price: 241, category: "Tea, Coffee & Milk Drinks", image: "/images/bournvita.jpg" },
+      { title: "Glucon-D (200g)", price: 99, category: "Tea, Coffee & Milk Drinks", image: "/images/glucond.jpg" },
+      { title: "Nescafe Classic Coffee Powder (72g)", price: 199, category: "Tea, Coffee & Milk Drinks", image: "/images/nescafe.jpg" },
+      { title: "Brooke Bond Taaza Tea (1kg)", price: 250, category: "Tea, Coffee & Milk Drinks", image: "/images/taaza_tea.jpg" },
+      { title: "Amul Milk (500ml)", price: 36, category: "Tea, Coffee & Milk Drinks", image: "/images/amul_milk.jpg" },
+      { title: "Tata Garam Masala (100g)", price: 89, category: "Masala", image: "/images/garam_masala.jpg" },
+      { title: "Everest Hing (25g)", price: 50, category: "Masala", image: "/images/hing.jpg" },
+      { title: "Coriander Powder (100g)", price: 41, category: "Masala", image: "/images/coriander.jpg" },
+      { title: "Jeera (100g)", price: 56, category: "Masala", image: "/images/jeera.jpg" },
+      { title: "Tata Salt (1kg)", price: 29, category: "Masala", image: "/images/tata_salt.jpg" },
+      { title: "Red Chilli Powder (100g)", price: 45, category: "Masala", image: "/images/chilli_powder.jpg" },
+      { title: "Turmeric Powder (200g)", price: 61, category: "Masala", image: "/images/turmeric.jpg" },
+      { title: "Maggi Masala (72g)", price: 55, category: "Masala", image: "/images/maggi_masala.jpg" },
+      { title: "Maida (500g)", price: 45, category: "Atta, Rice & Dal", image: "/images/maida.jpg" },
+      { title: "Besan (500g)", price: 60, category: "Atta, Rice & Dal", image: "/images/besan.jpg" },
+      { title: "Chana Dal (500g)", price: 62, category: "Atta, Rice & Dal", image: "/images/chana_dal.jpg" },
+      { title: "Fortune Atta (5kg)", price: 222, category: "Atta, Rice & Dal", image: "/images/fortune_atta.jpg" },
+      { title: "Whole Farm Rice (5kg)", price: 392, category: "Atta, Rice & Dal", image: "/images/rice.jpg" },
+      { title: "Maggi (300g)", price: 60, category: "Atta, Rice & Dal", image: "/images/maggi.jpg" },
+      { title: "Moong Dal (1kg)", price: 121, category: "Atta, Rice & Dal", image: "/images/moong_dal.jpg" },
+      { title: "Soya Mini Chunks (200g)", price: 46, category: "Atta, Rice & Dal", image: "/images/soya_chunks.jpg" }
+    ];
+
+    const mockShopsDatabase = [
+      { id: 'shop_1', name: 'Gorakhpur Central Kirana', phone: '+91 9876543210', pincode: '273001', status: 'OPEN', distance: '0.8 km', lat: 26.7606, lng: 83.3732, pin: '1111' },
+      { id: 'shop_2', name: 'Gupta General Store', phone: '+91 9123456789', pincode: '273001', status: 'OPEN', distance: '1.5 km', lat: 26.7650, lng: 83.3780, pin: '2222' },
+      { id: 'shop_3', name: 'Verma Super Mart', phone: '+91 9988776655', pincode: '273015', status: 'CLOSED', distance: '3.2 km', lat: 26.7520, lng: 83.3610, pin: '3333' }
+    ];
+
     let masterCatalog = [];
     let cart = [];
     let map, markersGroup;
@@ -883,18 +929,25 @@
     let lastPlacedOrderId = "";
     let trackingIntervalTimer = null;
 
-    const DEFAULT_SHOP_ID = 'ALL';
-    const DEFAULT_SHOP_NAME = 'All ONDC Network Stores';
+    const DEFAULT_SHOP_ID = 'shop_1';
+    const DEFAULT_SHOP_NAME = 'Gorakhpur Central Kirana';
     let selectedShopId = localStorage.getItem('selectedStoreId') || DEFAULT_SHOP_ID;
     let selectedShopName = localStorage.getItem('selectedStoreName') || DEFAULT_SHOP_NAME;
 
-    const predefinedItems = [];
-
-    const mockShopsDatabase = [
-      { id: 'shop_1', name: 'Gorakhpur Central Kirana', phone: '+91 9876543210', pincode: '273001', status: 'OPEN', distance: '0.8 km', lat: 26.7606, lng: 83.3732, pin: '1111' },
-      { id: 'shop_2', name: 'Gupta General Store', phone: '+91 9123456789', pincode: '273001', status: 'OPEN', distance: '1.5 km', lat: 26.7650, lng: 83.3780, pin: '2222' },
-      { id: 'shop_3', name: 'Verma Super Mart', phone: '+91 9988776655', pincode: '273015', status: 'CLOSED', distance: '3.2 km', lat: 26.7520, lng: 83.3610, pin: '3333' }
-    ];
+    function ensureDefaultShopCatalogs() {
+      mockShopsDatabase.forEach((s) => {
+        const key = `cartix_custom_catalog_${s.id}`;
+        if (localStorage.getItem(key) === null) {
+          const seeded = kiranaPresetDatabase.map((item, idx) => ({
+            ...item,
+            _id: 'preset_' + s.id + '_' + idx,
+            stockStatus: 'IN_STOCK',
+            shopId: s.id
+          }));
+          localStorage.setItem(key, JSON.stringify(seeded));
+        }
+      });
+    }
 
     function getShopsList() {
       const customShops = JSON.parse(localStorage.getItem('cartix_registered_shops') || '[]');
@@ -927,25 +980,18 @@
       setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
-    async function loadCatalog() {
-      try {
-        const localCustomData = localStorage.getItem(`cartix_custom_catalog_${selectedShopId}`);
-        const res = await fetch('/api/products');
-        let data = await res.json();
-        if (localCustomData !== null) {
-          masterCatalog = JSON.parse(localCustomData);
-        } else if (!data || data.length === 0) {
-          masterCatalog = predefinedItems.filter(item => item.shopName === selectedShopName);
-        } else {
-          masterCatalog = data;
-        }
-      } catch (err) {
-        const localCustomData = localStorage.getItem(`cartix_custom_catalog_${selectedShopId}`);
-        if (localCustomData !== null) {
-          masterCatalog = JSON.parse(localCustomData);
-        } else {
-          masterCatalog = predefinedItems.filter(item => item.shopName === selectedShopName);
-        }
+    function loadCatalog() {
+      ensureDefaultShopCatalogs();
+      const localCustomData = localStorage.getItem(`cartix_custom_catalog_${selectedShopId}`);
+      if (localCustomData !== null) {
+        masterCatalog = JSON.parse(localCustomData);
+      } else {
+        masterCatalog = kiranaPresetDatabase.map((item, idx) => ({
+          ...item,
+          _id: 'preset_' + selectedShopId + '_' + idx,
+          stockStatus: 'IN_STOCK',
+          shopId: selectedShopId
+        }));
       }
       applyFilterAndSearch();
     }
@@ -959,13 +1005,9 @@
 
     function applyFilterAndSearch() {
       const query = document.getElementById('productSearchInput').value.toLowerCase().trim();
-      let catalogToSearch = [...masterCatalog];
+      let catalogToSearch = [];
 
-      // NAYA LOGIC: Agar search query ho YA "ALL" stores selected ho, toh saari shops ka data merge karo
-      if (query || selectedShopId === 'ALL') {
-        catalogToSearch = [...predefinedItems]; // Default items add karo
-
-        // Saari custom shops ka data add karo
+      if (selectedShopId === 'ALL' || query) {
         const shops = getShopsList();
         shops.forEach(s => {
           const storeCat = localStorage.getItem(`cartix_custom_catalog_${s.id}`);
@@ -974,6 +1016,8 @@
             parsed.forEach(item => catalogToSearch.push({ ...item, shopName: s.name }));
           }
         });
+      } else {
+        catalogToSearch = masterCatalog.map(item => ({ ...item, shopName: selectedShopName }));
       }
 
       const filtered = catalogToSearch.filter(i => {
@@ -986,19 +1030,18 @@
     }
 
     function getProductImage(p) {
-      // Agar database ya custom catalog mein image path saved hai, toh wahi dikhayein
-      if (p.image) {
-        return p.image;
-      }
-      // Fallback default image
+      if (p.image) return p.image;
+      const preset = kiranaPresetDatabase.find(k => k.title.toLowerCase() === p.title.toLowerCase());
+      if (preset && preset.image) return preset.image;
       return 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400';
     }
+
     function renderProducts(items) {
       const grid = document.getElementById('products');
       if (!grid) return;
       grid.innerHTML = '';
       if (!items || !items.length) {
-        grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:30px; font-size:14px; color:var(--text-muted);">No products found.</p>';
+        grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:30px; font-size:14px; color:var(--text-muted);">No products found in this store.</p>';
         return;
       }
       const hasCart = cart.length > 0;
@@ -1009,7 +1052,7 @@
         grid.innerHTML += `
         <div class="product-card">
           <div>
-            <div class="image-container"><img src="${getProductImage(p)}" class="product-img"></div>
+            <div class="image-container"><img src="${getProductImage(p)}" class="product-img" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=400'"></div>
             <span class="seller-tag">🏪 ${p.shopName || selectedShopName}</span>
             <div class="product-title">${p.title}</div>
             <div class="product-category">${p.category || 'General'}</div>
@@ -1032,14 +1075,14 @@
 
     function addToCart(id, title, price, shopName) {
       if (cart.length && cart[0].shopName !== shopName) {
-        showToast(`⚠️ Your basket has items from "${cart[0].shopName}". Checkout or clear it before adding items from another store.`);
+        showToast(`⚠️ Basket has items from "${cart[0].shopName}". Clear it first to switch stores.`);
         return;
       }
       const item = cart.find(i => i.id === id);
       if (item) item.qty += 1;
       else cart.push({ id, title, price, qty: 1, shopName });
       updateCartUI();
-      showToast(`🛒 "${title}" added to Basket!`);
+      showToast(`🛒 "${title}" added!`);
     }
 
     function updateCartUI() {
@@ -1054,30 +1097,18 @@
           <button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button> 
           <span>${i.qty}</span> 
           <button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button>
-          <!-- Specific item delete karne ka button -->
           <button style="background: #fee2e2; color: #b91c1c; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-left: 4px;" onclick="removeItem('${i.id}')">❌</button>
         </div>
       </div>`).join('') : '<p style="text-align:center; padding:20px;">Basket is empty.</p>';
 
-      // Clear All button ko hide/show karna
       const clearBtn = document.getElementById('clearCartBtn');
       if (clearBtn) clearBtn.style.display = cart.length ? 'block' : 'none';
 
       applyFilterAndSearch();
     }
-    // Single item hatane ka function
-    function removeItem(id) {
-      cart = cart.filter(i => i.id !== id);
-      updateCartUI();
-    }
 
-    // Poora cart ek saath clear karne ka function
-    function clearBasket() {
-      cart = [];
-      updateCartUI();
-      showToast("Basket cleared!");
-    }
-
+    function removeItem(id) { cart = cart.filter(i => i.id !== id); updateCartUI(); }
+    function clearBasket() { cart = []; updateCartUI(); showToast("Basket cleared!"); }
     function changeQty(id, delta) {
       const item = cart.find(i => i.id === id);
       if (item) {
@@ -1100,24 +1131,16 @@
       e.preventDefault();
       if (!cart.length) return showToast("Basket is empty!");
       const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-      if (paymentMethod === 'UPI') {
-        openUpiPaymentModal();
-      } else {
-        placeOrderNow('COD');
-      }
+      if (paymentMethod === 'UPI') openUpiPaymentModal();
+      else placeOrderNow('COD');
     }
 
     function openUpiPaymentModal() {
       const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
       const upiString = `upi://pay?pa=cartix.store@upi&pn=CartixKirana&am=${total}&cu=INR`;
       document.getElementById('upiAmountText').innerText = `₹ ${total}`;
-
-      // QR Code update
       document.getElementById('upiQrImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiString)}`;
-
-      // UPI Intent deep link update (Phone users direct click karenge)
       document.getElementById('upiDeepLink').href = upiString;
-
       document.getElementById('checkoutModal').style.display = 'none';
       document.getElementById('upiPaymentModal').style.display = 'flex';
     }
@@ -1191,7 +1214,6 @@
     function handleShopRegistration(e) {
       e.preventDefault();
       const name = document.getElementById('regShopName').value.trim();
-      const category = document.getElementById('regCategory').value.trim();
       const pincode = document.getElementById('regPincode').value.trim();
       const phone = document.getElementById('regPhone').value.trim();
 
@@ -1204,8 +1226,7 @@
       localStorage.setItem('selectedStoreId', newShop.id);
       localStorage.setItem('selectedStoreName', newShop.name);
 
-      alert(`Shop "${name}" registered!\n\nYour login credentials:\nPhone: ${phone}\nPIN: ${pin}\n\nSave this PIN — you'll need it to log back into your dashboard.`);
-      showToast(`🎉 Shop "${name}" registered on ONDC Network!`);
+      alert(`Shop "${name}" registered!\n\nCredentials:\nPhone: ${phone}\nPIN: ${pin}`);
       closeLoginModal();
       window.location.href = '/admin.html';
     }
@@ -1234,27 +1255,25 @@
       const container = document.getElementById('shopsList');
       if (!container) return;
 
-      // "View All" ka ek extra default button add kiya gaya hai
       container.innerHTML = `
-    <div class="shop-card" style="border: 2px dashed #10b981; background: #f0fdf4;">
-      <div class="shop-info">
-        <h4 style="color: #15803d;">🌐 View All Network Stores</h4>
-        <p>Show items from all nearby Kiranas</p>
-      </div>
-      <button class="select-shop-btn" style="background: #10b981;" onclick="selectShopCatalog('ALL', 'All ONDC Network Stores')">View All</button>
-    </div>
-  `;
+        <div class="shop-card" style="border: 2px dashed #10b981; background: #f0fdf4;">
+          <div class="shop-info">
+            <h4 style="color: #15803d;">🌐 View All Network Stores</h4>
+            <p>Show items from all nearby Kiranas</p>
+          </div>
+          <button class="select-shop-btn" style="background: #10b981;" onclick="selectShopCatalog('ALL', 'All ONDC Network Stores')">View All</button>
+        </div>`;
 
       markersGroup.clearLayers();
       shops.forEach(s => {
         container.innerHTML += `
-    <div class="shop-card">
-      <div class="shop-info">
-        <h4>${s.name}</h4>
-        <p>📍 ${s.distance} • 📞 ${s.phone}</p>
-      </div>
-      <button class="select-shop-btn" onclick="selectShopCatalog('${s.id}', '${s.name}')">Select</button>
-    </div>`;
+        <div class="shop-card">
+          <div class="shop-info">
+            <h4>${s.name}</h4>
+            <p>📍 ${s.distance} • 📞 ${s.phone}</p>
+          </div>
+          <button class="select-shop-btn" onclick="selectShopCatalog('${s.id}', '${s.name}')">Select</button>
+        </div>`;
         const m = L.marker([s.lat, s.lng]).addTo(markersGroup);
         m.bindPopup(`<b>${s.name}</b>`);
       });
@@ -1292,7 +1311,6 @@
         document.getElementById('trackOrderIdInput').value = lastPlacedOrderId;
       }
       trackOrder();
-      // Real-time Order Polling every 1 second when tracker modal is open
       if (!trackingIntervalTimer) {
         trackingIntervalTimer = setInterval(() => {
           if (document.getElementById('trackerModal').style.display === 'flex') {
@@ -1310,7 +1328,6 @@
       }
     }
 
-    // Real-time Track Order Status
     function trackOrder() {
       const orderId = document.getElementById('trackOrderIdInput').value.trim();
       const resultBox = document.getElementById('trackingResult');
@@ -1323,7 +1340,6 @@
         return;
       }
 
-      // Cancel button HTML check
       let cancelBtnHtml = '';
       if (order.status === 'PENDING' || order.status === 'PACKING') {
         cancelBtnHtml = `<button onclick="cancelCustomerOrder('${order.orderId}')" style="background:#ef4444; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer; margin-top:14px; width:100%;">❌ Cancel My Order</button>`;
@@ -1344,6 +1360,7 @@
       </div>
       ${cancelBtnHtml}`;
     }
+
     function cancelCustomerOrder(orderId) {
       let orders = JSON.parse(localStorage.getItem('cartix_orders') || '[]');
       const order = orders.find(o => o.orderId === orderId);
@@ -1352,7 +1369,7 @@
         order.status = 'CANCELLED';
         localStorage.setItem('cartix_orders', JSON.stringify(orders));
         showToast("⚠️ Order Cancelled Successfully!");
-        trackOrder(); // Tracker ko turant refresh karega
+        trackOrder();
       } else {
         showToast("Cannot cancel. Order already dispatched!");
       }
@@ -1373,12 +1390,13 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       document.getElementById('customerTimeBadge').innerText = getGreeting();
+      ensureDefaultShopCatalogs();
+
       const savedShopName = localStorage.getItem('selectedStoreName') || DEFAULT_SHOP_NAME;
       document.getElementById('currentStoreTitle').innerText = savedShopName;
       document.getElementById('activeShopHeading').innerText = `Catalog — ${savedShopName}`;
-      loadCatalog();
 
-      // Poll catalog every 3 seconds to catch Stock Status updates in real-time
+      loadCatalog();
       setInterval(loadCatalog, 3000);
     });
   </script>

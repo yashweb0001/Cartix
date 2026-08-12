@@ -283,7 +283,9 @@
             <p style="font-size:12px; color:var(--text-muted);">Isolated Retailer Dashboard (ID: <span
                     id="shopIdHeader"></span>)</p>
         </div>
-        <div>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span id="adminTimeBadge"
+                style="background:#eef2ff; color:#4f46e5; border:1px solid #c7d2fe; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:700;"></span>
             <button onclick="window.location.href='/'" style="padding:6px 12px; cursor:pointer;">⬅️ Back to
                 Shop</button>
         </div>
@@ -315,6 +317,7 @@
                 <div class="inventory-card">
                     <h3>➕ Add Item to My Catalog</h3>
                     <form id="addProductForm" onsubmit="handleAddProduct(event)" style="margin-top:10px;">
+                        <input type="hidden" id="pImage" value="">
                         <div class="form-group">
                             <label>Product Name (Type & Use Arrow Keys + Enter)</label>
                             <input type="text" id="pTitle" placeholder="e.g. Maggi, Milk..." autocomplete="off"
@@ -352,8 +355,6 @@
         let localProducts = [];
         let currentFocusIndex = -1;
 
-        // Auto Preset Database for Demo (Restored & Preserved!)
-        // Updated Master Catalog Database
         const kiranaPresetDatabase = [
             { title: "Lay's Potato Chips (50g)", price: 21, category: "Snacks", image: "/images/lays.jpg" },
             { title: "Kurkure (75g)", price: 20, category: "Snacks", image: "/images/kurkure.jpg" },
@@ -391,11 +392,19 @@
             { title: "Moong Dal (1kg)", price: 121, category: "Atta, Rice & Dal", image: "/images/moong_dal.jpg" },
             { title: "Soya Mini Chunks (200g)", price: 46, category: "Atta, Rice & Dal", image: "/images/soya_chunks.jpg" }
         ];
+
         function showAdminToast(msg) {
             const toast = document.getElementById('adminToast');
             if (!toast) return;
             toast.innerText = msg; toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function getGreeting() {
+            const hour = new Date().getHours();
+            if (hour >= 5 && hour < 12) return "🌅 Good Morning";
+            if (hour >= 12 && hour < 17) return "☀️ Good Afternoon";
+            return "🌙 Good Evening";
         }
 
         function openConfirmModal() { document.getElementById('confirmClearModal').style.display = 'flex'; }
@@ -409,11 +418,11 @@
             showAdminToast("🗑️ All items cleared!");
         }
 
-        // Search Input with Arrow Key Navigation (Intact)
         function handleTitleSearchInput(val) {
             const list = document.getElementById('autoCompleteList');
             const query = val.toLowerCase().trim();
             currentFocusIndex = -1;
+            document.getElementById('pImage').value = '';
 
             if (!query) { list.style.display = 'none'; return; }
 
@@ -421,7 +430,7 @@
             if (!matches.length) { list.style.display = 'none'; return; }
 
             list.innerHTML = matches.map((item, index) => `
-                <div class="autocomplete-item" id="auto-item-${index}" onclick="selectAutoCompleteItem('${item.title}', ${item.price}, '${item.category}')">
+                <div class="autocomplete-item" id="auto-item-${index}" onclick="selectAutoCompleteItem('${item.title}', ${item.price}, '${item.category}', '${item.image}')">
                     <b>${item.title}</b> — ₹${item.price}
                 </div>
             `).join('');
@@ -465,16 +474,16 @@
             }
         }
 
-        function selectAutoCompleteItem(title, price, category) {
+        function selectAutoCompleteItem(title, price, category, image) {
             document.getElementById('pTitle').value = title;
             document.getElementById('pPrice').value = price;
             document.getElementById('pCategory').value = category;
+            document.getElementById('pImage').value = image || '';
             document.getElementById('autoCompleteList').style.display = 'none';
             currentFocusIndex = -1;
             showAdminToast(`⚡ Auto-filled: ${title}`);
         }
 
-        // Fetch ONLY Orders belonging to THIS specific shop ID
         function fetchOrders() {
             const allOrders = JSON.parse(localStorage.getItem('cartix_orders') || '[]');
             const myOrders = allOrders.filter(o => o.shopId === currentShopId || o.storeName === currentShopName);
@@ -494,13 +503,10 @@
                     <span>🛒 ${o.orderId}</span>
                     <span>₹${o.totalAmount}</span>
                 </div>
-                
-                <!-- ORDER DETAILS WITH TIME -->
                 <div style="font-size:12px; color:var(--text-muted); margin:6px 0;">
                     👤 ${o.customerName} (${o.phone}) 📍 ${o.address} <br>
                     <span style="color:#0f172a; font-weight:700; margin-top:4px; display:inline-block; background:#e2e8f0; padding:2px 6px; border-radius:4px;">🕒 Time: ${o.createdAt || 'N/A'}</span>
                 </div>
-                
                 <div style="background: #f1f5f9; padding: 8px; border-radius: 6px; margin: 8px 0; font-size: 11px; border: 1px solid #e2e8f0;">
                     <strong style="display:block; margin-bottom:4px; color:#0f172a;">📦 Items to Pack:</strong>
                     ${o.items ? o.items.map(item => `
@@ -510,9 +516,7 @@
                         </div>
                     `).join('') : '<span style="color:red;">No items data</span>'}
                 </div>
-
                 ${o.riderName ? `<div style="font-size:11px; color:#2563eb; font-weight:600; margin-bottom:6px;">🛵 Picked up by ${o.riderName} (${o.riderPhone || 'no phone'})</div>` : ''}
-                
                 <select onchange="updateOrderStatus('${o.orderId}', this.value)" style="padding:4px; border-radius:6px; font-size:12px; width: 100%;">
                     <option value="PENDING" ${o.status === 'PENDING' ? 'selected' : ''}>🕒 Pending</option>
                     <option value="PACKING" ${o.status === 'PACKING' ? 'selected' : ''}>📦 Packing</option>
@@ -534,7 +538,6 @@
             }
         }
 
-        // Fetch Products (With Auto-Preset Logic Restored)
         function fetchProducts() {
             const savedData = localStorage.getItem(`cartix_custom_catalog_${currentShopId}`);
 
@@ -543,7 +546,7 @@
             } else {
                 localProducts = kiranaPresetDatabase.map((item, idx) => ({
                     ...item,
-                    _id: 'preset_' + Date.now() + '_' + idx,
+                    _id: 'preset_' + currentShopId + '_' + idx,
                     stockStatus: 'IN_STOCK',
                     shopId: currentShopId
                 }));
@@ -610,14 +613,19 @@
             const price = Number(document.getElementById('pPrice').value);
             const category = document.getElementById('pCategory').value;
 
-            localProducts.unshift({ _id: 'item_' + Date.now(), title, price, category, stockStatus: 'IN_STOCK', shopId: currentShopId });
+            let image = document.getElementById('pImage').value;
+            if (!image) {
+                const preset = kiranaPresetDatabase.find(p => p.title.toLowerCase() === title.toLowerCase());
+                if (preset) image = preset.image;
+            }
+
+            localProducts.unshift({ _id: 'item_' + Date.now(), title, price, category, image, stockStatus: 'IN_STOCK', shopId: currentShopId });
             localStorage.setItem(`cartix_custom_catalog_${currentShopId}`, JSON.stringify(localProducts));
             renderMiniCatalog();
             showAdminToast(`✅ "${title}" added to ${currentShopName}!`);
             e.target.reset();
         }
 
-        // Close dropdown when clicking outside
         document.addEventListener("click", (e) => {
             if (!e.target.closest('.form-group')) {
                 const list = document.getElementById('autoCompleteList');
@@ -628,9 +636,10 @@
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('shopTitleHeader').innerText = currentShopName;
             document.getElementById('shopIdHeader').innerText = currentShopId;
+            document.getElementById('adminTimeBadge').innerText = getGreeting();
             fetchProducts();
             fetchOrders();
-            setInterval(fetchOrders, 2000);
+            setInterval(fetchOrders, 3000);
         });
     </script>
 </body>
