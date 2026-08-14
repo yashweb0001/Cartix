@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retailer Hub — Store Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --dark: #0f172a;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --card-border: #cbd5e1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .admin-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--dark);
+            color: #ffffff;
+            padding: 12px 22px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 3000;
+            opacity: 0;
+            transform: translateY(-30px);
+            transition: all 0.3s ease;
+        }
+
+        .admin-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        main {
+            max-width: 1300px;
+            margin: 24px auto;
+            padding: 0 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--card-border);
+            padding: 18px;
+            border-radius: 12px;
+        }
+
+        .stat-card .label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .stat-card .value {
+            font-size: 22px;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 24px;
+        }
+
+        .order-card,
+        .inventory-card {
+            background: var(--surface);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary);
+        }
+
+        .autocomplete-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            max-height: 160px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .autocomplete-item {
+            padding: 8px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 11px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .btn-clear-catalog {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .catalog-list-mini {
+            margin-top: 14px;
+            max-height: 380px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .mini-prod-card {
+            background: var(--bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stock-toggle-btn {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+        }
+
+        .stock-toggle-btn.in {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+        }
+
+        .stock-toggle-btn.low {
+            background: #fef3c7;
+            color: #b45309;
+            border: 1px solid #fcd34d;
+        }
+
+        .stock-toggle-btn.out {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.65);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-card {
+            background: var(--surface);
+            border-radius: 14px;
+            width: 340px;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="adminToast" class="admin-toast"></div>
+
+    <div id="confirmClearModal" class="modal-overlay">
+        <div class="modal-card">
+            <div style="font-size: 32px; margin-bottom: 8px;">🗑️</div>
+            <h3 style="font-size: 16px;">Clear Entire Catalog?</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin: 8px 0 18px;">Are you sure you want to remove
+                all listed products?</p>
+            <div style="display: flex; gap: 10px;">
+                <button style="flex:1; padding: 8px; border-radius: 8px; cursor: pointer;"
+                    onclick="closeConfirmModal()">Cancel</button>
+                <button
+                    style="flex:1; background: #ef4444; color: white; border: none; padding: 8px; border-radius: 8px; font-weight: 700; cursor: pointer;"
+                    onclick="executeClearCatalog()">Yes, Clear</button>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <div>
+            <h2>🏪 <span id="shopTitleHeader">Loading Store...</span></h2>
+            <p style="font-size:12px; color:var(--text-muted);">Isolated Retailer Dashboard (ID: <span
+                    id="shopIdHeader"></span>)</p>
+        </div>
+        <div>
+            <button onclick="window.location.href='/'" style="padding:6px 12px; cursor:pointer;">⬅️ Back to
+                Shop</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="label">Store Orders</div>
+                <div class="value" id="statOrders">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Store Revenue</div>
+                <div class="value" style="color: #22c55e;" id="statRevenue">₹0</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Active Items</div>
+                <div class="value" id="statStock">0 Items</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div>
+                <h3>📦 Orders for My Shop</h3>
+                <div id="ordersContainer" style="margin-top:14px;"></div>
+            </div>
+
+            <div>
+                <div class="inventory-card">
+                    <h3>➕ Add Item to My Catalog</h3>
+                    <form id="addProductForm" onsubmit="handleAddProduct(event)" style="margin-top:10px;">
+                        <div class="form-group">
+                            <label>Product Name (Type & Use Arrow Keys + Enter)</label>
+                            <input type="text" id="pTitle" placeholder="e.g. Maggi, Milk..." autocomplete="off"
+                                oninput="handleTitleSearchInput(this.value)" required>
+                            <div class="autocomplete-list" id="autoCompleteList"></div>
+                        </div>
+                        <div class="form-group"><label>Price (₹)</label><input type="number" id="pPrice" required></div>
+                        <div class="form-group"><label>Stock Quantity</label><input type="number" id="pStock" min="0" value="20" required></div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="pCategory">
+                                <option value="Snacks">🍿 Snacks</option>
+                                <option value="Cleaning Essentials">🧽 Cleaning Essentials</option>
+                                <option value="Tea, Coffee & Milk Drinks">☕ Tea, Coffee & Milk Drinks</option>
+                                <option value="Masala">🌶️ Masala</option>
+                                <option value="Atta, Rice & Dal" selected>🌾 Atta, Rice & Dal</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-submit">+ Save to My Store Catalog</button>
+                    </form>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                        <h4>📦 My Listed Items</h4>
+                        <button class="btn-clear-catalog" onclick="openConfirmModal()">🗑️ Clear</button>
+                    </div>
+                    <div class="catalog-list-mini" id="miniCatalog"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const currentShopId = localStorage.getItem('selectedStoreId') || 'shop_1';
+        const currentShopName = localStorage.getItem('selectedStoreName') || 'Gorakhpur Central Kirana';
+
+        let localProducts = [];
+        let currentFocusIndex = -1;
+
+        // Auto Preset Database for Demo (Restored & Preserved!)
+        // Updated Master Catalog Database
+        const kiranaPresetDatabase = [
+            { title: "Lay's Potato Chips (50g)", price: 21, category: "Snacks", image: "/images/lays.jpg" },
+            { title: "Kurkure (75g)", price: 20, category: "Snacks", image: "/images/kurkure.jpg" },
+            { title: "Rusk (200g)", price: 54, category: "Snacks", image: "/images/rusk.jpg" },
+            { title: "Haldiram's Bhujia (200g)", price: 60, category: "Snacks", image: "/images/bhujia.jpg" },
+            { title: "Butter Popcorn (47g)", price: 25, category: "Snacks", image: "/images/popcorn.jpg" },
+            { title: "Milk Bread (200g)", price: 35, category: "Snacks", image: "/images/bread.jpg" },
+            { title: "Dettol Antiseptic Liquid (250ml)", price: 167, category: "Cleaning Essentials", image: "/images/dettol.jpg" },
+            { title: "Gonyle Floor Cleaner (1 Ltr)", price: 75, category: "Cleaning Essentials", image: "/images/gonyle.jpg" },
+            { title: "Harpic Toilet Cleaner (600ml)", price: 123, category: "Cleaning Essentials", image: "/images/harpic.jpg" },
+            { title: "Air Freshener (150ml)", price: 90, category: "Cleaning Essentials", image: "/images/air_freshener.jpg" },
+            { title: "Surf Excel Detergent Powder (1kg)", price: 138, category: "Cleaning Essentials", image: "/images/surf_excel.jpg" },
+            { title: "Rin Detergent Bar (130g)", price: 10, category: "Cleaning Essentials", image: "/images/rin.jpg" },
+            { title: "Ariel Perfect Wash (1kg)", price: 149, category: "Cleaning Essentials", image: "/images/ariel.jpg" },
+            { title: "Horlicks Chocolate Drink Mix (200g)", price: 125, category: "Tea, Coffee & Milk Drinks", image: "/images/horlicks.jpg" },
+            { title: "Bournvita Chocolate Nutrition Drink (500g)", price: 241, category: "Tea, Coffee & Milk Drinks", image: "/images/bournvita.jpg" },
+            { title: "Glucon-D (200g)", price: 99, category: "Tea, Coffee & Milk Drinks", image: "/images/glucond.jpg" },
+            { title: "Nescafe Classic Coffee Powder (72g)", price: 199, category: "Tea, Coffee & Milk Drinks", image: "/images/nescafe.jpg" },
+            { title: "Brooke Bond Taaza Tea (1kg)", price: 250, category: "Tea, Coffee & Milk Drinks", image: "/images/taaza_tea.jpg" },
+            { title: "Amul Milk (500ml)", price: 36, category: "Tea, Coffee & Milk Drinks", image: "/images/amul_milk.jpg" },
+            { title: "Tata Garam Masala (100g)", price: 89, category: "Masala", image: "/images/garam_masala.jpg" },
+            { title: "Everest Hing (25g)", price: 50, category: "Masala", image: "/images/hing.jpg" },
+            { title: "Coriander Powder (100g)", price: 41, category: "Masala", image: "/images/coriander.jpg" },
+            { title: "Jeera (100g)", price: 56, category: "Masala", image: "/images/jeera.jpg" },
+            { title: "Tata Salt (1kg)", price: 29, category: "Masala", image: "/images/tata_salt.jpg" },
+            { title: "Red Chilli Powder (100g)", price: 45, category: "Masala", image: "/images/chilli_powder.jpg" },
+            { title: "Turmeric Powder (200g)", price: 61, category: "Masala", image: "/images/turmeric.jpg" },
+            { title: "Maggi Masala (72g)", price: 55, category: "Masala", image: "/images/maggi_masala.jpg" },
+            { title: "Maida (500g)", price: 45, category: "Atta, Rice & Dal", image: "/images/maida.jpg" },
+            { title: "Besan (500g)", price: 60, category: "Atta, Rice & Dal", image: "/images/besan.jpg" },
+            { title: "Chana Dal (500g)", price: 62, category: "Atta, Rice & Dal", image: "/images/chana_dal.jpg" },
+            { title: "Fortune Atta (5kg)", price: 222, category: "Atta, Rice & Dal", image: "/images/fortune_atta.jpg" },
+            { title: "Whole Farm Rice (5kg)", price: 392, category: "Atta, Rice & Dal", image: "/images/rice.jpg" },
+            { title: "Maggi (300g)", price: 60, category: "Atta, Rice & Dal", image: "/images/maggi.jpg" },
+            { title: "Moong Dal (1kg)", price: 121, category: "Atta, Rice & Dal", image: "/images/moong_dal.jpg" },
+            { title: "Soya Mini Chunks (200g)", price: 46, category: "Atta, Rice & Dal", image: "/images/soya_chunks.jpg" }
+        ];
+        // Auto-derives the IN_STOCK / LOW_STOCK / OUT_OF_STOCK label from the
+        // real numeric stock count, so it can never drift from reality.
+        function deriveStockStatus(stock) {
+            const n = Number(stock);
+            if (isNaN(n) || n <= 0) return 'OUT_OF_STOCK';
+            if (n <= 5) return 'LOW_STOCK';
+            return 'IN_STOCK';
+        }
+
+        function showAdminToast(msg) {
+            const toast = document.getElementById('adminToast');
+            if (!toast) return;
+            toast.innerText = msg; toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function openConfirmModal() { document.getElementById('confirmClearModal').style.display = 'flex'; }
+        function closeConfirmModal() { document.getElementById('confirmClearModal').style.display = 'none'; }
+
+        function executeClearCatalog() {
+            closeConfirmModal();
+            localProducts = [];
+            localStorage.setItem(`cartix_custom_catalog_${currentShopId}`, JSON.stringify([]));
+            renderMiniCatalog();
+            showAdminToast("🗑️ All items cleared!");
+        }
+
+        // Search Input with Arrow Key Navigation (Intact)
+        function handleTitleSearchInput(val) {
+            const list = document.getElementById('autoCompleteList');
+            const query = val.toLowerCase().trim();
+            currentFocusIndex = -1;
+
+            if (!query) { list.style.display = 'none'; return; }
+
+            const matches = kiranaPresetDatabase.filter(item => item.title.toLowerCase().includes(query));
+            if (!matches.length) { list.style.display = 'none'; return; }
+
+            list.innerHTML = matches.map((item, index) => `
+                <div class="autocomplete-item" id="auto-item-${index}" onclick="selectAutoCompleteItem('${item.title}', ${item.price}, '${item.category}')">
+                    <b>${item.title}</b> — ₹${item.price}
+                </div>
+            `).join('');
+            list.style.display = 'block';
+        }
+
+        document.getElementById('pTitle').addEventListener('keydown', function (e) {
+            const list = document.getElementById('autoCompleteList');
+            if (!list || list.style.display === 'none' || !list.children.length) return;
+
+            const items = list.getElementsByClassName('autocomplete-item');
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                currentFocusIndex++;
+                if (currentFocusIndex >= items.length) currentFocusIndex = 0;
+                highlightActiveItem(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                currentFocusIndex--;
+                if (currentFocusIndex < 0) currentFocusIndex = items.length - 1;
+                highlightActiveItem(items);
+            } else if (e.key === 'Enter') {
+                if (currentFocusIndex > -1 && items[currentFocusIndex]) {
+                    e.preventDefault();
+                    items[currentFocusIndex].click();
+                }
+            } else if (e.key === 'Escape') {
+                list.style.display = 'none';
+            }
+        });
+
+        function highlightActiveItem(items) {
+            for (let i = 0; i < items.length; i++) {
+                items[i].style.background = ''; items[i].style.color = '';
+            }
+            if (currentFocusIndex >= 0 && currentFocusIndex < items.length) {
+                items[currentFocusIndex].style.background = '#4f46e5';
+                items[currentFocusIndex].style.color = '#ffffff';
+                items[currentFocusIndex].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function selectAutoCompleteItem(title, price, category) {
+            document.getElementById('pTitle').value = title;
+            document.getElementById('pPrice').value = price;
+            document.getElementById('pCategory').value = category;
+            document.getElementById('autoCompleteList').style.display = 'none';
+            currentFocusIndex = -1;
+            showAdminToast(`⚡ Auto-filled: ${title}`);
+        }
+
+        // Fetch ONLY Orders belonging to THIS specific shop ID
+        function fetchOrders() {
+            const allOrders = JSON.parse(localStorage.getItem('cartix_orders') || '[]');
+            const myOrders = allOrders.filter(o => o.shopId === currentShopId || o.storeName === currentShopName);
+
+            document.getElementById('statOrders').innerText = myOrders.length;
+            document.getElementById('statRevenue').innerText = `₹${myOrders.reduce((s, o) => s + o.totalAmount, 0)}`;
+
+            const container = document.getElementById('ordersContainer');
+            if (!myOrders.length) {
+                container.innerHTML = `<p style="font-size:12px; color:var(--text-muted);">No orders received for ${currentShopName} yet.</p>`;
+                return;
+            }
+
+            container.innerHTML = myOrders.map(o => `
+            <div class="order-card" style="${o.status === 'CANCELLED' ? 'opacity: 0.6;' : ''}">
+                <div style="display:flex; justify-content:space-between; font-weight:bold;">
+                    <span>🛒 ${o.orderId}</span>
+                    <span>₹${o.totalAmount}</span>
+                </div>
+                
+                <!-- ORDER DETAILS WITH TIME -->
+                <div style="font-size:12px; color:var(--text-muted); margin:6px 0;">
+                    👤 ${o.customerName} (${o.phone}) 📍 ${o.address} <br>
+                    <span style="color:#0f172a; font-weight:700; margin-top:4px; display:inline-block; background:#e2e8f0; padding:2px 6px; border-radius:4px;">🕒 Time: ${o.createdAt || 'N/A'}</span>
+                </div>
+                
+                <div style="background: #f1f5f9; padding: 8px; border-radius: 6px; margin: 8px 0; font-size: 11px; border: 1px solid #e2e8f0;">
+                    <strong style="display:block; margin-bottom:4px; color:#0f172a;">📦 Items to Pack:</strong>
+                    ${o.items ? o.items.map(item => `
+                        <div style="display:flex; justify-content:space-between; margin-bottom:3px; color:#475569;">
+                            <span>${item.qty} x ${item.title}</span>
+                            <span>₹${item.price * item.qty}</span>
+                        </div>
+                    `).join('') : '<span style="color:red;">No items data</span>'}
+                </div>
+
+                ${o.riderName ? `<div style="font-size:11px; color:#2563eb; font-weight:600; margin-bottom:6px;">🛵 Picked up by ${o.riderName} (${o.riderPhone || 'no phone'})</div>` : ''}
+                
+                <select onchange="updateOrderStatus('${o.orderId}', this.value)" style="padding:4px; border-radius:6px; font-size:12px; width: 100%;">
+                    <option value="PENDING" ${o.status === 'PENDING' ? 'selected' : ''}>🕒 Pending</option>
+                    <option value="PACKING" ${o.status === 'PACKING' ? 'selected' : ''}>📦 Packing</option>
+                    <option value="DISPATCHED" ${o.status === 'DISPATCHED' ? 'selected' : ''}>🚚 Dispatched</option>
+                    <option value="DELIVERED" ${o.status === 'DELIVERED' ? 'selected' : ''}>✅ Delivered</option>
+                    <option value="CANCELLED" ${o.status === 'CANCELLED' ? 'selected' : ''}>❌ Cancelled (No Stock)</option>
+                </select>
+            </div>
+        `).join('');
+        }
+
+        function updateOrderStatus(orderId, status) {
+            let orders = JSON.parse(localStorage.getItem('cartix_orders') || '[]');
+            const order = orders.find(o => o.orderId === orderId);
+            if (order) {
+                order.status = status;
+                localStorage.setItem('cartix_orders', JSON.stringify(orders));
+                fetchOrders();
+            }
+        }
+
+        // Fetch Products (With Auto-Preset Logic Restored)
+        function fetchProducts() {
+            const savedData = localStorage.getItem(`cartix_custom_catalog_${currentShopId}`);
+
+            if (savedData !== null) {
+                localProducts = JSON.parse(savedData);
+                // Backfill stock for older items created before this field existed
+                let backfilled = false;
+                localProducts.forEach(p => {
+                    if (typeof p.stock !== 'number') {
+                        p.stock = p.stockStatus === 'OUT_OF_STOCK' ? 0 : 20;
+                        p.stockStatus = deriveStockStatus(p.stock);
+                        backfilled = true;
+                    }
+                });
+                if (backfilled) localStorage.setItem(`cartix_custom_catalog_${currentShopId}`, JSON.stringify(localProducts));
+            } else {
+                localProducts = kiranaPresetDatabase.map((item, idx) => ({
+                    ...item,
+                    _id: 'preset_' + Date.now() + '_' + idx,
+                    stock: 20,
+                    stockStatus: 'IN_STOCK',
+                    shopId: currentShopId
+                }));
+                localStorage.setItem(`cartix_custom_catalog_${currentShopId}`, JSON.stringify(localProducts));
+            }
+            renderMiniCatalog();
+        }
+
+        // Retailer adds new stock (e.g. after restocking shelves) — updates
+        // the count and re-derives the status label automatically.
+        function restockProduct(productId) {
+            const prod = localProducts.find(p => p._id === productId);
+            if (!prod) return;
+            const addQty = prompt(`How many units of "${prod.title}" are you adding?`, '10');
+            if (addQty === null) return;
+            const n = parseInt(addQty, 10);
+            if (isNaN(n) || n < 0) { showAdminToast('Enter a valid quantity'); return; }
+            prod.stock = (Number(prod.stock) || 0) + n;
+            prod.stockStatus = deriveStockStatus(prod.stock);
+            localStorage.setItem(`cartix_custom_catalog_${currentShopId}`, JSON.stringify(localProducts));
+            renderMiniCatalog();
+            showAdminToast(`📦 "${prod.title}" restocked — now ${prod.stock} in stock`);
+        }
+
+        function renderMiniCatalog() {
+            const inStockCount = localProducts.filter(p => p.stockStatus !== 'OUT_OF_STOCK').length;
+            document.getElementById('statStock').innerText = `${inStockCount} / ${localProducts.length} Items`;
+
+            const miniContainer = document.getElementById('miniCatalog');
+            if (!localProducts.length) {
+                miniContainer.innerHTML = `<p style="font-size:12px; color:var(--text-muted);">No items listed in your store yet.</p>`;
+                return;
+            }
+
+            miniContainer.innerHTML = localProducts.map(p => {
+                let badgeClass = 'in';
+                let badgeText = '✅ In Stock';
+                const stockNum = typeof p.stock === 'number' ? p.stock : 20;
+
+                if (p.stockStatus === 'LOW_STOCK') {
+                    badgeClass = 'low';
+                    badgeText = '🔥 Few Left';
+                } else if (p.stockStatus === 'OUT_OF_STOCK') {
+                    badgeClass = 'out';
+                    badgeText = '❌ Out of Stock';
+                }
+
+                return `
+                <div class="mini-prod-card">
+                    <div>
+                        <b>${p.title}</b><br>
+                        <small style="color:var(--primary);">₹${p.price} • ${stockNum} in stock</small>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:4px; align-items:flex-end;">
+                        <span class="stock-toggle-btn ${badgeClass}" style="cursor:default;">${badgeText}</span>
+                        <button class="stock-toggle-btn" style="background:#e0f2fe; color:#0369a1;" onclick="restockProduct('${p._id}')">➕ Restock</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function handleAddProduct(e) {
+            e.preventDefault();
+            const title = document.getElementById('pTitle').value;
+            const price = Number(document.getElementById('pPrice').value);
+            const category = document.getElementById('pCategory').value;
+            const stock = Math.max(0, parseInt(document.getElementById('pStock').value, 10) || 0);
+
+            localProducts.unshift({ _id: 'item_' + Date.now(), title, price, category, stock, stockStatus: deriveStockStatus(stock), shopId: currentShopId });
+            localStorage.setItem(`cartix_custom_catalog_${currentShopId}`, JSON.stringify(localProducts));
+            renderMiniCatalog();
+            showAdminToast(`✅ "${title}" added to ${currentShopName}!`);
+            e.target.reset();
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest('.form-group')) {
+                const list = document.getElementById('autoCompleteList');
+                if (list) list.style.display = 'none';
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById('shopTitleHeader').innerText = currentShopName;
+            document.getElementById('shopIdHeader').innerText = currentShopId;
+            fetchProducts();
+            fetchOrders();
+            setInterval(fetchOrders, 2000);
+        });
+    </script>
+</body>
+
+</html>

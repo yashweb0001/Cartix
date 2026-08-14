@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rider Hub — Cartix Kirana</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #10b981;
+      --dark: #0f172a;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --card-border: #cbd5e1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .rider-toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--dark);
+      color: #ffffff;
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      z-index: 3000;
+      opacity: 0;
+      transform: translateY(-30px);
+      transition: all 0.3s ease;
+    }
+
+    .rider-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    header {
+      background: var(--dark);
+      color: white;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    header .brand {
+      font-size: 18px;
+      font-weight: 700;
+      color: #34d399;
+    }
+
+    header .rider-id {
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+
+    .back-btn {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 6px 14px;
+      border-radius: 16px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 24px auto;
+      padding: 0 20px;
+    }
+
+    h3 {
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    .section {
+      margin-bottom: 28px;
+    }
+
+    .order-card {
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .order-info b {
+      font-size: 14px;
+    }
+
+    .order-info p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 10px;
+      margin-top: 6px;
+    }
+
+    .badge.ready {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    .badge.enroute {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .action-btn {
+      border: none;
+      padding: 9px 16px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .claim-btn {
+      background: var(--primary);
+      color: white;
+    }
+
+    .deliver-btn {
+      background: #2563eb;
+      color: white;
+    }
+
+    .empty-msg {
+      font-size: 12px;
+      color: var(--text-muted);
+      background: var(--surface);
+      border: 1px dashed var(--card-border);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .login-wrap {
+      max-width: 360px;
+      margin: 80px auto;
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 11px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="riderToast" class="rider-toast"></div>
+
+  <div id="riderLoginScreen" class="login-wrap">
+    <h3 style="margin-bottom:14px;">🛵 Rider Login</h3>
+    <form id="riderLoginForm" onsubmit="handleRiderLogin(event)">
+      <div class="form-group"><label>Your Name</label><input type="text" id="riderNameInput" required></div>
+      <div class="form-group"><label>Phone Number</label><input type="tel" id="riderPhoneInput" required></div>
+      <button type="submit" class="submit-btn">Start Riding 🚀</button>
+    </form>
+  </div>
+
+  <div id="riderApp" style="display:none;">
+    <header>
+      <div>
+        <div class="brand">🛵 Rider Hub</div>
+        <div class="rider-id">Logged in as <b id="riderNameDisplay"></b></div>
+      </div>
+      <button class="back-btn" onclick="window.location.href='/'">⬅️ Back to Shop</button>
+    </header>
+
+    <main>
+      <div class="section">
+        <h3>📦 Ready for Pickup</h3>
+        <div id="readyOrders"></div>
+      </div>
+
+      <div class="section">
+        <h3>🚚 My Deliveries (Out for Delivery)</h3>
+        <div id="myOrders"></div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let currentRider = null;
+
+    function showRiderToast(msg) {
+      const toast = document.getElementById('riderToast');
+      if (!toast) return;
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function handleRiderLogin(e) {
+      e.preventDefault();
+      const name = document.getElementById('riderNameInput').value.trim();
+      const phone = document.getElementById('riderPhoneInput').value.trim();
+      sessionStorage.setItem('cartix_rider_name', name);
+      sessionStorage.setItem('cartix_rider_phone', phone);
+      initRiderApp();
+    }
+
+    function logoutRider() {
+      sessionStorage.removeItem('cartix_rider_name');
+      sessionStorage.removeItem('cartix_rider_phone');
+      window.location.reload();
+    }
+
+    function initRiderApp() {
+      currentRider = sessionStorage.getItem('cartix_rider_name');
+      if (!currentRider) {
+        document.getElementById('riderLoginScreen').style.display = 'block';
+        document.getElementById('riderApp').style.display = 'none';
+        return;
+      }
+      document.getElementById('riderLoginScreen').style.display = 'none';
+      document.getElementById('riderApp').style.display = 'block';
+      document.getElementById('riderNameDisplay').innerText = currentRider;
+      renderOrders();
+    }
+
+    function getOrders() {
+      return JSON.parse(localStorage.getItem('cartix_orders') || '[]');
+    }
+
+    function saveOrders(orders) {
+      localStorage.setItem('cartix_orders', JSON.stringify(orders));
+    }
+
+    function renderOrders() {
+      const orders = getOrders();
+
+      // Orders the retailer has packed and no rider has claimed yet
+      const readyOrders = orders.filter(o => o.status === 'PACKING' && !o.riderName);
+      // Orders this rider has claimed and is currently delivering
+      const myOrders = orders.filter(o => o.riderName === currentRider && o.status === 'DISPATCHED');
+
+      const readyBox = document.getElementById('readyOrders');
+      readyBox.innerHTML = readyOrders.length ? readyOrders.map(o => `
+                <div class="order-card">
+                    <div class="order-info">
+                        <b>🆔 ${o.orderId} — ₹${o.totalAmount}</b>
+                        <p>🏪 ${o.storeName} → 📍 ${o.address}</p>
+                        <span class="badge ready">📦 Packed, ready for pickup</span>
+                    </div>
+                    <button class="action-btn claim-btn" onclick="claimOrder('${o.orderId}')">Pick Up & Deliver</button>
+                </div>
+            `).join('') : '<div class="empty-msg">No packed orders waiting for pickup right now.</div>';
+
+      const myBox = document.getElementById('myOrders');
+      myBox.innerHTML = myOrders.length ? myOrders.map(o => `
+                <div class="order-card">
+                    <div class="order-info">
+                        <b>🆔 ${o.orderId} — ₹${o.totalAmount}</b>
+                        <p>🏪 ${o.storeName} → 📍 ${o.address} • 👤 ${o.customerName} (${o.phone})</p>
+                        <span class="badge enroute">🚚 Out for delivery</span>
+                    </div>
+                    <button class="action-btn deliver-btn" onclick="markDelivered('${o.orderId}')">Mark Delivered ✅</button>
+                </div>
+            `).join('') : '<div class="empty-msg">You have no active deliveries.</div>';
+    }
+
+    function claimOrder(orderId) {
+      const orders = getOrders();
+      const order = orders.find(o => o.orderId === orderId);
+      if (order) {
+        order.riderName = currentRider;
+        order.riderPhone = sessionStorage.getItem('cartix_rider_phone') || '';
+        order.status = 'DISPATCHED';
+        saveOrders(orders);
+        renderOrders();
+        showRiderToast(`🛵 Picked up ${orderId} — head to the customer!`);
+      }
+    }
+
+    function markDelivered(orderId) {
+      const orders = getOrders();
+      const order = orders.find(o => o.orderId === orderId);
+      if (order) {
+        order.status = 'DELIVERED';
+        saveOrders(orders);
+        renderOrders();
+        showRiderToast(`✅ ${orderId} marked as delivered!`);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initRiderApp();
+      setInterval(() => { if (currentRider) renderOrders(); }, 2000);
+    });
+  </script>
+</body>
+
+</html>

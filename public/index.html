@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cartix — Neighborhood Kirana Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root {
+      --primary: #28a745;
+      --dark: #131921;
+      --secondary-dark: #232f3e;
+      --bg: #f4f6f8;
+      --surface: #ffffff;
+      --text: #0f1111;
+      --text-muted: #565959;
+      --border: #e2e8f0;
+      --card-border: #d5d9d9;
+      --controls-bg: #ffffff;
+      --chip-bg: #f1f5f9;
+      --btn-black-bg: #0f172a;
+      --btn-black-text: #ffffff;
+      --btn-black-hover: #1e293b;
+      --success-bg: #dcfce7;
+      --success-text: #15803d;
+      --warning-bg: #fef3c7;
+      --warning-text: #b45309;
+      --danger-bg: #fee2e2;
+      --danger-text: #b91c1c;
+    }
+
+    body.dark-theme {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --card-border: #334155;
+      --controls-bg: #1e293b;
+      --chip-bg: #334155;
+      --btn-black-bg: #f8fafc;
+      --btn-black-text: #0f172a;
+      --btn-black-hover: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      color: var(--text);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .toast-notification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: #15803d;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      z-index: 3000;
+      opacity: 0;
+      transition: all 0.4s ease;
+    }
+
+    .toast-notification.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    header {
+      background: var(--dark);
+      color: white;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand {
+      font-size: 20px;
+      font-weight: 700;
+      color: #febd69;
+      cursor: pointer;
+    }
+
+    .shop-location-badge {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .change-shop-btn {
+      background: #131921;
+      color: #ffd814;
+      border: 1px solid #ffd814;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .theme-toggle-btn {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 7px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .track-btn {
+      background: #38bdf8;
+      color: #0f172a;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .rider-nav-btn {
+      background: #10b981;
+      color: #ffffff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .retailer-btn {
+      background: var(--secondary-dark);
+      color: #febd69;
+      border: 1px solid #3a4553;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .cart-btn {
+      background: #ffd814;
+      color: #0f1111;
+      border: 1px solid #fcd200;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .catalog-controls-bar {
+      background: var(--controls-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+    }
+
+    .controls-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .search-box-container {
+      position: relative;
+      flex: 1;
+      min-width: 280px;
+      max-width: 480px;
+    }
+
+    .catalog-search-input {
+      width: 100%;
+      padding: 10px 42px 10px 38px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 20px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .search-icon-inside {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .mic-inside-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .filter-chips-container {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .filter-chip {
+      background: var(--chip-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .filter-chip.active,
+    .filter-chip:hover {
+      background: var(--dark);
+      color: white;
+      border-color: var(--dark);
+    }
+
+    main {
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 20px;
+    }
+
+    .product-card {
+      border: 1px solid var(--card-border);
+      padding: 15px;
+      border-radius: 12px;
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .image-container {
+      width: 100%;
+      height: 140px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f7f8f8;
+      margin-bottom: 10px;
+    }
+
+    .product-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .product-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .product-category {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .product-price {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .seller-tag {
+      font-size: 10px;
+      font-weight: 700;
+      color: #0284c7;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      padding: 3px 8px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      display: inline-block;
+    }
+
+    .stock-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 12px;
+      margin-bottom: 6px;
+      width: fit-content;
+    }
+
+    .stock-in {
+      background: var(--success-bg);
+      color: var(--success-text);
+    }
+
+    .stock-low {
+      background: var(--warning-bg);
+      color: var(--warning-text);
+    }
+
+    .stock-out {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+    }
+
+    .card-actions-brick-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn-black-brick {
+      width: 100%;
+      background: var(--btn-black-bg);
+      color: var(--btn-black-text);
+      border: 1px solid var(--btn-black-bg);
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-black-brick.blurred-buy-btn,
+    .btn-black-brick:disabled {
+      opacity: 0.3;
+      filter: blur(0.6px);
+      cursor: not-allowed;
+      background: #94a3b8 !important;
+      color: #ffffff !important;
+    }
+
+    .cart-drawer {
+      position: fixed;
+      top: 0;
+      right: -360px;
+      width: 340px;
+      height: 100%;
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: -4px 0 15px rgba(0, 0, 0, 0.25);
+      z-index: 1001;
+      transition: right 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cart-drawer.open {
+      right: 0;
+    }
+
+    .cart-header {
+      padding: 15px;
+      background: var(--dark);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cart-items-list {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .qty-btn {
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--border);
+      background: var(--chip-bg);
+      color: var(--text);
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .cart-footer {
+      padding: 15px;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .checkout-btn {
+      background: #ffd814;
+      color: #0f1111;
+      border: 1px solid #fcd200;
+      padding: 12px;
+      width: 100%;
+      border-radius: 20px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.65);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-card {
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 16px;
+      width: 380px;
+      padding: 24px;
+      position: relative;
+    }
+
+    .shop-modal-card {
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 850px;
+      padding: 20px;
+      position: relative;
+    }
+
+    .pincode-search-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .pincode-input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .search-btn {
+      background: #ffd814;
+      border: 1px solid #fcd200;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .hub-content-container {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 15px;
+    }
+
+    #map {
+      height: 280px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .shops-card-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+
+    .shop-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .shop-info h4 {
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .shop-info p {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .select-shop-btn {
+      background: var(--dark);
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--text-muted);
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .tab-switch {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 15px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      background: none;
+      border: none;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      color: #4f46e5;
+      border-bottom: 2px solid #4f46e5;
+    }
+
+    .tracking-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0.4;
+      transition: opacity 0.3s ease;
+    }
+
+    .step-item.active {
+      opacity: 1;
+      color: #15803d;
+    }
+
+    .step-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--chip-bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .step-item.active .step-icon {
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #15803d;
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="toastNotification" class="toast-notification"></div>
+
+  <header>
+    <div class="header-left">
+      <div class="brand" onclick="window.location.reload()">🛒 Cartix Kirana</div>
+      <div class="shop-location-badge">
+        <span>📍 Store: <b id="currentStoreTitle">Gorakhpur Central Kirana</b> (0.8 km)</span>
+        <button class="change-shop-btn" onclick="openShopSelectorModal()">View Other Shops ⚙️</button>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleThemeMode()">🌙 Dark</button>
+      <button class="track-btn" onclick="openTrackerModal()">Track Order 🚚</button>
+      <button class="rider-nav-btn" onclick="window.location.href='/rider.html'">🛵 Rider View</button>
+      <span id="customerTimeBadge"
+        style="font-size: 12px; font-weight: 600; color: #febd69; background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15);">🌅
+        Good Morning</span>
+      <button class="retailer-btn" onclick="openLoginModal()">Retailer Hub 🔑</button>
+      <button class="cart-btn" onclick="toggleCart()">🛍️ Basket (<span id="cartCount">0</span>)</button>
+    </div>
+  </header>
+
+  <section class="catalog-controls-bar">
+    <div class="controls-wrapper">
+      <div class="search-box-container">
+        <span class="search-icon-inside">🔍</span>
+        <input type="text" id="productSearchInput" class="catalog-search-input"
+          placeholder="Search entire ONDC network (e.g. Milk, Atta, Maggi)..." oninput="applyFilterAndSearch()">
+        <button type="button" id="micBtn" class="mic-inside-btn" onclick="startVoiceSearch()">🎙️</button>
+      </div>
+
+      <div class="filter-chips-container">
+        <button class="filter-chip active" onclick="filterCategory('All', this)">All Items</button>
+        <button class="filter-chip" onclick="filterCategory('Dairy', this)">🥛 Milk & Dairy</button>
+        <button class="filter-chip" onclick="filterCategory('Grocery', this)">🌾 Grocery</button>
+        <button class="filter-chip" onclick="filterCategory('Snacks', this)">🍿 Snacks</button>
+        <button class="filter-chip" onclick="filterCategory('Beverages', this)">🥤 Beverages</button>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <div
+      style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+      <h3 id="activeShopHeading" style="font-size: 18px; font-weight: 700; margin: 0;">Catalog — Gorakhpur Central
+        Kirana</h3>
+      <div id="compactEtaBadge"
+        style="font-size: 12px; font-weight: 700; color: #0369a1; background: #e0f2fe; border: 1px solid #bae6fd; padding: 6px 14px; border-radius: 20px;">
+        ⚡ Delivered in <b id="etaTimeVal">10–12 Mins</b> by Network Rider
+      </div>
+    </div>
+
+    <div class="product-grid" id="products"></div>
+  </main>
+
+  <!-- Cart Drawer -->
+  <div class="cart-drawer" id="cartDrawer">
+    <div class="cart-header">
+      <h3>Your Basket</h3>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <button onclick="clearBasket()"
+          style="background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 11px; cursor: pointer; display: none;"
+          id="clearCartBtn">🗑️ Clear All</button>
+        <span style="cursor:pointer; font-size: 20px;" onclick="toggleCart()">&times;</span>
+      </div>
+    </div>
+    <div class="cart-items-list" id="cartItems"></div>
+    <div class="cart-footer">
+      <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-weight:bold;">
+        <span>Total Amount:</span>
+        <span id="cartTotal">₹0</span>
+      </div>
+      <button class="checkout-btn" onclick="openCheckoutModal()">Proceed to Order</button>
+    </div>
+  </div>
+
+  <!-- Shop Selector Modal -->
+  <div id="shopSelectorModal" class="modal-overlay">
+    <div class="shop-modal-card">
+      <span class="close-btn" onclick="closeShopSelectorModal()">&times;</span>
+      <h3 style="margin-bottom: 12px;">Select Nearby Kirana Store</h3>
+      <div
+        style="background:#e0f2fe; border:1px solid #7dd3fc; color:#0369a1; padding:9px 12px; border-radius:8px; font-size:11px; margin-bottom:14px; line-height:1.5;">
+        🌐 <b>Powered by the ONDC Network</b> — every store below is an independent seller discovered live through the
+        open protocol (Beckn).
+      </div>
+      <div class="pincode-search-bar">
+        <input type="text" id="pincodeInput" class="pincode-input" placeholder="Enter Pincode" value="273001">
+        <button class="search-btn" onclick="searchByPincode()">Search Pincode 📍</button>
+      </div>
+      <div class="hub-content-container">
+        <div id="map"></div>
+        <div class="shops-card-wrapper" id="shopsList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Checkout Modal -->
+  <div id="checkoutModal" class="modal-overlay">
+    <div class="modal-card">
+      <span class="close-btn" onclick="closeCheckoutModal()">&times;</span>
+      <h3>Delivery Details</h3>
+      <p id="checkoutTotalText" style="font-size: 13px; color: #15803d; font-weight: 700; margin-bottom: 14px;"></p>
+      <form id="customerOrderForm" onsubmit="handleCustomerOrder(event)">
+        <div class="form-group"><label>Your Name</label><input type="text" id="custName" value="Rahul Sharma" required>
+        </div>
+        <div class="form-group"><label>Phone Number</label><input type="tel" id="custPhone" value="9876543210" required>
+        </div>
+        <div class="form-group"><label>Delivery Address</label><input type="text" id="custAddress"
+            value="Civil Lines, Gorakhpur" required></div>
+
+        <div class="form-group">
+          <label>Payment Method</label>
+          <div style="display:flex; gap:16px; padding:4px 2px;">
+            <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; cursor:pointer;">
+              <input type="radio" name="paymentMethod" value="UPI" checked> 📱 UPI
+            </label>
+            <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; cursor:pointer;">
+              <input type="radio" name="paymentMethod" value="COD"> 💵 Cash on Delivery
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" class="checkout-btn">Place Order</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- UPI Payment Modal -->
+  <div id="upiPaymentModal" class="modal-overlay">
+    <div class="modal-card" style="text-align:center;">
+      <span class="close-btn" onclick="cancelUpiPayment()">&times;</span>
+      <h3 style="margin-bottom: 6px;">📱 Pay via UPI</h3>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px;">Scan with any UPI app (GPay, PhonePe,
+        Paytm)</p>
+      <img id="upiQrImage" src="" alt="UPI QR Code"
+        style="width:200px; height:200px; border:1px solid var(--border); border-radius:8px; margin-bottom:12px;">
+      <a id="upiDeepLink" href="#" class="checkout-btn"
+        style="display:block; text-decoration:none; background:#10b981; color:white; margin-bottom:12px;">🚀 Pay Direct
+        via UPI App</a>
+      <p style="font-size:13px; font-weight:700; margin-bottom:4px;">Amount: <span id="upiAmountText">₹0</span></p>
+      <p style="font-size:11px; color:var(--text-muted); margin-bottom:16px;">Paying to: <b>cartix.store@upi</b></p>
+      <button class="checkout-btn" onclick="confirmUpiPayment()">✅ I've Paid</button>
+      <button class="checkout-btn"
+        style="background:var(--chip-bg); color:var(--text); border:1px solid var(--border); margin-top:8px;"
+        onclick="cancelUpiPayment()">Cancel & Go Back</button>
+    </div>
+  </div>
+
+  <!-- Retailer Auth & Onboarding Modal -->
+  <div id="loginModal" class="modal-overlay">
+    <div class="modal-card">
+      <span class="close-btn" onclick="closeLoginModal()">&times;</span>
+      <div class="tab-switch">
+        <button class="tab-btn active" id="tabLoginBtn" onclick="switchAuthTab('login')">Retailer Login</button>
+        <button class="tab-btn" id="tabRegisterBtn" onclick="switchAuthTab('register')">➕ Register Shop</button>
+      </div>
+
+      <form id="retailerLoginForm" onsubmit="handleLogin(event)">
+        <div class="form-group"><label>Shop Phone Number</label><input type="tel" id="loginPhone"
+            placeholder="Registered phone number" required></div>
+        <div class="form-group"><label>PIN</label><input type="password" id="loginKey" placeholder="4-digit PIN"
+            required></div>
+        <button type="submit" class="checkout-btn">Verify & Open Dashboard</button>
+        <p style="font-size:10px; color:var(--text-muted); margin-top:10px; line-height:1.5;">Demo logins — Gorakhpur
+          Central Kirana: 9876543210 / 1111 · Gupta General Store: 9123456789 / 2222 · Verma Super Mart: 9988776655 /
+          3333</p>
+      </form>
+
+      <form id="retailerRegisterForm" style="display:none;" onsubmit="handleShopRegistration(event)">
+        <div class="form-group"><label>Kirana Shop Name</label><input type="text" id="regShopName"
+            placeholder="e.g. Agarwal Grocery" required></div>
+        <div class="form-group"><label>Category</label><input type="text" id="regCategory" value="General Kirana"
+            required></div>
+        <div class="form-group"><label>Pincode</label><input type="text" id="regPincode" value="273001" required></div>
+        <div class="form-group"><label>Phone Number</label><input type="tel" id="regPhone" placeholder="Mobile Number"
+            required></div>
+        <button type="submit" class="checkout-btn" style="background:#4f46e5; color:white; border:none;">Register Shop
+          on ONDC 🚀</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Live Tracker Modal -->
+  <div id="trackerModal" class="modal-overlay">
+    <div class="modal-card">
+      <span class="close-btn" onclick="closeTrackerModal()">&times;</span>
+      <h3>🚚 Live Order Tracking <span
+          style="font-size:10px; color:#16a34a; background:#dcfce7; padding:2px 6px; border-radius:10px;">● Live
+          Updates</span></h3>
+      <div class="form-group" style="margin-top:10px;">
+        <input type="text" id="trackOrderIdInput" placeholder="Enter Order ID (e.g. ORD-1024)">
+        <button class="checkout-btn" style="margin-top:8px;" onclick="trackOrder()">Track Status</button>
+      </div>
+      <div id="trackingResult" style="display:none; border-top:1px dashed #cbd5e1; padding-top:12px; margin-top:12px;">
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    let masterCatalog = [];
+    let cart = [];
+    let map, markersGroup;
+    let selectedCategory = 'All';
+    let isMapInitialized = false;
+    let lastPlacedOrderId = "";
+    let trackingIntervalTimer = null;
+
+    const DEFAULT_SHOP_ID = 'ALL';
+    const DEFAULT_SHOP_NAME = 'All ONDC Network Stores';
+    let selectedShopId = localStorage.getItem('selectedStoreId') || DEFAULT_SHOP_ID;
+    let selectedShopName = localStorage.getItem('selectedStoreName') || DEFAULT_SHOP_NAME;
+
+    const predefinedItems = [];
+
+    const mockShopsDatabase = [
+      { id: 'shop_1', name: 'Gorakhpur Central Kirana', phone: '+91 9876543210', pincode: '273001', status: 'OPEN', distance: '0.8 km', lat: 26.7606, lng: 83.3732, pin: '1111' },
+      { id: 'shop_2', name: 'Gupta General Store', phone: '+91 9123456789', pincode: '273001', status: 'OPEN', distance: '1.5 km', lat: 26.7650, lng: 83.3780, pin: '2222' },
+      { id: 'shop_3', name: 'Verma Super Mart', phone: '+91 9988776655', pincode: '273015', status: 'CLOSED', distance: '3.2 km', lat: 26.7520, lng: 83.3610, pin: '3333' }
+    ];
+
+    function getShopsList() {
+      const customShops = JSON.parse(localStorage.getItem('cartix_registered_shops') || '[]');
+      return [...mockShopsDatabase, ...customShops];
+    }
+
+    function toggleThemeMode() {
+      const isDark = document.body.classList.toggle('dark-theme');
+      document.getElementById('themeToggleBtn').innerText = isDark ? '☀️ Light' : '🌙 Dark';
+    }
+
+    function getGreeting() {
+      const hour = new Date().getHours();
+      if (hour >= 5 && hour < 12) return "🌅 Good Morning";
+      if (hour >= 12 && hour < 17) return "☀️ Good Afternoon";
+      return "🌙 Good Evening";
+    }
+
+    function getStockBadgeHTML(status) {
+      if (status === "LOW_STOCK") return `<span class="stock-badge stock-low">🔥 Hurry, few left!</span>`;
+      if (status === "OUT_OF_STOCK") return `<span class="stock-badge stock-out">❌ Out of Stock</span>`;
+      return `<span class="stock-badge stock-in">✅ In Stock</span>`;
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotification');
+      if (!toast) return;
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    async function loadCatalog() {
+      try {
+        const localCustomData = localStorage.getItem(`cartix_custom_catalog_${selectedShopId}`);
+        const res = await fetch('/api/products');
+        let data = await res.json();
+        if (localCustomData !== null) {
+          masterCatalog = JSON.parse(localCustomData);
+        } else if (!data || data.length === 0) {
+          masterCatalog = predefinedItems.filter(item => item.shopName === selectedShopName);
+        } else {
+          masterCatalog = data;
+        }
+      } catch (err) {
+        const localCustomData = localStorage.getItem(`cartix_custom_catalog_${selectedShopId}`);
+        if (localCustomData !== null) {
+          masterCatalog = JSON.parse(localCustomData);
+        } else {
+          masterCatalog = predefinedItems.filter(item => item.shopName === selectedShopName);
+        }
+      }
+      applyFilterAndSearch();
+    }
+
+    function filterCategory(cat, btn) {
+      selectedCategory = cat;
+      document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      applyFilterAndSearch();
+    }
+
+    function applyFilterAndSearch() {
+      const query = document.getElementById('productSearchInput').value.toLowerCase().trim();
+      let catalogToSearch = [...masterCatalog];
+
+      // NAYA LOGIC: Agar search query ho YA "ALL" stores selected ho, toh saari shops ka data merge karo
+      if (query || selectedShopId === 'ALL') {
+        catalogToSearch = [...predefinedItems]; // Default items add karo
+
+        // Saari custom shops ka data add karo
+        const shops = getShopsList();
+        shops.forEach(s => {
+          const storeCat = localStorage.getItem(`cartix_custom_catalog_${s.id}`);
+          if (storeCat) {
+            const parsed = JSON.parse(storeCat);
+            parsed.forEach(item => catalogToSearch.push({ ...item, shopName: s.name }));
+          }
+        });
+      }
+
+      const filtered = catalogToSearch.filter(i => {
+        const matchCat = selectedCategory === 'All' || (i.category && i.category.toLowerCase().includes(selectedCategory.toLowerCase()));
+        const matchSearch = !query || (i.title && i.title.toLowerCase().includes(query)) || (i.shopName && i.shopName.toLowerCase().includes(query));
+        return matchCat && matchSearch;
+      });
+
+      renderProducts(filtered);
+    }
+
+    function getProductImage(p) {
+      // Agar database ya custom catalog mein image path saved hai, toh wahi dikhayein
+      if (p.image) {
+        return p.image;
+      }
+      // Fallback default image
+      return 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400';
+    }
+    function renderProducts(items) {
+      const grid = document.getElementById('products');
+      if (!grid) return;
+      grid.innerHTML = '';
+      if (!items || !items.length) {
+        grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:30px; font-size:14px; color:var(--text-muted);">No products found.</p>';
+        return;
+      }
+      const hasCart = cart.length > 0;
+      items.forEach(p => {
+        const stockStatus = p.stockStatus || "IN_STOCK";
+        const out = stockStatus === "OUT_OF_STOCK";
+
+        grid.innerHTML += `
+        <div class="product-card">
+          <div>
+            <div class="image-container"><img src="${getProductImage(p)}" class="product-img"></div>
+            <span class="seller-tag">🏪 ${p.shopName || selectedShopName}</span>
+            <div class="product-title">${p.title}</div>
+            <div class="product-category">${p.category || 'General'}</div>
+            ${getStockBadgeHTML(stockStatus)}
+            <div class="product-price">₹${p.price}</div>
+          </div>
+          <div class="card-actions-brick-group">
+            <button class="btn-black-brick ${hasCart ? 'blurred-buy-btn' : ''}" ${out || hasCart ? 'disabled' : ''} onclick="buyNowInstant('${p._id}', '${p.title}', ${p.price}, '${p.shopName || selectedShopName}')">⚡ Buy Now</button>
+            <button class="btn-black-brick" ${out ? 'disabled' : ''} onclick="addToCart('${p._id}', '${p.title}', ${p.price}, '${p.shopName || selectedShopName}')">${out ? 'Out of Stock' : '🛒 Add to Cart'}</button>
+          </div>
+        </div>`;
+      });
+    }
+
+    function buyNowInstant(id, title, price, shopName) {
+      cart = [{ id, title, price, qty: 1, shopName }];
+      updateCartUI();
+      openCheckoutModal();
+    }
+
+    function addToCart(id, title, price, shopName) {
+      if (cart.length && cart[0].shopName !== shopName) {
+        showToast(`⚠️ Your basket has items from "${cart[0].shopName}". Checkout or clear it before adding items from another store.`);
+        return;
+      }
+      const item = cart.find(i => i.id === id);
+      if (item) item.qty += 1;
+      else cart.push({ id, title, price, qty: 1, shopName });
+      updateCartUI();
+      showToast(`🛒 "${title}" added to Basket!`);
+    }
+
+    function updateCartUI() {
+      document.getElementById('cartCount').innerText = cart.reduce((s, i) => s + i.qty, 0);
+      document.getElementById('cartTotal').innerText = `₹ ${cart.reduce((s, i) => s + (i.price * i.qty), 0)}`;
+      const list = document.getElementById('cartItems');
+
+      list.innerHTML = cart.length ? cart.map(i => `
+      <div class="cart-item">
+        <div><b>${i.title}</b><br><small>₹ ${i.price} x ${i.qty}</small></div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button> 
+          <span>${i.qty}</span> 
+          <button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button>
+          <!-- Specific item delete karne ka button -->
+          <button style="background: #fee2e2; color: #b91c1c; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-left: 4px;" onclick="removeItem('${i.id}')">❌</button>
+        </div>
+      </div>`).join('') : '<p style="text-align:center; padding:20px;">Basket is empty.</p>';
+
+      // Clear All button ko hide/show karna
+      const clearBtn = document.getElementById('clearCartBtn');
+      if (clearBtn) clearBtn.style.display = cart.length ? 'block' : 'none';
+
+      applyFilterAndSearch();
+    }
+    // Single item hatane ka function
+    function removeItem(id) {
+      cart = cart.filter(i => i.id !== id);
+      updateCartUI();
+    }
+
+    // Poora cart ek saath clear karne ka function
+    function clearBasket() {
+      cart = [];
+      updateCartUI();
+      showToast("Basket cleared!");
+    }
+
+    function changeQty(id, delta) {
+      const item = cart.find(i => i.id === id);
+      if (item) {
+        item.qty += delta;
+        if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+      }
+      updateCartUI();
+    }
+
+    function toggleCart() { document.getElementById('cartDrawer').classList.toggle('open'); }
+    function openCheckoutModal() {
+      if (!cart.length) return showToast("Cart is empty!");
+      const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+      document.getElementById('checkoutTotalText').innerText = `Payable Total: ₹${total}`;
+      document.getElementById('checkoutModal').style.display = 'flex';
+    }
+    function closeCheckoutModal() { document.getElementById('checkoutModal').style.display = 'none'; }
+
+    function handleCustomerOrder(e) {
+      e.preventDefault();
+      if (!cart.length) return showToast("Basket is empty!");
+      const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+      if (paymentMethod === 'UPI') {
+        openUpiPaymentModal();
+      } else {
+        placeOrderNow('COD');
+      }
+    }
+
+    function openUpiPaymentModal() {
+      const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+      const upiString = `upi://pay?pa=cartix.store@upi&pn=CartixKirana&am=${total}&cu=INR`;
+      document.getElementById('upiAmountText').innerText = `₹ ${total}`;
+
+      // QR Code update
+      document.getElementById('upiQrImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiString)}`;
+
+      // UPI Intent deep link update (Phone users direct click karenge)
+      document.getElementById('upiDeepLink').href = upiString;
+
+      document.getElementById('checkoutModal').style.display = 'none';
+      document.getElementById('upiPaymentModal').style.display = 'flex';
+    }
+
+    function cancelUpiPayment() {
+      document.getElementById('upiPaymentModal').style.display = 'none';
+      document.getElementById('checkoutModal').style.display = 'flex';
+    }
+
+    function confirmUpiPayment() {
+      document.getElementById('upiPaymentModal').style.display = 'none';
+      showToast('⏳ Verifying payment...');
+      setTimeout(() => {
+        showToast('✅ Payment Successful via UPI!');
+        placeOrderNow('UPI');
+      }, 1000);
+    }
+
+    // Reads the shop's real inventory, decrements it for a placed order, and
+    // derives stockStatus straight from the number — no manual toggle needed.
+    // Returns { ok: true } or { ok: false, shortItem } if stock ran out mid-order.
+    function deductStockForOrder(shopId, items) {
+      const key = `cartix_custom_catalog_${shopId}`;
+      const raw = localStorage.getItem(key);
+      if (!raw) return { ok: true }; // no tracked inventory for this shop (e.g. preset demo data) — skip check
+
+      const catalog = JSON.parse(raw);
+
+      // First pass: verify every item has enough stock before touching anything
+      for (const cartItem of items) {
+        const prod = catalog.find(p => p._id === cartItem.id);
+        if (!prod || typeof prod.stock !== 'number') continue;
+        if (prod.stock < cartItem.qty) {
+          return { ok: false, shortItem: prod.title, available: prod.stock };
+        }
+      }
+
+      // Second pass: deduct and re-derive status
+      items.forEach(cartItem => {
+        const prod = catalog.find(p => p._id === cartItem.id);
+        if (!prod || typeof prod.stock !== 'number') return;
+        prod.stock -= cartItem.qty;
+        prod.stockStatus = prod.stock <= 0 ? 'OUT_OF_STOCK' : (prod.stock <= 5 ? 'LOW_STOCK' : 'IN_STOCK');
+      });
+
+      localStorage.setItem(key, JSON.stringify(catalog));
+      return { ok: true };
+    }
+
+    function placeOrderNow(paymentMethod) {
+      const custName = document.getElementById('custName').value;
+      const custPhone = document.getElementById('custPhone').value;
+      const custAddress = document.getElementById('custAddress').value;
+
+      const orderStoreName = cart[0]?.shopName || selectedShopName;
+      const matchedShop = getShopsList().find(s => s.name === orderStoreName);
+      const orderShopId = matchedShop ? matchedShop.id : selectedShopId;
+
+      // Guard against overselling — re-check real stock right before confirming
+      const stockCheck = deductStockForOrder(orderShopId, cart);
+      if (!stockCheck.ok) {
+        showToast(`❌ Sorry, only ${stockCheck.available} left of "${stockCheck.shortItem}". Please update your basket.`);
+        closeCheckoutModal();
+        document.getElementById('upiPaymentModal').style.display = 'none';
+        loadCatalog(); // refresh so the customer sees the real remaining stock
+        return;
+      }
+
+      const orderId = "ORD-" + Math.floor(1000 + Math.random() * 9000);
+      const newOrder = {
+        orderId,
+        customerName: custName,
+        phone: custPhone,
+        address: custAddress,
+        items: cart,
+        totalAmount: cart.reduce((s, i) => s + (i.price * i.qty), 0),
+        storeName: orderStoreName,
+        shopId: orderShopId,
+        paymentMethod: paymentMethod,
+        status: 'PENDING',
+        createdAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      const existingOrders = JSON.parse(localStorage.getItem('cartix_orders') || '[]');
+      existingOrders.unshift(newOrder);
+      localStorage.setItem('cartix_orders', JSON.stringify(existingOrders));
+
+      lastPlacedOrderId = orderId;
+      closeCheckoutModal();
+      cart = [];
+      updateCartUI();
+      showToast(`🎉 Order Placed! ID: ${orderId}`);
+      openTrackerModal();
+      loadCatalog(); // reflect the just-deducted stock immediately on the catalog
+    }
+
+    function openLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
+    function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
+
+    function switchAuthTab(type) {
+      if (type === 'login') {
+        document.getElementById('tabLoginBtn').classList.add('active');
+        document.getElementById('tabRegisterBtn').classList.remove('active');
+        document.getElementById('retailerLoginForm').style.display = 'block';
+        document.getElementById('retailerRegisterForm').style.display = 'none';
+      } else {
+        document.getElementById('tabRegisterBtn').classList.add('active');
+        document.getElementById('tabLoginBtn').classList.remove('active');
+        document.getElementById('retailerRegisterForm').style.display = 'block';
+        document.getElementById('retailerLoginForm').style.display = 'none';
+      }
+    }
+
+    function handleShopRegistration(e) {
+      e.preventDefault();
+      const name = document.getElementById('regShopName').value.trim();
+      const category = document.getElementById('regCategory').value.trim();
+      const pincode = document.getElementById('regPincode').value.trim();
+      const phone = document.getElementById('regPhone').value.trim();
+
+      const pin = String(Math.floor(1000 + Math.random() * 9000));
+      const newShop = { id: 'shop_' + Date.now(), name, phone, pincode, status: 'OPEN', distance: '1.2 km', lat: 26.7620, lng: 83.3750, pin };
+      const existingShops = JSON.parse(localStorage.getItem('cartix_registered_shops') || '[]');
+      existingShops.push(newShop);
+      localStorage.setItem('cartix_registered_shops', JSON.stringify(existingShops));
+
+      localStorage.setItem('selectedStoreId', newShop.id);
+      localStorage.setItem('selectedStoreName', newShop.name);
+
+      alert(`Shop "${name}" registered!\n\nYour login credentials:\nPhone: ${phone}\nPIN: ${pin}\n\nSave this PIN — you'll need it to log back into your dashboard.`);
+      showToast(`🎉 Shop "${name}" registered on ONDC Network!`);
+      closeLoginModal();
+      window.location.href = '/admin.html';
+    }
+
+    function openShopSelectorModal() {
+      document.getElementById('shopSelectorModal').style.display = 'flex';
+      setTimeout(() => { if (!isMapInitialized) { initMap(); isMapInitialized = true; } }, 200);
+    }
+    function closeShopSelectorModal() { document.getElementById('shopSelectorModal').style.display = 'none'; }
+
+    function initMap() {
+      map = L.map('map').setView([26.7606, 83.3732], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+      markersGroup = L.layerGroup().addTo(map);
+      searchByPincode();
+    }
+
+    function searchByPincode() {
+      const pin = document.getElementById('pincodeInput').value.trim();
+      const shops = getShopsList();
+      const matched = shops.filter(s => s.pincode === pin || pin === '');
+      renderShopCards(matched.length ? matched : shops);
+    }
+
+    function renderShopCards(shops) {
+      const container = document.getElementById('shopsList');
+      if (!container) return;
+
+      // "View All" ka ek extra default button add kiya gaya hai
+      container.innerHTML = `
+    <div class="shop-card" style="border: 2px dashed #10b981; background: #f0fdf4;">
+      <div class="shop-info">
+        <h4 style="color: #15803d;">🌐 View All Network Stores</h4>
+        <p>Show items from all nearby Kiranas</p>
+      </div>
+      <button class="select-shop-btn" style="background: #10b981;" onclick="selectShopCatalog('ALL', 'All ONDC Network Stores')">View All</button>
+    </div>
+  `;
+
+      markersGroup.clearLayers();
+      shops.forEach(s => {
+        container.innerHTML += `
+    <div class="shop-card">
+      <div class="shop-info">
+        <h4>${s.name}</h4>
+        <p>📍 ${s.distance} • 📞 ${s.phone}</p>
+      </div>
+      <button class="select-shop-btn" onclick="selectShopCatalog('${s.id}', '${s.name}')">Select</button>
+    </div>`;
+        const m = L.marker([s.lat, s.lng]).addTo(markersGroup);
+        m.bindPopup(`<b>${s.name}</b>`);
+      });
+    }
+
+    function selectShopCatalog(shopId, name) {
+      selectedShopId = shopId;
+      selectedShopName = name;
+      localStorage.setItem('selectedStoreId', shopId);
+      localStorage.setItem('selectedStoreName', name);
+      document.getElementById('currentStoreTitle').innerText = name;
+      document.getElementById('activeShopHeading').innerText = `Catalog — ${name}`;
+      closeShopSelectorModal();
+      showToast(`Selected Store: ${name}`);
+      loadCatalog();
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const phoneInput = document.getElementById('loginPhone').value.trim().replace(/\D/g, '');
+      const pinInput = document.getElementById('loginKey').value.trim();
+      const matchedShop = getShopsList().find(s => s.phone.replace(/\D/g, '').endsWith(phoneInput) && s.pin === pinInput);
+      if (matchedShop) {
+        localStorage.setItem('selectedStoreId', matchedShop.id);
+        localStorage.setItem('selectedStoreName', matchedShop.name);
+        window.location.href = '/admin.html';
+      } else {
+        showToast('❌ Invalid phone number or PIN');
+      }
+    }
+
+    function openTrackerModal() {
+      document.getElementById('trackerModal').style.display = 'flex';
+      if (lastPlacedOrderId) {
+        document.getElementById('trackOrderIdInput').value = lastPlacedOrderId;
+      }
+      trackOrder();
+      // Real-time Order Polling every 1 second when tracker modal is open
+      if (!trackingIntervalTimer) {
+        trackingIntervalTimer = setInterval(() => {
+          if (document.getElementById('trackerModal').style.display === 'flex') {
+            trackOrder();
+          }
+        }, 1000);
+      }
+    }
+
+    function closeTrackerModal() {
+      document.getElementById('trackerModal').style.display = 'none';
+      if (trackingIntervalTimer) {
+        clearInterval(trackingIntervalTimer);
+        trackingIntervalTimer = null;
+      }
+    }
+
+    // Real-time Track Order Status
+    function trackOrder() {
+      const orderId = document.getElementById('trackOrderIdInput').value.trim();
+      const resultBox = document.getElementById('trackingResult');
+      if (!orderId) return;
+      const orders = JSON.parse(localStorage.getItem('cartix_orders') || '[]');
+      const order = orders.find(o => o.orderId.toLowerCase() === orderId.toLowerCase());
+      resultBox.style.display = 'block';
+      if (!order) {
+        resultBox.innerHTML = `<p style="color:#b91c1c; font-size:12px;">⚠️ Order ID "${orderId}" not found.</p>`;
+        return;
+      }
+
+      // Cancel button HTML check
+      let cancelBtnHtml = '';
+      if (order.status === 'PENDING' || order.status === 'PACKING') {
+        cancelBtnHtml = `<button onclick="cancelCustomerOrder('${order.orderId}')" style="background:#ef4444; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer; margin-top:14px; width:100%;">❌ Cancel My Order</button>`;
+      } else if (order.status === 'CANCELLED') {
+        cancelBtnHtml = `<div style="color:#b91c1c; font-size:13px; font-weight:bold; margin-top:14px; text-align:center; background:#fee2e2; padding:8px; border-radius:6px;">🚫 Order Cancelled</div>`;
+      }
+
+      resultBox.innerHTML = `
+      <div style="background: #f0fdf4; border: 1px solid #22c55e; color: #15803d; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size:12px;">
+          Guaranteed Delivery in ~15 Mins by <b>${order.storeName}</b> Rider.
+      </div>
+      <div style="font-size:12px; margin-bottom:6px;">Order ID: <b>${order.orderId}</b> | Status: <b style="color:${order.status === 'CANCELLED' ? '#ef4444' : '#2563eb'};">${order.status}</b></div>
+      <div class="tracking-steps">
+        <div class="step-item ${order.status !== 'CANCELLED' ? 'active' : ''}"><div class="step-icon">1</div> 🛒 Order Received</div>
+        <div class="step-item ${order.status === 'PACKING' || order.status === 'DISPATCHED' || order.status === 'DELIVERED' ? 'active' : ''}"><div class="step-icon">2</div> 📦 Packing Items</div>
+        <div class="step-item ${order.status === 'DISPATCHED' || order.status === 'DELIVERED' ? 'active' : ''}"><div class="step-icon">3</div> 🚚 Out for Delivery</div>
+        <div class="step-item ${order.status === 'DELIVERED' ? 'active' : ''}"><div class="step-icon">4</div> ✅ Delivered</div>
+      </div>
+      ${cancelBtnHtml}`;
+    }
+    function cancelCustomerOrder(orderId) {
+      let orders = JSON.parse(localStorage.getItem('cartix_orders') || '[]');
+      const order = orders.find(o => o.orderId === orderId);
+
+      if (order && (order.status === 'PENDING' || order.status === 'PACKING')) {
+        order.status = 'CANCELLED';
+        localStorage.setItem('cartix_orders', JSON.stringify(orders));
+        showToast("⚠️ Order Cancelled Successfully!");
+        trackOrder(); // Tracker ko turant refresh karega
+      } else {
+        showToast("Cannot cancel. Order already dispatched!");
+      }
+    }
+
+    function startVoiceSearch() {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) return showToast("Voice Search Not Supported");
+      const r = new SR();
+      r.lang = 'en-IN';
+      r.onstart = () => showToast("🎙️ Listening...");
+      r.onresult = (e) => {
+        document.getElementById('productSearchInput').value = e.results[0][0].transcript;
+        applyFilterAndSearch();
+      };
+      r.start();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById('customerTimeBadge').innerText = getGreeting();
+      const savedShopName = localStorage.getItem('selectedStoreName') || DEFAULT_SHOP_NAME;
+      document.getElementById('currentStoreTitle').innerText = savedShopName;
+      document.getElementById('activeShopHeading').innerText = `Catalog — ${savedShopName}`;
+      loadCatalog();
+
+      // Poll catalog every 3 seconds to catch Stock Status updates in real-time
+      setInterval(loadCatalog, 3000);
+    });
+  </script>
+</body>
+
+</html>
