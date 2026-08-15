@@ -1401,7 +1401,7 @@
         localStorage.setItem('selectedStoreId', result.shop.shopId);
         localStorage.setItem('selectedStoreName', result.shop.name);
 
-        alert(`Shop "${name}" registered!\n\nCredentials:\nPhone: ${phone}\nPIN: ${result.shop.pin}`);
+        alert(`Shop "${name}" registered!\n\nCredentials:\nPhone: ${phone}\nPIN: ${result.pin}\n\n⚠️ Save this PIN now — it won't be shown again.`);
         closeLoginModal();
         window.location.href = '/admin.html';
       } catch (err) {

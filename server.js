@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const cors = require('cors');
+const bcrypt = require('bcryptjs');
 
 const app = express();
 
@@ -146,10 +147,11 @@ async function seedInitialData() {
         ];
 
         for (const s of demoShops) {
-            const shop = await Shop.create(s);
+            const hashedPin = await bcrypt.hash(s.pin, 10);
+            const shop = await Shop.create({ ...s, pin: hashedPin });
             await seedProductsForShop(shop);
         }
-        console.log("🌱 Seeded 3 demo shops with default catalogs.");
+        console.log("🌱 Seeded 3 demo shops with default catalogs. (Demo PINs — shop_1: 1111, shop_2: 2222, shop_3: 3333)");
     } catch (err) {
         console.log("⚠️ Seeding error:", err.message);
     }
@@ -165,17 +167,23 @@ app.post('/api/shops/register', async (req, res) => {
             return res.status(400).json({ error: 'Shop name and phone are required' });
         }
 
-        const pin = String(Math.floor(1000 + Math.random() * 9000));
+        const plainPin = String(Math.floor(1000 + Math.random() * 9000));
+        const hashedPin = await bcrypt.hash(plainPin, 10);
+
         const shop = await Shop.create({
             shopId: 'shop_' + Date.now(),
             name,
             phone,
-            pin,
+            pin: hashedPin,
             pincode: pincode || '273001'
         });
 
         await seedProductsForShop(shop);
-        res.json({ success: true, shop });
+
+        // Send the plain PIN back once at registration time only — it's never stored or returned again.
+        const shopResponse = shop.toObject();
+        delete shopResponse.pin;
+        res.json({ success: true, shop: shopResponse, pin: plainPin });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -187,11 +195,15 @@ app.post('/api/shops/login', async (req, res) => {
         const { phone, pin } = req.body;
         const cleanPhone = (phone || '').replace(/\D/g, '');
 
-        const shops = await Shop.find({ pin });
-        const matched = shops.find(s => s.phone.replace(/\D/g, '').endsWith(cleanPhone));
+        const shops = await Shop.find();
+        const candidate = shops.find(s => s.phone.replace(/\D/g, '').endsWith(cleanPhone));
+
+        const matched = candidate && await bcrypt.compare(String(pin || ''), candidate.pin);
 
         if (matched) {
-            res.json({ success: true, shop: matched });
+            const shopResponse = candidate.toObject();
+            delete shopResponse.pin;
+            res.json({ success: true, shop: shopResponse });
         } else {
             res.status(401).json({ success: false, error: 'Invalid phone or PIN' });
         }
@@ -205,7 +217,7 @@ app.get('/api/shops', async (req, res) => {
     try {
         const filter = {};
         if (req.query.pincode) filter.pincode = req.query.pincode;
-        const shops = await Shop.find(filter).sort({ createdAt: -1 });
+        const shops = await Shop.find(filter).select('-pin').sort({ createdAt: -1 });
         res.json(shops);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -215,7 +227,7 @@ app.get('/api/shops', async (req, res) => {
 // Single shop lookup
 app.get('/api/shops/:shopId', async (req, res) => {
     try {
-        const shop = await Shop.findOne({ shopId: req.params.shopId });
+        const shop = await Shop.findOne({ shopId: req.params.shopId }).select('-pin');
         if (!shop) return res.status(404).json({ error: 'Shop not found' });
         res.json(shop);
     } catch (err) {
