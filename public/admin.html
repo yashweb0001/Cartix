@@ -410,7 +410,7 @@
             </div>
         </div>
     </main>
-
+    <script src="config.js"></script>
     <script>
         const currentShopId = localStorage.getItem('selectedStoreId') || 'shop_1';
         const currentShopName = localStorage.getItem('selectedStoreName') || 'Gorakhpur Central Kirana';
@@ -473,12 +473,16 @@
         function openConfirmModal() { document.getElementById('confirmClearModal').style.display = 'flex'; }
         function closeConfirmModal() { document.getElementById('confirmClearModal').style.display = 'none'; }
 
-        function executeClearCatalog() {
+        async function executeClearCatalog() {
             closeConfirmModal();
-            localProducts = [];
-            localStorage.setItem(`cartix_custom_catalog_${currentShopId}`, JSON.stringify([]));
-            renderMiniCatalog();
-            showAdminToast("🗑️ All items cleared!");
+            try {
+                await fetch(`${API_BASE_URL}/api/products/clear-all?shopId=${encodeURIComponent(currentShopId)}`, { method: 'DELETE' });
+                await fetchProducts();
+                showAdminToast("🗑️ All items cleared!");
+            } catch (err) {
+                console.error('Clear catalog failed:', err);
+                showAdminToast("⚠️ Could not clear catalog, try again.");
+            }
         }
 
         function handleTitleSearchInput(val) {
@@ -547,9 +551,15 @@
             showAdminToast(`⚡ Auto-filled: ${title}`);
         }
 
-        function fetchOrders() {
-            const allOrders = JSON.parse(localStorage.getItem('cartix_orders') || '[]');
-            const myOrders = allOrders.filter(o => o.shopId === currentShopId || o.storeName === currentShopName);
+        async function fetchOrders() {
+            let myOrders = [];
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/orders?shopId=${encodeURIComponent(currentShopId)}`);
+                myOrders = await response.json();
+            } catch (error) {
+                console.error("Orders fetch error:", error);
+                return;
+            }
 
             document.getElementById('statOrders').innerText = myOrders.length;
             document.getElementById('statRevenue').innerText = `₹${myOrders.reduce((s, o) => s + o.totalAmount, 0)}`;
@@ -591,47 +601,56 @@
         `).join('');
         }
 
-        function updateOrderStatus(orderId, status) {
-            let orders = JSON.parse(localStorage.getItem('cartix_orders') || '[]');
-            const order = orders.find(o => o.orderId === orderId);
-            if (order) {
-                order.status = status;
-                localStorage.setItem('cartix_orders', JSON.stringify(orders));
+        async function updateOrderStatus(orderId, status) {
+            try {
+                await fetch(`${API_BASE_URL}/api/orders/status/${orderId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                });
                 fetchOrders();
+            } catch (err) {
+                console.error('Status update failed:', err);
+                showAdminToast('⚠️ Could not update order status.');
             }
         }
 
-        function fetchProducts() {
-            const savedData = localStorage.getItem(`cartix_custom_catalog_${currentShopId}`);
-
-            if (savedData !== null) {
-                localProducts = JSON.parse(savedData);
-            } else {
-                localProducts = kiranaPresetDatabase.map((item, idx) => ({
-                    ...item,
-                    _id: 'preset_' + currentShopId + '_' + idx,
-                    stockStatus: 'IN_STOCK',
-                    shopId: currentShopId
-                }));
-                localStorage.setItem(`cartix_custom_catalog_${currentShopId}`, JSON.stringify(localProducts));
+        async function fetchProducts() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/products?shopId=${encodeURIComponent(currentShopId)}`);
+                localProducts = await response.json();
+            } catch (err) {
+                console.error('Products fetch failed:', err);
+                localProducts = [];
             }
             renderMiniCatalog();
         }
 
-        function toggleStockStatus(productId) {
+        async function toggleStockStatus(productId) {
             const prod = localProducts.find(p => p._id === productId);
-            if (prod) {
-                if (prod.stockStatus === 'IN_STOCK' || !prod.stockStatus) {
-                    prod.stockStatus = 'LOW_STOCK';
-                } else if (prod.stockStatus === 'LOW_STOCK') {
-                    prod.stockStatus = 'OUT_OF_STOCK';
-                } else {
-                    prod.stockStatus = 'IN_STOCK';
-                }
+            if (!prod) return;
 
-                localStorage.setItem(`cartix_custom_catalog_${currentShopId}`, JSON.stringify(localProducts));
+            let nextStatus;
+            if (prod.stockStatus === 'IN_STOCK' || !prod.stockStatus) {
+                nextStatus = 'LOW_STOCK';
+            } else if (prod.stockStatus === 'LOW_STOCK') {
+                nextStatus = 'OUT_OF_STOCK';
+            } else {
+                nextStatus = 'IN_STOCK';
+            }
+
+            try {
+                await fetch(`${API_BASE_URL}/api/products/stock/${productId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ stockStatus: nextStatus })
+                });
+                prod.stockStatus = nextStatus;
                 renderMiniCatalog();
                 showAdminToast(`Stock updated for "${prod.title}"`);
+            } catch (err) {
+                console.error('Stock update failed:', err);
+                showAdminToast('⚠️ Could not update stock, try again.');
             }
         }
 
@@ -670,7 +689,7 @@
             }).join('');
         }
 
-        function handleAddProduct(e) {
+        async function handleAddProduct(e) {
             e.preventDefault();
             const title = document.getElementById('pTitle').value;
             const price = Number(document.getElementById('pPrice').value);
@@ -682,11 +701,24 @@
                 if (preset) image = preset.image;
             }
 
-            localProducts.unshift({ _id: 'item_' + Date.now(), title, price, category, image, stockStatus: 'IN_STOCK', shopId: currentShopId });
-            localStorage.setItem(`cartix_custom_catalog_${currentShopId}`, JSON.stringify(localProducts));
-            renderMiniCatalog();
-            showAdminToast(`✅ "${title}" added to ${currentShopName}!`);
-            e.target.reset();
+            try {
+                await fetch(`${API_BASE_URL}/api/products/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        shopId: currentShopId,
+                        shopName: currentShopName,
+                        title, price, category, image,
+                        stockStatus: 'IN_STOCK'
+                    })
+                });
+                await fetchProducts();
+                showAdminToast(`✅ "${title}" added to ${currentShopName}!`);
+                e.target.reset();
+            } catch (err) {
+                console.error('Add product failed:', err);
+                showAdminToast('⚠️ Could not add item, try again.');
+            }
         }
 
         document.addEventListener("click", (e) => {
@@ -702,7 +734,7 @@
             document.getElementById('adminTimeBadge').innerText = getGreeting();
             fetchProducts();
             fetchOrders();
-            setInterval(fetchOrders, 3000);
+            setInterval(fetchOrders, 4000);
         });
     </script>
 </body>

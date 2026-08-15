@@ -248,7 +248,7 @@
       </div>
     </main>
   </div>
-
+  <script src="config.js"></script>
   <script>
     let currentRider = null;
 
@@ -288,21 +288,28 @@
       renderOrders();
     }
 
-    function getOrders() {
-      return JSON.parse(localStorage.getItem('cartix_orders') || '[]');
+    async function fetchReadyOrders() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/orders/ready-for-pickup`);
+        return await res.json();
+      } catch (err) {
+        console.error('Failed to fetch ready orders:', err);
+        return [];
+      }
     }
 
-    function saveOrders(orders) {
-      localStorage.setItem('cartix_orders', JSON.stringify(orders));
+    async function fetchMyOrders() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/orders/rider/${encodeURIComponent(currentRider)}`);
+        return await res.json();
+      } catch (err) {
+        console.error('Failed to fetch my deliveries:', err);
+        return [];
+      }
     }
 
-    function renderOrders() {
-      const orders = getOrders();
-
-      // Orders the retailer has packed and no rider has claimed yet
-      const readyOrders = orders.filter(o => o.status === 'PACKING' && !o.riderName);
-      // Orders this rider has claimed and is currently delivering
-      const myOrders = orders.filter(o => o.riderName === currentRider && o.status === 'DISPATCHED');
+    async function renderOrders() {
+      const [readyOrders, myOrders] = await Promise.all([fetchReadyOrders(), fetchMyOrders()]);
 
       const readyBox = document.getElementById('readyOrders');
       readyBox.innerHTML = readyOrders.length ? readyOrders.map(o => `
@@ -329,33 +336,46 @@
             `).join('') : '<div class="empty-msg">You have no active deliveries.</div>';
     }
 
-    function claimOrder(orderId) {
-      const orders = getOrders();
-      const order = orders.find(o => o.orderId === orderId);
-      if (order) {
-        order.riderName = currentRider;
-        order.riderPhone = sessionStorage.getItem('cartix_rider_phone') || '';
-        order.status = 'DISPATCHED';
-        saveOrders(orders);
+    async function claimOrder(orderId) {
+      try {
+        const riderPhone = sessionStorage.getItem('cartix_rider_phone') || '';
+        const res = await fetch(`${API_BASE_URL}/api/orders/claim/${orderId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ riderName: currentRider, riderPhone })
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          showRiderToast(`⚠️ ${err.error || 'Someone already picked this up!'}`);
+          renderOrders();
+          return;
+        }
         renderOrders();
         showRiderToast(`🛵 Picked up ${orderId} — head to the customer!`);
+      } catch (err) {
+        console.error('Claim failed:', err);
+        showRiderToast('⚠️ Network error, try again.');
       }
     }
 
-    function markDelivered(orderId) {
-      const orders = getOrders();
-      const order = orders.find(o => o.orderId === orderId);
-      if (order) {
-        order.status = 'DELIVERED';
-        saveOrders(orders);
+    async function markDelivered(orderId) {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/orders/deliver/${orderId}`, { method: 'PUT' });
+        if (!res.ok) {
+          showRiderToast('⚠️ Could not update delivery status.');
+          return;
+        }
         renderOrders();
         showRiderToast(`✅ ${orderId} marked as delivered!`);
+      } catch (err) {
+        console.error('Deliver failed:', err);
+        showRiderToast('⚠️ Network error, try again.');
       }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
       initRiderApp();
-      setInterval(() => { if (currentRider) renderOrders(); }, 2000);
+      setInterval(() => { if (currentRider) renderOrders(); }, 4000);
     });
   </script>
 </body>

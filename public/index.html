@@ -997,6 +997,7 @@
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="config.js"></script>
   <script>
     const kiranaPresetDatabase = [
       { title: "Lay's Potato Chips (50g)", price: 21, category: "Snacks", image: "/images/lays.jpg" },
@@ -1036,13 +1037,8 @@
       { title: "Soya Mini Chunks (200g)", price: 46, category: "Atta, Rice & Dal", image: "/images/soya_chunks.jpg" }
     ];
 
-    const mockShopsDatabase = [
-      { id: 'shop_1', name: 'Gorakhpur Central Kirana', phone: '+91 9876543210', pincode: '273001', status: 'OPEN', distance: '0.8 km', lat: 26.7606, lng: 83.3732, pin: '1111' },
-      { id: 'shop_2', name: 'Gupta General Store', phone: '+91 9123456789', pincode: '273001', status: 'OPEN', distance: '1.5 km', lat: 26.7650, lng: 83.3780, pin: '2222' },
-      { id: 'shop_3', name: 'Verma Super Mart', phone: '+91 9988776655', pincode: '273015', status: 'CLOSED', distance: '3.2 km', lat: 26.7520, lng: 83.3610, pin: '3333' }
-    ];
-
     let masterCatalog = [];
+    let allShopsCache = [];
     let cart = [];
     let map, markersGroup;
     let selectedCategory = 'All';
@@ -1055,24 +1051,16 @@
     let selectedShopId = localStorage.getItem('selectedStoreId') || DEFAULT_SHOP_ID;
     let selectedShopName = localStorage.getItem('selectedStoreName') || DEFAULT_SHOP_NAME;
 
-    function ensureDefaultShopCatalogs() {
-      mockShopsDatabase.forEach((s) => {
-        const key = `cartix_custom_catalog_${s.id}`;
-        if (localStorage.getItem(key) === null) {
-          const seeded = kiranaPresetDatabase.map((item, idx) => ({
-            ...item,
-            _id: 'preset_' + s.id + '_' + idx,
-            stockStatus: 'IN_STOCK',
-            shopId: s.id
-          }));
-          localStorage.setItem(key, JSON.stringify(seeded));
-        }
-      });
-    }
-
-    function getShopsList() {
-      const customShops = JSON.parse(localStorage.getItem('cartix_registered_shops') || '[]');
-      return [...mockShopsDatabase, ...customShops];
+    // Fetches the live shop list from the backend (MongoDB Atlas via Render)
+    async function fetchShops() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/shops`);
+        allShopsCache = await res.json();
+      } catch (err) {
+        console.error('Failed to fetch shops:', err);
+        allShopsCache = [];
+      }
+      return allShopsCache;
     }
 
     function toggleThemeMode() {
@@ -1094,18 +1082,19 @@
       setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
-    function loadCatalog() {
-      ensureDefaultShopCatalogs();
-      const localCustomData = localStorage.getItem(`cartix_custom_catalog_${selectedShopId}`);
-      if (localCustomData !== null) {
-        masterCatalog = JSON.parse(localCustomData);
-      } else {
-        masterCatalog = kiranaPresetDatabase.map((item, idx) => ({
-          ...item,
-          _id: 'preset_' + selectedShopId + '_' + idx,
-          stockStatus: 'IN_STOCK',
-          shopId: selectedShopId
-        }));
+    // Loads the catalog for the currently selected shop (or all shops when selectedShopId === 'ALL')
+    async function loadCatalog() {
+      try {
+        if (selectedShopId === 'ALL') {
+          const res = await fetch(`${API_BASE_URL}/api/products`);
+          masterCatalog = await res.json();
+        } else {
+          const res = await fetch(`${API_BASE_URL}/api/products?shopId=${encodeURIComponent(selectedShopId)}`);
+          masterCatalog = await res.json();
+        }
+      } catch (err) {
+        console.error('Failed to load catalog:', err);
+        masterCatalog = [];
       }
       applyFilterAndSearch();
     }
@@ -1117,19 +1106,19 @@
       applyFilterAndSearch();
     }
 
-    function applyFilterAndSearch() {
+    // If the user is searching while on a single shop's catalog, search across the whole network instead
+    async function applyFilterAndSearch() {
       const query = document.getElementById('productSearchInput').value.toLowerCase().trim();
       let catalogToSearch = [];
 
       if (selectedShopId === 'ALL' || query) {
-        const shops = getShopsList();
-        shops.forEach(s => {
-          const storeCat = localStorage.getItem(`cartix_custom_catalog_${s.id}`);
-          if (storeCat) {
-            const parsed = JSON.parse(storeCat);
-            parsed.forEach(item => catalogToSearch.push({ ...item, shopName: s.name }));
-          }
-        });
+        try {
+          const res = await fetch(`${API_BASE_URL}/api/products`);
+          catalogToSearch = await res.json();
+        } catch (err) {
+          console.error('Search fetch failed:', err);
+          catalogToSearch = [];
+        }
       } else {
         catalogToSearch = masterCatalog.map(item => ({ ...item, shopName: selectedShopName }));
       }
@@ -1154,10 +1143,6 @@
             <h4 style="color: var(--text); font-size: 16px; margin-bottom: 6px;">Oops! Item nahi mila 😕</h4>
             <p style="font-size: 13px; color: var(--text-muted);">Aapne jo search kiya wo abhi is store mein available nahi hai. Kuch aur try karein?</p>
           </div>`;
-        return;
-      }
-      if (!items || !items.length) {
-        grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:30px; font-size:13px; color:var(--text-muted);">No products found.</p>';
         return;
       }
       const hasCart = cart.length > 0;
@@ -1198,9 +1183,9 @@
       return 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400';
     }
 
-    function searchByPincode() {
+    async function searchByPincode() {
       const pin = document.getElementById('pincodeInput').value.trim();
-      const shops = getShopsList();
+      const shops = await fetchShops();
       const matched = pin === '' ? shops : shops.filter(s => s.pincode === pin);
       renderShopCards(matched);
     }
@@ -1232,7 +1217,7 @@
             <h4>${s.name}</h4>
             <p>📍 ${s.distance} • 📞 ${s.phone}</p>
           </div>
-          <button class="select-shop-btn" onclick="selectShopCatalog('${s.id}', '${s.name}')">Select</button>
+          <button class="select-shop-btn" onclick="selectShopCatalog('${s.shopId}', '${s.name}')">Select</button>
         </div>`;
         if (markersGroup) {
           const m = L.marker([s.lat, s.lng]).addTo(markersGroup);
@@ -1262,7 +1247,6 @@
     function updateCartUI() {
       document.getElementById('cartCount').innerText = cart.reduce((s, i) => s + i.qty, 0);
       document.getElementById('cartTotal').innerText = `₹ ${cart.reduce((s, i) => s + (i.price * i.qty), 0)}`;
-      // ✨ NAYA ANIMATION CODE ✨
       const cartBtn = document.querySelector('.cart-btn');
       if (cartBtn && cart.length > 0) {
         cartBtn.classList.remove('cart-animate-pop');
@@ -1340,39 +1324,45 @@
       }, 1000);
     }
 
-    function placeOrderNow(paymentMethod) {
+    // Places the order against the live backend (MongoDB Atlas via Render)
+    async function placeOrderNow(paymentMethod) {
       const custName = document.getElementById('custName').value;
       const custPhone = document.getElementById('custPhone').value;
       const custAddress = document.getElementById('custAddress').value;
 
       const orderStoreName = cart[0]?.shopName || selectedShopName;
-      const matchedShop = getShopsList().find(s => s.name === orderStoreName);
+      const matchedShop = allShopsCache.find(s => s.name === orderStoreName);
 
-      const orderId = "ORD-" + Math.floor(1000 + Math.random() * 9000);
-      const newOrder = {
-        orderId,
+      const orderData = {
         customerName: custName,
         phone: custPhone,
         address: custAddress,
         items: cart,
         totalAmount: cart.reduce((s, i) => s + (i.price * i.qty), 0),
         storeName: orderStoreName,
-        shopId: matchedShop ? matchedShop.id : selectedShopId,
-        paymentMethod: paymentMethod,
-        status: 'PENDING',
-        createdAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        shopId: matchedShop ? matchedShop.shopId : selectedShopId,
+        paymentMethod: paymentMethod
       };
 
-      const existingOrders = JSON.parse(localStorage.getItem('cartix_orders') || '[]');
-      existingOrders.unshift(newOrder);
-      localStorage.setItem('cartix_orders', JSON.stringify(existingOrders));
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/orders/place`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderData)
+        });
+        const result = await response.json();
+        if (!result.success) throw new Error(result.error || 'Order failed');
 
-      lastPlacedOrderId = orderId;
-      closeCheckoutModal();
-      cart = [];
-      updateCartUI();
-      showToast(`🎉 Order Placed! ID: ${orderId}`);
-      openTrackerModal();
+        lastPlacedOrderId = result.order.orderId;
+        closeCheckoutModal();
+        cart = [];
+        updateCartUI();
+        showToast(`🎉 Order Placed! ID: ${result.order.orderId}`);
+        openTrackerModal();
+      } catch (err) {
+        console.error('Order placement failed:', err);
+        showToast('⚠️ Could not place order. Please try again.');
+      }
     }
 
     function openLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
@@ -1392,24 +1382,32 @@
       }
     }
 
-    function handleShopRegistration(e) {
+    // Registers a brand new shop on the backend — auto-seeded with a starter catalog
+    async function handleShopRegistration(e) {
       e.preventDefault();
       const name = document.getElementById('regShopName').value.trim();
       const pincode = document.getElementById('regPincode').value.trim();
       const phone = document.getElementById('regPhone').value.trim();
 
-      const pin = String(Math.floor(1000 + Math.random() * 9000));
-      const newShop = { id: 'shop_' + Date.now(), name, phone, pincode, status: 'OPEN', distance: '1.2 km', lat: 26.7620, lng: 83.3750, pin };
-      const existingShops = JSON.parse(localStorage.getItem('cartix_registered_shops') || '[]');
-      existingShops.push(newShop);
-      localStorage.setItem('cartix_registered_shops', JSON.stringify(existingShops));
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/shops/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, phone, pincode })
+        });
+        const result = await res.json();
+        if (!result.success) throw new Error(result.error || 'Registration failed');
 
-      localStorage.setItem('selectedStoreId', newShop.id);
-      localStorage.setItem('selectedStoreName', newShop.name);
+        localStorage.setItem('selectedStoreId', result.shop.shopId);
+        localStorage.setItem('selectedStoreName', result.shop.name);
 
-      alert(`Shop "${name}" registered!\n\nCredentials:\nPhone: ${phone}\nPIN: ${pin}`);
-      closeLoginModal();
-      window.location.href = '/admin.html';
+        alert(`Shop "${name}" registered!\n\nCredentials:\nPhone: ${phone}\nPIN: ${result.shop.pin}`);
+        closeLoginModal();
+        window.location.href = '/admin.html';
+      } catch (err) {
+        console.error('Shop registration failed:', err);
+        showToast('⚠️ Could not register shop. Please try again.');
+      }
     }
 
     function openShopSelectorModal() {
@@ -1440,17 +1438,29 @@
       loadCatalog();
     }
 
-    function handleLogin(e) {
+    // Retailer login via backend (phone + PIN)
+    async function handleLogin(e) {
       e.preventDefault();
-      const phoneInput = document.getElementById('loginPhone').value.trim().replace(/\D/g, '');
+      const phoneInput = document.getElementById('loginPhone').value.trim();
       const pinInput = document.getElementById('loginKey').value.trim();
-      const matchedShop = getShopsList().find(s => s.phone.replace(/\D/g, '').endsWith(phoneInput) && s.pin === pinInput);
-      if (matchedShop) {
-        localStorage.setItem('selectedStoreId', matchedShop.id);
-        localStorage.setItem('selectedStoreName', matchedShop.name);
-        window.location.href = '/admin.html';
-      } else {
-        showToast('❌ Invalid phone or PIN');
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/shops/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: phoneInput, pin: pinInput })
+        });
+        const result = await res.json();
+        if (result.success) {
+          localStorage.setItem('selectedStoreId', result.shop.shopId);
+          localStorage.setItem('selectedStoreName', result.shop.name);
+          window.location.href = '/admin.html';
+        } else {
+          showToast('❌ Invalid phone or PIN');
+        }
+      } catch (err) {
+        console.error('Login failed:', err);
+        showToast('⚠️ Could not log in. Please try again.');
       }
     }
 
@@ -1465,7 +1475,7 @@
           if (document.getElementById('trackerModal').style.display === 'flex') {
             trackOrder();
           }
-        }, 1000);
+        }, 3000);
       }
     }
 
@@ -1477,12 +1487,20 @@
       }
     }
 
-    function trackOrder() {
+    // Looks up a single order's live status from the backend
+    async function trackOrder() {
       const orderId = document.getElementById('trackOrderIdInput').value.trim();
       const resultBox = document.getElementById('trackingResult');
       if (!orderId) return;
-      const orders = JSON.parse(localStorage.getItem('cartix_orders') || '[]');
-      const order = orders.find(o => o.orderId.toLowerCase() === orderId.toLowerCase());
+
+      let order = null;
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/orders/track/${encodeURIComponent(orderId)}`);
+        if (res.ok) order = await res.json();
+      } catch (err) {
+        console.error('Track order failed:', err);
+      }
+
       resultBox.style.display = 'block';
       if (!order) {
         resultBox.innerHTML = `<p style="color:#b91c1c; font-size:11px;">⚠️ Order ID not found.</p>`;
@@ -1510,17 +1528,19 @@
       ${cancelBtnHtml}`;
     }
 
-    function cancelCustomerOrder(orderId) {
-      let orders = JSON.parse(localStorage.getItem('cartix_orders') || '[]');
-      const order = orders.find(o => o.orderId === orderId);
-
-      if (order && (order.status === 'PENDING' || order.status === 'PACKING')) {
-        order.status = 'CANCELLED';
-        localStorage.setItem('cartix_orders', JSON.stringify(orders));
+    async function cancelCustomerOrder(orderId) {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/orders/cancel/${encodeURIComponent(orderId)}`, { method: 'PUT' });
+        if (!res.ok) {
+          const err = await res.json();
+          showToast(err.error || "Cannot cancel. Already dispatched!");
+          return;
+        }
         showToast("⚠️ Order Cancelled!");
         trackOrder();
-      } else {
-        showToast("Cannot cancel. Already dispatched!");
+      } catch (err) {
+        console.error('Cancel order failed:', err);
+        showToast('⚠️ Could not cancel order. Please try again.');
       }
     }
 
@@ -1537,14 +1557,14 @@
       r.start();
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
       document.getElementById('customerTimeBadge').innerText = getGreeting();
-      ensureDefaultShopCatalogs();
+      await fetchShops();
       const savedShopName = localStorage.getItem('selectedStoreName') || DEFAULT_SHOP_NAME;
       document.getElementById('currentStoreTitle').innerText = savedShopName;
       document.getElementById('activeShopHeading').innerText = `Catalog — ${savedShopName}`;
       loadCatalog();
-      setInterval(loadCatalog, 3000);
+      setInterval(loadCatalog, 5000);
     });
   </script>
 </body>
