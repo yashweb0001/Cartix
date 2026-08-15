@@ -7,17 +7,25 @@ const bcrypt = require('bcryptjs');
 const app = express();
 
 /* ==================== MIDDLEWARES ==================== */
-// Allowed origins: local dev + your Vercel frontend (set FRONTEND_URL in Render env vars)
+// Allowed origins: local dev + your Vercel frontend(s)
+// Set FRONTEND_URL in Render env vars — comma-separated if you have more than one
+// (e.g. production URL + a preview/branch URL): 
+// FRONTEND_URL = https://cartix-kirana.vercel.app,https://cartix-kirana-git-main-codejs1.vercel.app
+const envOrigins = (process.env.FRONTEND_URL || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
 const allowedOrigins = [
     'http://localhost:5000',
     'http://127.0.0.1:5500',
-    process.env.FRONTEND_URL // e.g. https://cartix-kirana.vercel.app
-].filter(Boolean);
+    ...envOrigins
+];
 
 app.use(cors({
     origin: function (origin, callback) {
         // allow requests with no origin (curl, mobile apps, server-to-server, Postman)
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (!origin || allowedOrigins.includes(origin) || /^cartix-kirana(-[a-z0-9-]+)?\.vercel\.app$/.test(new URL(origin).hostname)) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS: ' + origin));
