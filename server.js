@@ -129,7 +129,72 @@ const kiranaPresetDatabase = [
     { title: "Whole Farm Rice (5kg)", price: 392, category: "Atta, Rice & Dal", image: "/images/rice.jpg" },
     { title: "Maggi (300g)", price: 60, category: "Atta, Rice & Dal", image: "/images/maggi.jpg" },
     { title: "Moong Dal (1kg)", price: 121, category: "Atta, Rice & Dal", image: "/images/moong_dal.jpg" },
-    { title: "Soya Mini Chunks (200g)", price: 46, category: "Atta, Rice & Dal", image: "/images/soya_chunks.jpg" }
+    { title: "Soya Mini Chunks (200g)", price: 46, category: "Atta, Rice & Dal", image: "/images/soya_chunks.jpg" },
+    // Personal Care
+    { title: "Clinic Plus Strong & Long Shampoo (175ml)", price: 153, category: "Personal Care", image: "/images/clinic_plus_strong_long_shampoo_175ml.jpg" },
+    { title: "Head & Shoulders Anti Dandruff Shampoo (180ml)", price: 199, category: "Personal Care", image: "/images/head_shoulders_anti_dandruff_shampoo_180ml.jpg" },
+    { title: "Pears Pure & Gentle Soap (3x125g)", price: 188, category: "Personal Care", image: "/images/pears_pure_gentle_soap_3x125g.jpg" },
+    { title: "Dettol Skincare Hand Wash Refill (675ml)", price: 101, category: "Personal Care", image: "/images/dettol_skincare_handwash_refill_675ml.jpg" },
+    { title: "Lux Natural Glow Soap Mega Pack (3x150g)", price: 158, category: "Personal Care", image: "/images/lux_natural_glow_soap_3x150g.jpg" },
+    { title: "Dettol Bathing Bar Soap (4x100g)", price: 161, category: "Personal Care", image: "/images/dettol_bathing_bar_soap_4x100g.jpg" },
+    { title: "Himalaya Gentle Baby Shampoo (200ml)", price: 179, category: "Personal Care", image: "/images/himalaya_gentle_baby_shampoo_200ml.jpg" },
+    { title: "Himalaya Gentle Baby Soap (125g)", price: 80, category: "Personal Care", image: "/images/himalaya_gentle_baby_soap_125g.jpg" },
+    { title: "Garnier Shampoo Hair Colour (20ml)", price: 35, category: "Personal Care", image: "/images/garnier_shampoo_hair_colour_20ml.jpg" },
+    { title: "Godrej Expert Hair Colour Rich Creme (20g+20ml+8ml)", price: 40, category: "Personal Care", image: "/images/godrej_expert_hair_colour_rich_creme.jpg" },
+    { title: "Dove Bathing Soap (5x125g)", price: 380, category: "Personal Care", image: "/images/dove_bathing_soap_5x125g.jpg" },
+    { title: "Navratna Cool Ayurvedic Hair Oil (90ml)", price: 92, category: "Personal Care", image: "/images/navratna_cool_ayurvedic_hair_oil_90ml.jpg" },
+    { title: "Bajaj Almond Hair Oil (95ml)", price: 89, category: "Personal Care", image: "/images/bajaj_almond_hair_oil_95ml.jpg" },
+    { title: "Dabur Coconut Hair Oil (550ml)", price: 191, category: "Personal Care", image: "/images/dabur_coconut_hair_oil_550ml.jpg" },
+
+    // Cold Drinks & Juices
+    { title: "Thums Up Cola Soft Drink (2 Ltr)", price: 93, category: "Cold Drinks & Juices", image: "/images/thums_up_cola_2ltr.jpg" },
+    { title: "Thums Up Cola Soft Drink (750ml)", price: 38, category: "Cold Drinks & Juices", image: "/images/thums_up_cola_750ml.jpg" },
+    { title: "Sprite (750ml)", price: 36, category: "Cold Drinks & Juices", image: "/images/sprite_750ml.jpg" },
+    { title: "Fizz (1 Ltr)", price: 48, category: "Cold Drinks & Juices", image: "/images/fizz_1ltr.jpg" },
+    { title: "Pepsi Cola Soft Drink (1.25 Ltr)", price: 50, category: "Cold Drinks & Juices", image: "/images/pepsi_cola_1_25ltr.jpg" },
+    { title: "Coca-Cola Soft Drink (750ml)", price: 38, category: "Cold Drinks & Juices", image: "/images/coca_cola_750ml.jpg" },
+    { title: "Coca-Cola Soft Drink (180ml)", price: 30, category: "Cold Drinks & Juices", image: "/images/coca_cola_180ml.jpg" },
+    { title: "Frooti Mango Drink (600ml)", price: 34, category: "Cold Drinks & Juices", image: "/images/frooti_mango_drink_600ml.jpg" },
+    { title: "Red Bull Energy Drink (250ml)", price: 125, category: "Cold Drinks & Juices", image: "/images/red_bull_energy_drink_250ml.jpg" },
+    { title: "Glucon-D Orange Energy Drink (200g)", price: 99, category: "Cold Drinks & Juices", image: "/images/glucon_d_orange_200g.jpg" },
+    { title: "Glucon-D Orange Energy Drink (1 kg)", price: 382, category: "Cold Drinks & Juices", image: "/images/glucon_d_orange_1kg.jpg" },
+    { title: "Eno Lemon Antacid (30g)", price: 60, category: "Cold Drinks & Juices", image: "/images/eno_lemon_antacid_30g.jpg" },
+    { title: "Amul Rose Lassi (200ml)", price: 25, category: "Cold Drinks & Juices", image: "/images/amul_rose_lassi_200ml.jpg" },
+
+    // Sweet Tooth
+    { title: "Britannia Gobbles Fruit Slice Cake (100g)", price: 29, category: "Sweet Tooth", image: "/images/britannia_gobbles_fruit_slice_cake_100g.jpg" },
+    { title: "Parle Happy-Happy Slice Cake (90g)", price: 30, category: "Sweet Tooth", image: "/images/parle_happy_happy_slice_cake_90g.jpg" },
+    { title: "Pulse Candy (202.5g)", price: 56, category: "Sweet Tooth", image: "/images/pulse_candy_202_5g.jpg" },
+    { title: "Juzt Jelly - Strawberry (155g)", price: 51, category: "Sweet Tooth", image: "/images/juzt_jelly_strawberry_155g.jpg" },
+    { title: "Parle Melody Toffee (276g)", price: 100, category: "Sweet Tooth", image: "/images/parle_melody_toffee_276g.jpg" },
+    { title: "Chupa Chups (56g)", price: 29, category: "Sweet Tooth", image: "/images/chupa_chups_56g.jpg" },
+    { title: "Mentos Rainbow Toffee (109g)", price: 50, category: "Sweet Tooth", image: "/images/mentos_rainbow_toffee_109g.jpg" },
+    { title: "Cadbury Gems (25g)", price: 20, category: "Sweet Tooth", image: "/images/cadbury_gems_25g.jpg" },
+    { title: "Kinder Joy (20g)", price: 50, category: "Sweet Tooth", image: "/images/kinder_joy_20g.jpg" },
+
+    // Dry Fruits
+    { title: "California Almonds (250g)", price: 349, category: "Dry Fruits", image: "/images/california_almonds_250g.jpg" },
+    { title: "Whole Cashew (200g)", price: 282, category: "Dry Fruits", image: "/images/whole_cashew_200g.jpg" },
+    { title: "Happilo Premium Inshell Walnuts (1 kg)", price: 902, category: "Dry Fruits", image: "/images/happilo_inshell_walnuts_1kg.jpg" },
+    { title: "Oygain Box Walnut (200g)", price: 389, category: "Dry Fruits", image: "/images/oygain_box_walnut_200g.jpg" },
+    { title: "Farmley Prasadam Makhana (200g)", price: 389, category: "Dry Fruits", image: "/images/farmley_prasadam_makhana_200g.jpg" },
+    { title: "Organic Box Anjeer (250g)", price: 299, category: "Dry Fruits", image: "/images/organic_box_anjeer_250g.jpg" },
+    { title: "AMAYU Mix Dry Fruits & Seeds (900g)", price: 699, category: "Dry Fruits", image: "/images/amayu_mix_dry_fruits_seeds_900g.jpg" },
+    { title: "Dry Dates Chuara (250g)", price: 119, category: "Dry Fruits", image: "/images/dry_dates_chuara_250g.jpg" },
+    { title: "Queen Kalmi Dates (Khajur) (200g)", price: 282, category: "Dry Fruits", image: "/images/queen_kalmi_dates_200g.jpg" },
+    { title: "Nature Vit Dry Fruits Gift Pack (400g)", price: 650, category: "Dry Fruits", image: "/images/nature_vit_dry_fruits_gift_pack_400g.jpg" },
+    { title: "Raisins (200g)", price: 191, category: "Dry Fruits", image: "/images/raisins_200g.jpg" },
+    { title: "Natureland Organics Raisins (250g)", price: 318, category: "Dry Fruits", image: "/images/natureland_organics_raisins_250g.jpg" },
+
+    // Sauces & Spreads
+    { title: "Kissan Tomato Ketchup (825g)", price: 99, category: "Sauces & Spreads", image: "/images/kissan_tomato_ketchup_825g.jpg" },
+    { title: "Maggi Rich Tomato Ketchup (190g)", price: 75, category: "Sauces & Spreads", image: "/images/maggi_rich_tomato_ketchup_190g.jpg" },
+    { title: "Amul Salted Butter (200g)", price: 130, category: "Sauces & Spreads", image: "/images/amul_salted_butter_200g.jpg" },
+    { title: "Peanut Butter Smooth (610g)", price: 281, category: "Sauces & Spreads", image: "/images/peanut_butter_smooth_610g.jpg" },
+    { title: "Veg Mayonnaise (180g)", price: 46, category: "Sauces & Spreads", image: "/images/veg_mayonnaise_180g.jpg" },
+    { title: "Mixed Pickle (500g)", price: 140, category: "Sauces & Spreads", image: "/images/mixed_pickle_500g.jpg" },
+    { title: "Dabur Honey (100g)", price: 70, category: "Sauces & Spreads", image: "/images/dabur_honey_100g.jpg" },
+    { title: "Dabur Chyawanprash (250g)", price: 99, category: "Sauces & Spreads", image: "/images/dabur_chyawanprash_250g.jpg" }
 ];
 
 async function seedProductsForShop(shop) {
