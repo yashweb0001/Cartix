@@ -255,6 +255,15 @@
             text-align: center;
         }
 
+        .login-wrap {
+            max-width: 360px;
+            margin: 80px auto;
+            background: var(--surface);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 24px;
+        }
+
         /* ===== Mobile Responsive ===== */
         @media (max-width: 900px) {
             .dashboard-grid {
@@ -340,80 +349,99 @@
         </div>
     </div>
 
-    <header>
-        <div>
-            <h2>🏪 <span id="shopTitleHeader">Loading Store...</span></h2>
-            <p style="font-size:12px; color:var(--text-muted);">Isolated Retailer Dashboard (ID: <span
-                    id="shopIdHeader"></span>)</p>
-        </div>
-        <div style="display:flex; align-items:center; gap:10px;">
-            <span id="adminTimeBadge"
-                style="background:#eef2ff; color:#4f46e5; border:1px solid #c7d2fe; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:700;"></span>
-            <button onclick="window.location.href='/'" style="padding:6px 12px; cursor:pointer;">⬅️ Back to
-                Shop</button>
-        </div>
-    </header>
+    <div id="adminLoginScreen" class="login-wrap">
+        <h3 style="margin-bottom:14px;">🔑 Retailer Login</h3>
+        <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+            <div class="form-group"><label>Shop Phone Number</label><input type="tel" id="adminLoginPhone" required>
+            </div>
+            <div class="form-group"><label>PIN</label><input type="password" id="adminLoginPin"
+                    placeholder="4-digit PIN" required></div>
+            <button type="submit" class="btn-submit">Login to Dashboard</button>
+        </form>
+        <p style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:12px;">
+            New shop? <a href="/" style="color:var(--primary); font-weight:600;">Register from the homepage</a>
+        </p>
+    </div>
 
-    <main>
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="label">Store Orders</div>
-                <div class="value" id="statOrders">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="label">Store Revenue</div>
-                <div class="value" style="color: #22c55e;" id="statRevenue">₹0</div>
-            </div>
-            <div class="stat-card">
-                <div class="label">Active Items</div>
-                <div class="value" id="statStock">0 Items</div>
-            </div>
-        </div>
-
-        <div class="dashboard-grid">
+    <div id="adminApp" style="display:none;">
+        <header>
             <div>
-                <h3>📦 Orders for My Shop</h3>
-                <div id="ordersContainer" style="margin-top:14px;"></div>
+                <h2>🏪 <span id="shopTitleHeader">Loading Store...</span></h2>
+                <p style="font-size:12px; color:var(--text-muted);">Isolated Retailer Dashboard (ID: <span
+                        id="shopIdHeader"></span>)</p>
             </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span id="adminTimeBadge"
+                    style="background:#eef2ff; color:#4f46e5; border:1px solid #c7d2fe; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:700;"></span>
+                <button onclick="window.location.href='/'" style="padding:6px 12px; cursor:pointer;">⬅️ Back to
+                    Shop</button>
+                <button onclick="logoutAdmin()" style="padding:6px 12px; cursor:pointer;">🚪 Logout</button>
+            </div>
+        </header>
 
-            <div>
-                <div class="inventory-card">
-                    <h3>➕ Add Item to My Catalog</h3>
-                    <form id="addProductForm" onsubmit="handleAddProduct(event)" style="margin-top:10px;">
-                        <input type="hidden" id="pImage" value="">
-                        <div class="form-group">
-                            <label>Product Name (Type & Use Arrow Keys + Enter)</label>
-                            <input type="text" id="pTitle" placeholder="e.g. Maggi, Milk..." autocomplete="off"
-                                oninput="handleTitleSearchInput(this.value)" required>
-                            <div class="autocomplete-list" id="autoCompleteList"></div>
-                        </div>
-                        <div class="form-group"><label>Price (₹)</label><input type="number" id="pPrice" required></div>
-                        <div class="form-group">
-                            <label>Category</label>
-                            <select id="pCategory">
-                                <option value="Snacks">🍿 Snacks</option>
-                                <option value="Cleaning Essentials">🧽 Cleaning Essentials</option>
-                                <option value="Tea, Coffee & Milk Drinks">☕ Tea, Coffee & Milk Drinks</option>
-                                <option value="Masala">🌶️ Masala</option>
-                                <option value="Atta, Rice & Dal" selected>🌾 Atta, Rice & Dal</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn-submit">+ Save to My Store Catalog</button>
-                    </form>
-
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
-                        <h4>📦 My Listed Items</h4>
-                        <button class="btn-clear-catalog" onclick="openConfirmModal()">🗑️ Clear</button>
-                    </div>
-                    <div class="catalog-list-mini" id="miniCatalog"></div>
+        <main>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="label">Store Orders</div>
+                    <div class="value" id="statOrders">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Store Revenue</div>
+                    <div class="value" style="color: #22c55e;" id="statRevenue">₹0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Active Items</div>
+                    <div class="value" id="statStock">0 Items</div>
                 </div>
             </div>
-        </div>
-    </main>
+
+            <div class="dashboard-grid">
+                <div>
+                    <h3>📦 Orders for My Shop</h3>
+                    <div id="ordersContainer" style="margin-top:14px;"></div>
+                </div>
+
+                <div>
+                    <div class="inventory-card">
+                        <h3>➕ Add Item to My Catalog</h3>
+                        <form id="addProductForm" onsubmit="handleAddProduct(event)" style="margin-top:10px;">
+                            <input type="hidden" id="pImage" value="">
+                            <div class="form-group">
+                                <label>Product Name (Type & Use Arrow Keys + Enter)</label>
+                                <input type="text" id="pTitle" placeholder="e.g. Maggi, Milk..." autocomplete="off"
+                                    oninput="handleTitleSearchInput(this.value)" required>
+                                <div class="autocomplete-list" id="autoCompleteList"></div>
+                            </div>
+                            <div class="form-group"><label>Price (₹)</label><input type="number" id="pPrice" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select id="pCategory">
+                                    <option value="Snacks">🍿 Snacks</option>
+                                    <option value="Cleaning Essentials">🧽 Cleaning Essentials</option>
+                                    <option value="Tea, Coffee & Milk Drinks">☕ Tea, Coffee & Milk Drinks</option>
+                                    <option value="Masala">🌶️ Masala</option>
+                                    <option value="Atta, Rice & Dal" selected>🌾 Atta, Rice & Dal</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-submit">+ Save to My Store Catalog</button>
+                        </form>
+
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                            <h4>📦 My Listed Items</h4>
+                            <button class="btn-clear-catalog" onclick="openConfirmModal()">🗑️ Clear</button>
+                        </div>
+                        <div class="catalog-list-mini" id="miniCatalog"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
     <script src="config.js"></script>
     <script>
-        const currentShopId = localStorage.getItem('selectedStoreId') || 'shop_1';
-        const currentShopName = localStorage.getItem('selectedStoreName') || 'Gorakhpur Central Kirana';
+        let currentShopId = null;
+        let currentShopName = null;
 
         let localProducts = [];
         let currentFocusIndex = -1;
@@ -728,13 +756,61 @@
             }
         });
 
-        document.addEventListener("DOMContentLoaded", () => {
+        async function handleAdminLogin(e) {
+            e.preventDefault();
+            const phone = document.getElementById('adminLoginPhone').value.trim();
+            const pin = document.getElementById('adminLoginPin').value.trim();
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/shops/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, pin })
+                });
+                const result = await res.json();
+                if (res.ok && result.success) {
+                    localStorage.setItem('selectedStoreId', result.shop.shopId);
+                    localStorage.setItem('selectedStoreName', result.shop.name);
+                    localStorage.setItem('cartix_shop_authed', 'true');
+                    initAdminApp();
+                } else {
+                    showAdminToast(`⚠️ ${result.error || 'Invalid phone or PIN'}`);
+                }
+            } catch (err) {
+                console.error('Admin login failed:', err);
+                showAdminToast('⚠️ Network error, try again.');
+            }
+        }
+
+        function logoutAdmin() {
+            localStorage.removeItem('selectedStoreId');
+            localStorage.removeItem('selectedStoreName');
+            localStorage.removeItem('cartix_shop_authed');
+            window.location.reload();
+        }
+
+        function initAdminApp() {
+            currentShopId = localStorage.getItem('selectedStoreId');
+            currentShopName = localStorage.getItem('selectedStoreName');
+
+            document.getElementById('adminLoginScreen').style.display = 'none';
+            document.getElementById('adminApp').style.display = 'block';
+
             document.getElementById('shopTitleHeader').innerText = currentShopName;
             document.getElementById('shopIdHeader').innerText = currentShopId;
             document.getElementById('adminTimeBadge').innerText = getGreeting();
             fetchProducts();
             fetchOrders();
             setInterval(fetchOrders, 4000);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const isAuthed = localStorage.getItem('cartix_shop_authed') === 'true' && localStorage.getItem('selectedStoreId');
+            if (isAuthed) {
+                initAdminApp();
+            } else {
+                document.getElementById('adminLoginScreen').style.display = 'block';
+                document.getElementById('adminApp').style.display = 'none';
+            }
         });
     </script>
 </body>

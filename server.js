@@ -93,6 +93,16 @@ const orderSchema = new mongoose.Schema({
 });
 const Order = mongoose.model('Order', orderSchema);
 
+// 4. Rider Schema — delivery riders who register on Cartix
+const riderSchema = new mongoose.Schema({
+    riderId: { type: String, unique: true, required: true },
+    name: { type: String, required: true },
+    phone: { type: String, required: true, unique: true },
+    pin: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now }
+});
+const Rider = mongoose.model('Rider', riderSchema);
+
 /* ==================== DEFAULT CATALOG (used to seed every new shop) ==================== */
 const kiranaPresetDatabase = [
     { title: "Lay's Potato Chips (50g)", price: 21, category: "Snacks", image: "/images/lays.jpg" },
@@ -303,6 +313,62 @@ app.get('/api/shops/:shopId', async (req, res) => {
         const shop = await Shop.findOne({ shopId: req.params.shopId }).select('-pin');
         if (!shop) return res.status(404).json({ error: 'Shop not found' });
         res.json(shop);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/* ==================== RIDER APIs ==================== */
+
+// Register a new rider (name + phone + 4-digit PIN)
+app.post('/api/riders/register', async (req, res) => {
+    try {
+        const { name, phone, pin } = req.body;
+        if (!name || !phone || !pin) {
+            return res.status(400).json({ error: 'Name, phone and PIN are required' });
+        }
+        if (String(pin).length < 4) {
+            return res.status(400).json({ error: 'PIN must be at least 4 digits' });
+        }
+
+        const cleanPhone = phone.replace(/\D/g, '');
+        const existing = await Rider.findOne({ phone: cleanPhone });
+        if (existing) {
+            return res.status(409).json({ error: 'A rider with this phone number is already registered. Please login instead.' });
+        }
+
+        const hashedPin = await bcrypt.hash(String(pin), 10);
+        const rider = await Rider.create({
+            riderId: 'rider_' + Date.now(),
+            name,
+            phone: cleanPhone,
+            pin: hashedPin
+        });
+
+        const riderResponse = rider.toObject();
+        delete riderResponse.pin;
+        res.json({ success: true, rider: riderResponse });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Rider login with phone + PIN
+app.post('/api/riders/login', async (req, res) => {
+    try {
+        const { phone, pin } = req.body;
+        const cleanPhone = (phone || '').replace(/\D/g, '');
+
+        const rider = await Rider.findOne({ phone: cleanPhone });
+        const matched = rider && await bcrypt.compare(String(pin || ''), rider.pin);
+
+        if (matched) {
+            const riderResponse = rider.toObject();
+            delete riderResponse.pin;
+            res.json({ success: true, rider: riderResponse });
+        } else {
+            res.status(401).json({ success: false, error: 'Invalid phone or PIN' });
+        }
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

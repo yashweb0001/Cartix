@@ -219,11 +219,29 @@
   <div id="riderToast" class="rider-toast"></div>
 
   <div id="riderLoginScreen" class="login-wrap">
-    <h3 style="margin-bottom:14px;">🛵 Rider Login</h3>
+    <h3 style="margin-bottom:14px;" id="riderAuthTitle">🛵 Rider Login</h3>
+
     <form id="riderLoginForm" onsubmit="handleRiderLogin(event)">
-      <div class="form-group"><label>Your Name</label><input type="text" id="riderNameInput" required></div>
-      <div class="form-group"><label>Phone Number</label><input type="tel" id="riderPhoneInput" required></div>
-      <button type="submit" class="submit-btn">Start Riding 🚀</button>
+      <div class="form-group"><label>Phone Number</label><input type="tel" id="riderLoginPhone" required></div>
+      <div class="form-group"><label>PIN</label><input type="password" id="riderLoginPin" placeholder="4-digit PIN"
+          required></div>
+      <button type="submit" class="submit-btn">Login &amp; Start Riding 🚀</button>
+      <p style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:12px;">
+        New rider? <a href="#" onclick="switchRiderAuthTab('register'); return false;"
+          style="color:var(--primary); font-weight:600;">Register here</a>
+      </p>
+    </form>
+
+    <form id="riderRegisterForm" onsubmit="handleRiderRegister(event)" style="display:none;">
+      <div class="form-group"><label>Your Name</label><input type="text" id="riderRegName" required></div>
+      <div class="form-group"><label>Phone Number</label><input type="tel" id="riderRegPhone" required></div>
+      <div class="form-group"><label>Set a PIN</label><input type="password" id="riderRegPin" placeholder="4-digit PIN"
+          required></div>
+      <button type="submit" class="submit-btn">Register &amp; Start Riding 🚀</button>
+      <p style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:12px;">
+        Already registered? <a href="#" onclick="switchRiderAuthTab('login'); return false;"
+          style="color:var(--primary); font-weight:600;">Login here</a>
+      </p>
     </form>
   </div>
 
@@ -233,7 +251,10 @@
         <div class="brand">🛵 Rider Hub</div>
         <div class="rider-id">Logged in as <b id="riderNameDisplay"></b></div>
       </div>
-      <button class="back-btn" onclick="window.location.href='/'">⬅️ Back to Shop</button>
+      <div style="display:flex; gap:8px;">
+        <button class="back-btn" onclick="window.location.href='/'">⬅️ Back to Shop</button>
+        <button class="back-btn" onclick="logoutRider()">🚪 Logout</button>
+      </div>
     </header>
 
     <main>
@@ -260,13 +281,66 @@
       setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
-    function handleRiderLogin(e) {
+    function switchRiderAuthTab(type) {
+      if (type === 'register') {
+        document.getElementById('riderAuthTitle').innerText = '🛵 Rider Registration';
+        document.getElementById('riderLoginForm').style.display = 'none';
+        document.getElementById('riderRegisterForm').style.display = 'block';
+      } else {
+        document.getElementById('riderAuthTitle').innerText = '🛵 Rider Login';
+        document.getElementById('riderRegisterForm').style.display = 'none';
+        document.getElementById('riderLoginForm').style.display = 'block';
+      }
+    }
+
+    async function handleRiderLogin(e) {
       e.preventDefault();
-      const name = document.getElementById('riderNameInput').value.trim();
-      const phone = document.getElementById('riderPhoneInput').value.trim();
-      sessionStorage.setItem('cartix_rider_name', name);
-      sessionStorage.setItem('cartix_rider_phone', phone);
-      initRiderApp();
+      const phone = document.getElementById('riderLoginPhone').value.trim();
+      const pin = document.getElementById('riderLoginPin').value.trim();
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/riders/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone, pin })
+        });
+        const result = await res.json();
+        if (res.ok && result.success) {
+          sessionStorage.setItem('cartix_rider_name', result.rider.name);
+          sessionStorage.setItem('cartix_rider_phone', result.rider.phone);
+          initRiderApp();
+        } else {
+          showRiderToast(`⚠️ ${result.error || 'Invalid phone or PIN'}`);
+        }
+      } catch (err) {
+        console.error('Rider login failed:', err);
+        showRiderToast('⚠️ Network error, try again.');
+      }
+    }
+
+    async function handleRiderRegister(e) {
+      e.preventDefault();
+      const name = document.getElementById('riderRegName').value.trim();
+      const phone = document.getElementById('riderRegPhone').value.trim();
+      const pin = document.getElementById('riderRegPin').value.trim();
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/riders/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, phone, pin })
+        });
+        const result = await res.json();
+        if (res.ok && result.success) {
+          sessionStorage.setItem('cartix_rider_name', result.rider.name);
+          sessionStorage.setItem('cartix_rider_phone', result.rider.phone);
+          showRiderToast(`✅ Welcome ${result.rider.name}!`);
+          initRiderApp();
+        } else {
+          showRiderToast(`⚠️ ${result.error || 'Registration failed'}`);
+        }
+      } catch (err) {
+        console.error('Rider register failed:', err);
+        showRiderToast('⚠️ Network error, try again.');
+      }
     }
 
     function logoutRider() {

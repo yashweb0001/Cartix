@@ -1400,6 +1400,7 @@
 
         localStorage.setItem('selectedStoreId', result.shop.shopId);
         localStorage.setItem('selectedStoreName', result.shop.name);
+        localStorage.setItem('cartix_shop_authed', 'true');
 
         alert(`Shop "${name}" registered!\n\nCredentials:\nPhone: ${phone}\nPIN: ${result.pin}\n\n⚠️ Save this PIN now — it won't be shown again.`);
         closeLoginModal();
@@ -1431,6 +1432,7 @@
       selectedShopName = name;
       localStorage.setItem('selectedStoreId', shopId);
       localStorage.setItem('selectedStoreName', name);
+      localStorage.removeItem('cartix_shop_authed');
       document.getElementById('currentStoreTitle').innerText = name;
       document.getElementById('activeShopHeading').innerText = `Catalog — ${name}`;
       closeShopSelectorModal();
@@ -1454,6 +1456,7 @@
         if (result.success) {
           localStorage.setItem('selectedStoreId', result.shop.shopId);
           localStorage.setItem('selectedStoreName', result.shop.name);
+          localStorage.setItem('cartix_shop_authed', 'true');
           window.location.href = '/admin.html';
         } else {
           showToast('❌ Invalid phone or PIN');
