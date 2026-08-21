@@ -278,6 +278,23 @@
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .category-heading {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 20px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .category-heading:first-child {
+      margin-top: 0;
     }
 
     @media (min-width: 640px) {
@@ -836,8 +853,13 @@
         <button class="filter-chip" onclick="filterCategory('Snacks', this)">🍿 Snacks</button>
         <button class="filter-chip" onclick="filterCategory('Cleaning Essentials', this)">🧽 Cleaning</button>
         <button class="filter-chip" onclick="filterCategory('Tea, Coffee & Milk Drinks', this)">☕ Tea & Milk</button>
+        <button class="filter-chip" onclick="filterCategory('Cold Drinks & Juices', this)">🥤 Cold Drinks</button>
         <button class="filter-chip" onclick="filterCategory('Masala', this)">🌶️ Masala</button>
         <button class="filter-chip" onclick="filterCategory('Atta, Rice & Dal', this)">🌾 Atta & Rice</button>
+        <button class="filter-chip" onclick="filterCategory('Personal Care', this)">🧴 Personal Care</button>
+        <button class="filter-chip" onclick="filterCategory('Sweet Tooth', this)">🍬 Sweet Tooth</button>
+        <button class="filter-chip" onclick="filterCategory('Dry Fruits', this)">🥜 Dry Fruits</button>
+        <button class="filter-chip" onclick="filterCategory('Sauces & Spreads', this)">🍯 Sauces & Spreads</button>
       </div>
       <button class="cart-btn" onclick="toggleCart()">🛍️ Cart (<span id="cartCount">0</span>)</button>
     </div>
@@ -854,7 +876,7 @@
       </div>
     </div>
 
-    <div class="product-grid" id="products"></div>
+    <div id="products"></div>
   </main>
 
   <!-- Cart Drawer -->
@@ -1132,28 +1154,49 @@
       renderProducts(filtered);
     }
 
-    function renderProducts(items) {
-      const grid = document.getElementById('products');
-      if (!grid) return;
-      grid.innerHTML = '';
-      if (!items || !items.length) {
-        grid.innerHTML = `
-          <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-            <img src="https://cdn-icons-png.flaticon.com/512/7486/7486747.png" alt="No Items Found" style="width: 130px; opacity: 0.8; margin-bottom: 15px; filter: grayscale(20%);">
-            <h4 style="color: var(--text); font-size: 16px; margin-bottom: 6px;">Oops! Item nahi mila 😕</h4>
-            <p style="font-size: 13px; color: var(--text-muted);">Aapne jo search kiya wo abhi is store mein available nahi hai. Kuch aur try karein?</p>
-          </div>`;
-        return;
-      }
-      const hasCart = cart.length > 0;
+    // Fixed display order for known categories — anything else (custom retailer categories) shows after these
+    const CATEGORY_DISPLAY_ORDER = [
+      { key: 'Cleaning Essentials', label: '🧽 Cleaning Essentials' },
+      { key: 'Tea, Coffee & Milk Drinks', label: '☕ Tea, Coffee & Milk Drinks' },
+      { key: 'Cold Drinks & Juices', label: '🥤 Cold Drinks & Juices' },
+      { key: 'Masala', label: '🌶️ Masala' },
+      { key: 'Atta, Rice & Dal', label: '🌾 Atta, Rice & Dal' },
+      { key: 'Snacks', label: '🍿 Snacks' },
+      { key: 'Sweet Tooth', label: '🍬 Sweet Tooth' },
+      { key: 'Dry Fruits', label: '🥜 Dry Fruits' },
+      { key: 'Sauces & Spreads', label: '🍯 Sauces & Spreads' },
+      { key: 'Personal Care', label: '🧴 Personal Care' }
+    ];
+
+    function groupProductsByCategory(items) {
+      const buckets = {};
       items.forEach(p => {
-        const stockStatus = p.stockStatus || "IN_STOCK";
-        const out = stockStatus === "OUT_OF_STOCK";
+        const cat = (p.category || '').trim() || 'General';
+        if (!buckets[cat]) buckets[cat] = [];
+        buckets[cat].push(p);
+      });
 
-        const safeTitle = (p.title || '').replace(/'/g, "\\'");
-        const safeShopName = (p.shopName || selectedShopName).replace(/'/g, "\\'");
+      const groups = [];
+      CATEGORY_DISPLAY_ORDER.forEach(c => {
+        if (buckets[c.key]) {
+          groups.push({ label: c.label, items: buckets[c.key] });
+          delete buckets[c.key];
+        }
+      });
+      // Any leftover/custom categories not in the known list, alphabetically
+      Object.keys(buckets).sort().forEach(cat => {
+        groups.push({ label: `🛒 ${cat}`, items: buckets[cat] });
+      });
+      return groups;
+    }
 
-        grid.innerHTML += `
+    function buildProductCardHTML(p, hasCart) {
+      const stockStatus = p.stockStatus || "IN_STOCK";
+      const out = stockStatus === "OUT_OF_STOCK";
+      const safeTitle = (p.title || '').replace(/'/g, "\\'");
+      const safeShopName = (p.shopName || selectedShopName).replace(/'/g, "\\'");
+
+      return `
         <div class="product-card">
           <div>
             <div class="image-container"><img src="${getProductImage(p)}" class="product-img" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=400'"></div>
@@ -1168,7 +1211,34 @@
             <button class="btn-black-brick" ${out ? 'disabled' : ''} onclick="addToCart('${p._id}', '${safeTitle}', ${p.price}, '${safeShopName}')">${out ? 'Out of Stock' : '🛒 Add'}</button>
           </div>
         </div>`;
-      });
+    }
+
+    function renderProducts(items) {
+      const grid = document.getElementById('products');
+      if (!grid) return;
+      grid.innerHTML = '';
+      if (!items || !items.length) {
+        grid.innerHTML = `
+          <div style="text-align: center; padding: 50px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <img src="https://cdn-icons-png.flaticon.com/512/7486/7486747.png" alt="No Items Found" style="width: 130px; opacity: 0.8; margin-bottom: 15px; filter: grayscale(20%);">
+            <h4 style="color: var(--text); font-size: 16px; margin-bottom: 6px;">Oops! Item nahi mila 😕</h4>
+            <p style="font-size: 13px; color: var(--text-muted);">Aapne jo search kiya wo abhi is store mein available nahi hai. Kuch aur try karein?</p>
+          </div>`;
+        return;
+      }
+      const hasCart = cart.length > 0;
+      const query = document.getElementById('productSearchInput').value.trim();
+      const showGrouped = selectedCategory === 'All' && !query;
+
+      if (showGrouped) {
+        const groups = groupProductsByCategory(items);
+        grid.innerHTML = groups.map(g => `
+          <div class="category-heading">${g.label}</div>
+          <div class="product-grid">${g.items.map(p => buildProductCardHTML(p, hasCart)).join('')}</div>
+        `).join('');
+      } else {
+        grid.innerHTML = `<div class="product-grid">${items.map(p => buildProductCardHTML(p, hasCart)).join('')}</div>`;
+      }
     }
     function getGreeting() {
       const hour = new Date().getHours();

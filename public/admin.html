@@ -192,9 +192,24 @@
             margin-top: 14px;
             max-height: 380px;
             overflow-y: auto;
-            display: grid;
-            grid-template-columns: 1fr;
+            display: flex;
+            flex-direction: column;
             gap: 10px;
+        }
+
+        .catalog-category-heading {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-top: 10px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .catalog-category-heading:first-child {
+            margin-top: 0;
         }
 
         .mini-prod-card {
@@ -380,62 +395,65 @@
         </header>
 
         <main>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="label">Store Orders</div>
-                    <div class="value" id="statOrders">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="label">Store Revenue</div>
-                    <div class="value" style="color: #22c55e;" id="statRevenue">₹0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="label">Active Items</div>
-                    <div class="value" id="statStock">0 Items</div>
-                </div>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="label">Store Orders</div>
+                <div class="value" id="statOrders">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Store Revenue</div>
+                <div class="value" style="color: #22c55e;" id="statRevenue">₹0</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Active Items</div>
+                <div class="value" id="statStock">0 Items</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div>
+                <h3>📦 Orders for My Shop</h3>
+                <div id="ordersContainer" style="margin-top:14px;"></div>
             </div>
 
-            <div class="dashboard-grid">
-                <div>
-                    <h3>📦 Orders for My Shop</h3>
-                    <div id="ordersContainer" style="margin-top:14px;"></div>
-                </div>
-
-                <div>
-                    <div class="inventory-card">
-                        <h3>➕ Add Item to My Catalog</h3>
-                        <form id="addProductForm" onsubmit="handleAddProduct(event)" style="margin-top:10px;">
-                            <input type="hidden" id="pImage" value="">
-                            <div class="form-group">
-                                <label>Product Name (Type & Use Arrow Keys + Enter)</label>
-                                <input type="text" id="pTitle" placeholder="e.g. Maggi, Milk..." autocomplete="off"
-                                    oninput="handleTitleSearchInput(this.value)" required>
-                                <div class="autocomplete-list" id="autoCompleteList"></div>
-                            </div>
-                            <div class="form-group"><label>Price (₹)</label><input type="number" id="pPrice" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Category</label>
-                                <select id="pCategory">
-                                    <option value="Snacks">🍿 Snacks</option>
-                                    <option value="Cleaning Essentials">🧽 Cleaning Essentials</option>
-                                    <option value="Tea, Coffee & Milk Drinks">☕ Tea, Coffee & Milk Drinks</option>
-                                    <option value="Masala">🌶️ Masala</option>
-                                    <option value="Atta, Rice & Dal" selected>🌾 Atta, Rice & Dal</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn-submit">+ Save to My Store Catalog</button>
-                        </form>
-
-                        <div
-                            style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
-                            <h4>📦 My Listed Items</h4>
-                            <button class="btn-clear-catalog" onclick="openConfirmModal()">🗑️ Clear</button>
+            <div>
+                <div class="inventory-card">
+                    <h3>➕ Add Item to My Catalog</h3>
+                    <form id="addProductForm" onsubmit="handleAddProduct(event)" style="margin-top:10px;">
+                        <input type="hidden" id="pImage" value="">
+                        <div class="form-group">
+                            <label>Product Name (Type & Use Arrow Keys + Enter)</label>
+                            <input type="text" id="pTitle" placeholder="e.g. Maggi, Milk..." autocomplete="off"
+                                oninput="handleTitleSearchInput(this.value)" required>
+                            <div class="autocomplete-list" id="autoCompleteList"></div>
                         </div>
-                        <div class="catalog-list-mini" id="miniCatalog"></div>
+                        <div class="form-group"><label>Price (₹)</label><input type="number" id="pPrice" required></div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="pCategory">
+                                <option value="Snacks">🍿 Snacks</option>
+                                <option value="Cleaning Essentials">🧽 Cleaning Essentials</option>
+                                <option value="Tea, Coffee & Milk Drinks">☕ Tea, Coffee & Milk Drinks</option>
+                                <option value="Cold Drinks & Juices">🥤 Cold Drinks & Juices</option>
+                                <option value="Masala">🌶️ Masala</option>
+                                <option value="Atta, Rice & Dal" selected>🌾 Atta, Rice & Dal</option>
+                                <option value="Personal Care">🧴 Personal Care</option>
+                                <option value="Sweet Tooth">🍬 Sweet Tooth</option>
+                                <option value="Dry Fruits">🥜 Dry Fruits</option>
+                                <option value="Sauces & Spreads">🍯 Sauces & Spreads</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-submit">+ Save to My Store Catalog</button>
+                    </form>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                        <h4>📦 My Listed Items</h4>
+                        <button class="btn-clear-catalog" onclick="openConfirmModal()">🗑️ Clear</button>
                     </div>
+                    <div class="catalog-list-mini" id="miniCatalog"></div>
                 </div>
             </div>
+        </div>
         </main>
     </div>
     <script src="config.js"></script>
@@ -682,6 +700,41 @@
             }
         }
 
+        // Fixed display order for known categories — anything else (custom categories) shows after these
+        const CATEGORY_DISPLAY_ORDER = [
+            { key: 'Cleaning Essentials', label: '🧽 Cleaning Essentials' },
+            { key: 'Tea, Coffee & Milk Drinks', label: '☕ Tea, Coffee & Milk Drinks' },
+            { key: 'Cold Drinks & Juices', label: '🥤 Cold Drinks & Juices' },
+            { key: 'Masala', label: '🌶️ Masala' },
+            { key: 'Atta, Rice & Dal', label: '🌾 Atta, Rice & Dal' },
+            { key: 'Snacks', label: '🍿 Snacks' },
+            { key: 'Sweet Tooth', label: '🍬 Sweet Tooth' },
+            { key: 'Dry Fruits', label: '🥜 Dry Fruits' },
+            { key: 'Sauces & Spreads', label: '🍯 Sauces & Spreads' },
+            { key: 'Personal Care', label: '🧴 Personal Care' }
+        ];
+
+        function groupProductsByCategory(items) {
+            const buckets = {};
+            items.forEach(p => {
+                const cat = (p.category || '').trim() || 'General';
+                if (!buckets[cat]) buckets[cat] = [];
+                buckets[cat].push(p);
+            });
+
+            const groups = [];
+            CATEGORY_DISPLAY_ORDER.forEach(c => {
+                if (buckets[c.key]) {
+                    groups.push({ label: c.label, items: buckets[c.key] });
+                    delete buckets[c.key];
+                }
+            });
+            Object.keys(buckets).sort().forEach(cat => {
+                groups.push({ label: `🛒 ${cat}`, items: buckets[cat] });
+            });
+            return groups;
+        }
+
         function renderMiniCatalog() {
             const inStockCount = localProducts.filter(p => p.stockStatus !== 'OUT_OF_STOCK').length;
             document.getElementById('statStock').innerText = `${inStockCount} / ${localProducts.length} Items`;
@@ -692,7 +745,7 @@
                 return;
             }
 
-            miniContainer.innerHTML = localProducts.map(p => {
+            function buildMiniCardHTML(p) {
                 let btnClass = 'in';
                 let btnText = '✅ In Stock';
 
@@ -714,7 +767,13 @@
                         ${btnText}
                     </button>
                 </div>`;
-            }).join('');
+            }
+
+            const groups = groupProductsByCategory(localProducts);
+            miniContainer.innerHTML = groups.map(g => `
+                <div class="catalog-category-heading">${g.label} (${g.items.length})</div>
+                ${g.items.map(buildMiniCardHTML).join('')}
+            `).join('');
         }
 
         async function handleAddProduct(e) {
